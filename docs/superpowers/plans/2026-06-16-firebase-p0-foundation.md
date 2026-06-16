@@ -748,6 +748,21 @@ git commit -m "P0: gate app behind Sign in with Apple in RootView"
 - All 46 tests pass.
 - Firebase confined to `Services/Auth` + `Services/Firestore` + `FullballApp`; no ViewModel/View imports Firebase except `SignInView` (which uses only `AuthenticationServices`, not Firebase).
 
+## Implementation notes (deviations from the as-written plan)
+
+Two guards were added during Task 7 to keep the **unit-test host** from trapping at launch
+(the test bundle is hosted by the app, which launches `RootView` → `FirebaseAuthService()` →
+`Auth.auth()`, which aborts when no `GoogleService-Info.plist` is bundled and Firebase is
+unconfigured). Both are production-safe — when the plist is present, Firebase configures and
+authenticates normally:
+
+- `FullballApp.init()` calls `FirebaseApp.configure()` only when `GoogleService-Info.plist` is
+  bundled (`Bundle.main.url(forResource:withExtension:) != nil`).
+- `FirebaseAuthService.init()` `guard FirebaseApp.app() != nil` before reading
+  `Auth.auth().currentUser`; starts signed-out when unconfigured.
+
+Final count: **45 unit tests** pass (41 pre-existing + 4 new `NonceTests`).
+
 ## Out of scope (later phases)
 
 - Writing/reading any player data to Firestore (wallet, collection) — **P1**.

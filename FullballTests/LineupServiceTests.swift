@@ -4,11 +4,15 @@ import SwiftData
 
 @MainActor
 struct LineupServiceTests {
+    // Owned by the test instance so the in-memory store outlives makeService();
+    // a local container would be deallocated, resetting the context and
+    // destroying the Lineup the service holds (crash on next access).
+    private let container = try! ModelContainer(
+        for: Schema([Lineup.self]),
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+
     private func makeService() -> SwiftDataLineupService {
-        let container = try! ModelContainer(
-            for: Schema([Lineup.self]),
-            configurations: ModelConfiguration(isStoredInMemoryOnly: true))
-        return SwiftDataLineupService(context: container.mainContext)
+        SwiftDataLineupService(context: container.mainContext)
     }
 
     @Test func fieldingAddsAndFirstPickAutoCaptains() {

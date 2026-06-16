@@ -56,19 +56,20 @@ struct SignInView: View {
                 do {
                     try await auth.signInWithApple(authorization: authorization, rawNonce: rawNonce)
                 } catch {
-                    // TEMP DIAGNOSTIC: surface the real error to find the root cause.
-                    let ns = error as NSError
-                    print("SIWA failed → domain=\(ns.domain) code=\(ns.code) desc=\(ns.localizedDescription) userInfo=\(ns.userInfo)")
-                    errorMessage = "[\(ns.domain) \(ns.code)] \(ns.localizedDescription)"
+                    // Log the real error for debugging; keep the UI message friendly.
+                    print("Sign in with Apple failed: \(error as NSError)")
+                    errorMessage = "Couldn't sign in. Try again."
                 }
             }
         case .failure(let error):
-            // User cancellations land here too. Surface non-cancel failures while diagnosing.
+            // Stay silent on user cancellation; surface anything else.
             let ns = error as NSError
-            print("SIWA authorization failed → domain=\(ns.domain) code=\(ns.code) desc=\(ns.localizedDescription)")
-            errorMessage = ns.code == ASAuthorizationError.canceled.rawValue
-                ? nil
-                : "[\(ns.domain) \(ns.code)] \(ns.localizedDescription)"
+            if ns.code == ASAuthorizationError.canceled.rawValue {
+                errorMessage = nil
+            } else {
+                print("Sign in with Apple authorization failed: \(ns)")
+                errorMessage = "Couldn't sign in. Try again."
+            }
         }
     }
 }

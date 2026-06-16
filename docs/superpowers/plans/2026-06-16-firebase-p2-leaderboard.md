@@ -41,11 +41,15 @@ Extend the existing pure `Leaderboard` engine so the service can merge entries f
 
 **Files:**
 - Modify: `Fullball/Domain/Economy/Leaderboard.swift`
-- Test: `FullballTests/LeaderboardTests.swift`
+- Create: `FullballTests/LeaderboardTests.swift` (does not exist yet)
 
-- [ ] **Step 1: Add failing tests.** Append to `FullballTests/LeaderboardTests.swift` (inside the existing test struct/suite — match its style; if it's a `struct LeaderboardTests { … }` add these `@Test` methods):
+- [ ] **Step 1: Add failing tests.** Create `FullballTests/LeaderboardTests.swift`:
 
 ```swift
+import Testing
+@testable import Fullball
+
+struct LeaderboardTests {
     @Test func dedupeKeepsCurrentUserOnNameCollision() {
         let entries = [
             LeaderboardEntry(userName: "Rival", points: 100),
@@ -81,6 +85,7 @@ Extend the existing pure `Leaderboard` engine so the service can merge entries f
         #expect(ranked.map(\.userName) == ["B", "C", "A"])
         #expect(ranked.map(\.rank) == [1, 2, 3])
     }
+}
 ```
 
 - [ ] **Step 2: Confirm fail** —

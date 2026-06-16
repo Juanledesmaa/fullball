@@ -70,7 +70,7 @@ xcodebuild test -project Fullball.xcodeproj -scheme Fullball \
 CLI install + launch on a booted sim:
 ```bash
 SIM=<udid>                     # e.g. an iPhone 15 (iOS 17)
-APP=$(find ~/Library/Developer/Xcode/DerivedData/Fullball-*/Build/Products/Debug-iphonesimulator -maxdepth 1 -name Fullball.app | head -1)
+APP=$(find ~/Library/Developer/Xcode/DerivedData/Fullball-*/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app" | head -1)
 xcrun simctl install $SIM "$APP" && xcrun simctl launch $SIM com.fullball.app
 ```
 

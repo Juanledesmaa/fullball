@@ -20,4 +20,47 @@ final class FirestoreClient {
     func userDoc(_ uid: String) -> DocumentReference {
         db.collection("users").document(uid)
     }
+
+    // MARK: Document refs
+
+    private func walletDoc(_ uid: String) -> DocumentReference {
+        userDoc(uid).collection("state").document("wallet")
+    }
+    private func collectionRef(_ uid: String) -> CollectionReference {
+        userDoc(uid).collection("collection")
+    }
+    private func pityRef(_ uid: String) -> CollectionReference {
+        userDoc(uid).collection("pity")
+    }
+
+    // MARK: Wallet
+
+    func fetchWallet(uid: String) async throws -> WalletDTO? {
+        let snap = try await walletDoc(uid).getDocument()
+        guard snap.exists else { return nil }
+        return try snap.data(as: WalletDTO.self)
+    }
+    func putWallet(uid: String, _ dto: WalletDTO) async throws {
+        try walletDoc(uid).setData(from: dto)
+    }
+
+    // MARK: Collection
+
+    func fetchCollection(uid: String) async throws -> [CardInstanceDTO] {
+        let snap = try await collectionRef(uid).getDocuments()
+        return try snap.documents.map { try $0.data(as: CardInstanceDTO.self) }
+    }
+    func putCardInstance(uid: String, _ dto: CardInstanceDTO) async throws {
+        try collectionRef(uid).document(dto.cardID).setData(from: dto)
+    }
+
+    // MARK: Pity
+
+    func fetchAllPity(uid: String) async throws -> [PityDTO] {
+        let snap = try await pityRef(uid).getDocuments()
+        return try snap.documents.map { try $0.data(as: PityDTO.self) }
+    }
+    func putPity(uid: String, _ dto: PityDTO) async throws {
+        try pityRef(uid).document(dto.bannerID).setData(from: dto)
+    }
 }

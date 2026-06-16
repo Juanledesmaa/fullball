@@ -1,6 +1,6 @@
 # CLAUDE.md — Fullball
 
-> Store / home-screen display name is **Fullball Manager** (`CFBundleDisplayName`). The Xcode target, bundle id (`com.fullball.app`), repo, and code all stay **Fullball**.
+> Store / home-screen display name is **Fullball Manager** (`CFBundleDisplayName`). The Xcode target, bundle id (`com.juanledesma.Fulbo.app`), repo, and code all stay **Fullball**.
 
 Onboarding + working notes for AI/dev sessions. Read this first, then the deep
 dives in [`docs/`](docs/): [GAMEPLAY](docs/GAMEPLAY.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [ROADMAP](docs/ROADMAP.md).
@@ -71,11 +71,11 @@ CLI install + launch on a booted sim:
 ```bash
 SIM=<udid>                     # e.g. an iPhone 15 (iOS 17)
 APP=$(find ~/Library/Developer/Xcode/DerivedData/Fullball-*/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app" | head -1)
-xcrun simctl install $SIM "$APP" && xcrun simctl launch $SIM com.fullball.app
+xcrun simctl install $SIM "$APP" && xcrun simctl launch $SIM com.juanledesma.Fulbo.app
 ```
 
 ### Dev launch args (UserDefaults / `NSArgumentDomain`)
-Pass after the bundle id, e.g. `xcrun simctl launch $SIM com.fullball.app -seedDemo 1 -startTab 2`:
+Pass after the bundle id, e.g. `xcrun simctl launch $SIM com.juanledesma.Fulbo.app -seedDemo 1 -startTab 2`:
 - `-seedDemo 1` — on first run, seed a roster + a lineup whose nations are in the live slate (so earners rows populate). Behind a flag; never runs normally.
 - `-startTab N` — open a tab (0 Scout · 1 Market · 2 Roster · 3 Live · 4 Agencies).
 - `-didSeeIntro YES` — skip the first-run onboarding cover.

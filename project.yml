@@ -22,7 +22,7 @@ targets:
       - path: Fullball
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.fullball.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.juanledesma.Fulbo.app
         INFOPLIST_KEY_CFBundleDisplayName: Fullball Manager
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES

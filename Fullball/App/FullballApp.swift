@@ -1,11 +1,13 @@
 import SwiftUI
 import SwiftData
+import FirebaseCore
 
 @main
 struct FullballApp: App {
     let modelContainer: ModelContainer
 
     init() {
+        FirebaseApp.configure()
         do {
             modelContainer = try ModelContainer(for: AppContainer.schema)
         } catch {

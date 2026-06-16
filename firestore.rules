@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // A signed-in user may read/write only their own subtree.
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Shared, read-only config (catalog, slate seed) — written out-of-band.
+    // Tightened/extended in later phases (P3 catalog, P4 slate).
+    match /config/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}

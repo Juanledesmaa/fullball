@@ -1,5 +1,7 @@
 # CLAUDE.md — Fullball
 
+> Store / home-screen display name is **Fullball Manager** (`CFBundleDisplayName`). The Xcode target, bundle id (`com.fullball.app`), repo, and code all stay **Fullball**.
+
 Onboarding + working notes for AI/dev sessions. Read this first, then the deep
 dives in [`docs/`](docs/): [GAMEPLAY](docs/GAMEPLAY.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [ROADMAP](docs/ROADMAP.md).
 

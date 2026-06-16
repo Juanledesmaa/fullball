@@ -34,8 +34,9 @@ struct LoopIntroView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                HStack {
+                HStack(spacing: 6) {
                     Text("FULLBALL").font(WC.display(15)).tracking(1).foregroundStyle(WC.inkText)
+                    Text("MANAGER").font(WC.display(9)).tracking(1.5).foregroundStyle(WC.coral)
                     Spacer()
                     Button("Skip") { onFinish() }.font(WC.display(12)).tint(WC.sub)
                 }

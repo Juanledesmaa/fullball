@@ -24,11 +24,14 @@ final class AppContainer {
 
     init(context: ModelContext,
          catalog: any CatalogService = BundledCatalogService(),
+         wallet injectedWallet: (any WalletService)? = nil,
+         collection injectedCollection: (any CollectionService)? = nil,
          rng: any RandomProvider = SystemRandomProvider()) {
         self.catalog = catalog
-        let wallet = SwiftDataWalletService(context: context)
+        let wallet = injectedWallet ?? SwiftDataWalletService(context: context)
         self.wallet = wallet
-        let collection = SwiftDataCollectionService(context: context, catalog: catalog, wallet: wallet)
+        let collection = injectedCollection
+            ?? SwiftDataCollectionService(context: context, catalog: catalog, wallet: wallet)
         self.collection = collection
         self.gacha = DefaultGachaService(catalog: catalog, wallet: wallet,
                                          collection: collection, rng: rng)
@@ -49,10 +52,11 @@ final class AppContainer {
     static let schema = Schema([Wallet.self, CardInstance.self, BannerPity.self,
                                 LiveProgress.self, Lineup.self, MatchRecord.self])
 
-    /// Async composition: resolve the catalog via the given loader (remote
-    /// or bundled), then wire the container. Falls back to bundled JSON if
-    /// the loader fails — the app always boots offline.
+    /// Async composition: resolve the catalog, then — when signed in — build the
+    /// Firestore-backed wallet/collection decorators and hydrate them from the
+    /// cloud before returning. Signed-out (previews/tests) uses local services.
     static func bootstrap(context: ModelContext,
+                          uid: String? = nil,
                           loader: any CatalogLoading = BundledCatalogLoader()) async -> AppContainer {
         let data: CatalogData
         if let loaded = try? await loader.load() {
@@ -61,7 +65,24 @@ final class AppContainer {
             data = (try? await BundledCatalogLoader().load())
                 ?? CatalogData(cards: [], banners: [], fixtures: [], nations: [])
         }
-        return AppContainer(context: context, catalog: ResolvedCatalogService(data))
+        let catalog = ResolvedCatalogService(data)
+
+        guard let uid else {
+            return AppContainer(context: context, catalog: catalog)
+        }
+
+        let client = FirestoreClient()
+        let localWallet = SwiftDataWalletService(context: context)
+        let cloudWallet = FirestoreWalletService(local: localWallet, client: client, uid: uid)
+        // The local collection takes the DECORATOR wallet so training / limit-break
+        // coin spends (which call wallet.debit internally) also write through.
+        let localCollection = SwiftDataCollectionService(context: context, catalog: catalog, wallet: cloudWallet)
+        let cloudCollection = FirestoreCollectionService(local: localCollection, context: context, client: client, uid: uid)
+        await cloudWallet.hydrate()
+        await cloudCollection.hydrate()
+
+        return AppContainer(context: context, catalog: catalog,
+                            wallet: cloudWallet, collection: cloudCollection)
     }
 }
 

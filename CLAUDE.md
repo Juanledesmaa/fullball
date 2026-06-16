@@ -82,6 +82,9 @@ Pass after the bundle id, e.g. `xcrun simctl launch $SIM com.juanledesma.Fulbo.a
 - `-avatarStyle` — (removed) no longer used.
 - `APIFootballKey` (Info.plist or arg) — when set, the catalog loads from api-football at startup (fictionalized); absent ⇒ bundled JSON (default, offline).
 
+### Xcode Cloud / CI
+The `.xcodeproj` is gitignored, so `ci_scripts/ci_post_clone.sh` runs `xcodegen generate` after clone (installs xcodegen via Homebrew if missing). The scheme `Fullball` is shared (in `xcshareddata`) so Xcode Cloud finds it post-generation. Bundle id `com.juanledesma.Fulbo.app` matches the ASC record (display/store name "Fullball Manager"). To inject the api-football key in CI, extend `ci_post_clone.sh` to write a gitignored xcconfig from a Secret env var.
+
 ---
 
 ## Project structure

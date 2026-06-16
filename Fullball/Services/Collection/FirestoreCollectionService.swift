@@ -60,7 +60,13 @@ final class FirestoreCollectionService: CollectionService {
                 let existing = (try? context.fetch(FetchDescriptor<CardInstance>())) ?? []
                 for inst in existing { context.delete(inst) }
                 for dto in cloud { context.insert(dto.makeInstance()) }
-                try? context.save()
+                do {
+                    try context.save()
+                } catch {
+                    // A failed reconcile self-heals on the next hydrate (cloud is
+                    // authoritative). Log rather than proceed as if it succeeded.
+                    print("Collection hydrate save failed: \(error as NSError)")
+                }
             }
         } catch {
             print("Collection hydrate failed: \(error as NSError)")

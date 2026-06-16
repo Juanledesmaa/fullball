@@ -1,0 +1,31 @@
+[
+  {
+    "id": "standard",
+    "title": "Global Scout",
+    "subtitle": "Always-on standard pool",
+    "type": "standard",
+    "featuredCardIDs": [],
+    "singleCost": {
+      "ticket": 1
+    },
+    "multiCost": {
+      "gems": 1500
+    }
+  },
+  {
+    "id": "featured",
+    "title": "Today's Match",
+    "subtitle": "ARG #10 & FRA #10 rate-up",
+    "type": "featured",
+    "featuredCardIDs": [
+      "ARG-10",
+      "FRA-10"
+    ],
+    "singleCost": {
+      "ticket": 1
+    },
+    "multiCost": {
+      "gems": 1500
+    }
+  }
+]

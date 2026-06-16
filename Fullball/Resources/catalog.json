@@ -1,0 +1,1574 @@
+{
+  "nations": [
+    {
+      "tag": "ARG",
+      "name": "Argentina"
+    },
+    {
+      "tag": "AUS",
+      "name": "Australia"
+    },
+    {
+      "tag": "BEL",
+      "name": "Belgium"
+    },
+    {
+      "tag": "BRA",
+      "name": "Brazil"
+    },
+    {
+      "tag": "CAM",
+      "name": "Cameroon"
+    },
+    {
+      "tag": "CAN",
+      "name": "Canada"
+    },
+    {
+      "tag": "COS",
+      "name": "Costa Rica"
+    },
+    {
+      "tag": "CRO",
+      "name": "Croatia"
+    },
+    {
+      "tag": "DEN",
+      "name": "Denmark"
+    },
+    {
+      "tag": "ECU",
+      "name": "Ecuador"
+    },
+    {
+      "tag": "ENG",
+      "name": "England"
+    },
+    {
+      "tag": "ESP",
+      "name": "Spain"
+    },
+    {
+      "tag": "FRA",
+      "name": "France"
+    },
+    {
+      "tag": "GER",
+      "name": "Germany"
+    },
+    {
+      "tag": "GHA",
+      "name": "Ghana"
+    },
+    {
+      "tag": "IRN",
+      "name": "Iran"
+    },
+    {
+      "tag": "JPN",
+      "name": "Japan"
+    },
+    {
+      "tag": "KOR",
+      "name": "South Korea"
+    },
+    {
+      "tag": "KSA",
+      "name": "Saudi Arabia"
+    },
+    {
+      "tag": "MAR",
+      "name": "Morocco"
+    },
+    {
+      "tag": "MEX",
+      "name": "Mexico"
+    },
+    {
+      "tag": "NED",
+      "name": "Netherlands"
+    },
+    {
+      "tag": "POL",
+      "name": "Poland"
+    },
+    {
+      "tag": "POR",
+      "name": "Portugal"
+    },
+    {
+      "tag": "QAT",
+      "name": "Qatar"
+    },
+    {
+      "tag": "SEN",
+      "name": "Senegal"
+    },
+    {
+      "tag": "SER",
+      "name": "Serbia"
+    },
+    {
+      "tag": "SUI",
+      "name": "Switzerland"
+    },
+    {
+      "tag": "TUN",
+      "name": "Tunisia"
+    },
+    {
+      "tag": "URU",
+      "name": "Uruguay"
+    },
+    {
+      "tag": "USA",
+      "name": "USA"
+    },
+    {
+      "tag": "WAL",
+      "name": "Wales"
+    }
+  ],
+  "cards": [
+    {
+      "id": "ARG-10",
+      "player": {
+        "id": "ARG-10",
+        "displayName": "ARG #10",
+        "nationTag": "ARG",
+        "shirtNumber": 10,
+        "position": "FWD",
+        "stats": {
+          "pace": 99,
+          "shooting": 96,
+          "passing": 90,
+          "defending": 76
+        }
+      },
+      "rarity": "icon",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "FRA-10",
+      "player": {
+        "id": "FRA-10",
+        "displayName": "FRA #10",
+        "nationTag": "FRA",
+        "shirtNumber": 10,
+        "position": "FWD",
+        "stats": {
+          "pace": 95,
+          "shooting": 99,
+          "passing": 83,
+          "defending": 76
+        }
+      },
+      "rarity": "icon",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "BRA-10",
+      "player": {
+        "id": "BRA-10",
+        "displayName": "BRA #10",
+        "nationTag": "BRA",
+        "shirtNumber": 10,
+        "position": "FWD",
+        "stats": {
+          "pace": 97,
+          "shooting": 99,
+          "passing": 93,
+          "defending": 73
+        }
+      },
+      "rarity": "icon",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "POR-7",
+      "player": {
+        "id": "POR-7",
+        "displayName": "POR #7",
+        "nationTag": "POR",
+        "shirtNumber": 7,
+        "position": "FWD",
+        "stats": {
+          "pace": 91,
+          "shooting": 98,
+          "passing": 87,
+          "defending": 78
+        }
+      },
+      "rarity": "icon",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "ENG-9",
+      "player": {
+        "id": "ENG-9",
+        "displayName": "ENG #9",
+        "nationTag": "ENG",
+        "shirtNumber": 9,
+        "position": "FWD",
+        "stats": {
+          "pace": 99,
+          "shooting": 99,
+          "passing": 91,
+          "defending": 76
+        }
+      },
+      "rarity": "icon",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "ESP-9",
+      "player": {
+        "id": "ESP-9",
+        "displayName": "ESP #9",
+        "nationTag": "ESP",
+        "shirtNumber": 9,
+        "position": "FWD",
+        "stats": {
+          "pace": 99,
+          "shooting": 92,
+          "passing": 87,
+          "defending": 68
+        }
+      },
+      "rarity": "icon",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "NED-4",
+      "player": {
+        "id": "NED-4",
+        "displayName": "NED #4",
+        "nationTag": "NED",
+        "shirtNumber": 4,
+        "position": "DEF",
+        "stats": {
+          "pace": 89,
+          "shooting": 74,
+          "passing": 90,
+          "defending": 94
+        }
+      },
+      "rarity": "icon",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "CRO-10",
+      "player": {
+        "id": "CRO-10",
+        "displayName": "CRO #10",
+        "nationTag": "CRO",
+        "shirtNumber": 10,
+        "position": "MID",
+        "stats": {
+          "pace": 92,
+          "shooting": 88,
+          "passing": 99,
+          "defending": 84
+        }
+      },
+      "rarity": "icon",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "BEL-7",
+      "player": {
+        "id": "BEL-7",
+        "displayName": "BEL #7",
+        "nationTag": "BEL",
+        "shirtNumber": 7,
+        "position": "MID",
+        "stats": {
+          "pace": 80,
+          "shooting": 78,
+          "passing": 89,
+          "defending": 86
+        }
+      },
+      "rarity": "epic",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "GER-8",
+      "player": {
+        "id": "GER-8",
+        "displayName": "GER #8",
+        "nationTag": "GER",
+        "shirtNumber": 8,
+        "position": "MID",
+        "stats": {
+          "pace": 87,
+          "shooting": 84,
+          "passing": 87,
+          "defending": 86
+        }
+      },
+      "rarity": "epic",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "URU-9",
+      "player": {
+        "id": "URU-9",
+        "displayName": "URU #9",
+        "nationTag": "URU",
+        "shirtNumber": 9,
+        "position": "FWD",
+        "stats": {
+          "pace": 86,
+          "shooting": 96,
+          "passing": 78,
+          "defending": 70
+        }
+      },
+      "rarity": "epic",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "USA-10",
+      "player": {
+        "id": "USA-10",
+        "displayName": "USA #10",
+        "nationTag": "USA",
+        "shirtNumber": 10,
+        "position": "MID",
+        "stats": {
+          "pace": 86,
+          "shooting": 88,
+          "passing": 93,
+          "defending": 80
+        }
+      },
+      "rarity": "epic",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "MEX-9",
+      "player": {
+        "id": "MEX-9",
+        "displayName": "MEX #9",
+        "nationTag": "MEX",
+        "shirtNumber": 9,
+        "position": "FWD",
+        "stats": {
+          "pace": 85,
+          "shooting": 94,
+          "passing": 87,
+          "defending": 67
+        }
+      },
+      "rarity": "epic",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "SEN-10",
+      "player": {
+        "id": "SEN-10",
+        "displayName": "SEN #10",
+        "nationTag": "SEN",
+        "shirtNumber": 10,
+        "position": "FWD",
+        "stats": {
+          "pace": 91,
+          "shooting": 90,
+          "passing": 77,
+          "defending": 68
+        }
+      },
+      "rarity": "epic",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "KOR-7",
+      "player": {
+        "id": "KOR-7",
+        "displayName": "KOR #7",
+        "nationTag": "KOR",
+        "shirtNumber": 7,
+        "position": "FWD",
+        "stats": {
+          "pace": 87,
+          "shooting": 86,
+          "passing": 77,
+          "defending": 68
+        }
+      },
+      "rarity": "epic",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "JPN-8",
+      "player": {
+        "id": "JPN-8",
+        "displayName": "JPN #8",
+        "nationTag": "JPN",
+        "shirtNumber": 8,
+        "position": "MID",
+        "stats": {
+          "pace": 90,
+          "shooting": 83,
+          "passing": 94,
+          "defending": 82
+        }
+      },
+      "rarity": "epic",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "ARG-11",
+      "player": {
+        "id": "ARG-11",
+        "displayName": "ARG #11",
+        "nationTag": "ARG",
+        "shirtNumber": 11,
+        "position": "FWD",
+        "stats": {
+          "pace": 82,
+          "shooting": 80,
+          "passing": 71,
+          "defending": 64
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "FRA-6",
+      "player": {
+        "id": "FRA-6",
+        "displayName": "FRA #6",
+        "nationTag": "FRA",
+        "shirtNumber": 6,
+        "position": "MID",
+        "stats": {
+          "pace": 75,
+          "shooting": 72,
+          "passing": 85,
+          "defending": 75
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "BRA-9",
+      "player": {
+        "id": "BRA-9",
+        "displayName": "BRA #9",
+        "nationTag": "BRA",
+        "shirtNumber": 9,
+        "position": "FWD",
+        "stats": {
+          "pace": 85,
+          "shooting": 88,
+          "passing": 72,
+          "defending": 59
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "ENG-8",
+      "player": {
+        "id": "ENG-8",
+        "displayName": "ENG #8",
+        "nationTag": "ENG",
+        "shirtNumber": 8,
+        "position": "MID",
+        "stats": {
+          "pace": 82,
+          "shooting": 77,
+          "passing": 81,
+          "defending": 70
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "ESP-6",
+      "player": {
+        "id": "ESP-6",
+        "displayName": "ESP #6",
+        "nationTag": "ESP",
+        "shirtNumber": 6,
+        "position": "MID",
+        "stats": {
+          "pace": 76,
+          "shooting": 73,
+          "passing": 80,
+          "defending": 76
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "POR-3",
+      "player": {
+        "id": "POR-3",
+        "displayName": "POR #3",
+        "nationTag": "POR",
+        "shirtNumber": 3,
+        "position": "DEF",
+        "stats": {
+          "pace": 73,
+          "shooting": 63,
+          "passing": 72,
+          "defending": 82
+        }
+      },
+      "rarity": "gold",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "NED-10",
+      "player": {
+        "id": "NED-10",
+        "displayName": "NED #10",
+        "nationTag": "NED",
+        "shirtNumber": 10,
+        "position": "FWD",
+        "stats": {
+          "pace": 86,
+          "shooting": 88,
+          "passing": 70,
+          "defending": 61
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "GER-1",
+      "player": {
+        "id": "GER-1",
+        "displayName": "GER #1",
+        "nationTag": "GER",
+        "shirtNumber": 1,
+        "position": "GK",
+        "stats": {
+          "pace": 65,
+          "shooting": 59,
+          "passing": 74,
+          "defending": 85
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.handball"
+    },
+    {
+      "id": "CRO-7",
+      "player": {
+        "id": "CRO-7",
+        "displayName": "CRO #7",
+        "nationTag": "CRO",
+        "shirtNumber": 7,
+        "position": "MID",
+        "stats": {
+          "pace": 78,
+          "shooting": 79,
+          "passing": 84,
+          "defending": 73
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "MAR-5",
+      "player": {
+        "id": "MAR-5",
+        "displayName": "MAR #5",
+        "nationTag": "MAR",
+        "shirtNumber": 5,
+        "position": "DEF",
+        "stats": {
+          "pace": 76,
+          "shooting": 67,
+          "passing": 79,
+          "defending": 81
+        }
+      },
+      "rarity": "gold",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "POL-9",
+      "player": {
+        "id": "POL-9",
+        "displayName": "POL #9",
+        "nationTag": "POL",
+        "shirtNumber": 9,
+        "position": "FWD",
+        "stats": {
+          "pace": 85,
+          "shooting": 86,
+          "passing": 80,
+          "defending": 61
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "DEN-10",
+      "player": {
+        "id": "DEN-10",
+        "displayName": "DEN #10",
+        "nationTag": "DEN",
+        "shirtNumber": 10,
+        "position": "MID",
+        "stats": {
+          "pace": 79,
+          "shooting": 77,
+          "passing": 89,
+          "defending": 72
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "SUI-23",
+      "player": {
+        "id": "SUI-23",
+        "displayName": "SUI #23",
+        "nationTag": "SUI",
+        "shirtNumber": 23,
+        "position": "GK",
+        "stats": {
+          "pace": 71,
+          "shooting": 56,
+          "passing": 76,
+          "defending": 85
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.handball"
+    },
+    {
+      "id": "CAN-19",
+      "player": {
+        "id": "CAN-19",
+        "displayName": "CAN #19",
+        "nationTag": "CAN",
+        "shirtNumber": 19,
+        "position": "FWD",
+        "stats": {
+          "pace": 88,
+          "shooting": 81,
+          "passing": 72,
+          "defending": 65
+        }
+      },
+      "rarity": "gold",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "URU-14",
+      "player": {
+        "id": "URU-14",
+        "displayName": "URU #14",
+        "nationTag": "URU",
+        "shirtNumber": 14,
+        "position": "MID",
+        "stats": {
+          "pace": 66,
+          "shooting": 66,
+          "passing": 75,
+          "defending": 71
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "JPN-7",
+      "player": {
+        "id": "JPN-7",
+        "displayName": "JPN #7",
+        "nationTag": "JPN",
+        "shirtNumber": 7,
+        "position": "MID",
+        "stats": {
+          "pace": 66,
+          "shooting": 67,
+          "passing": 73,
+          "defending": 63
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "GER-16",
+      "player": {
+        "id": "GER-16",
+        "displayName": "GER #16",
+        "nationTag": "GER",
+        "shirtNumber": 16,
+        "position": "MID",
+        "stats": {
+          "pace": 68,
+          "shooting": 63,
+          "passing": 73,
+          "defending": 66
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "AUS-22",
+      "player": {
+        "id": "AUS-22",
+        "displayName": "AUS #22",
+        "nationTag": "AUS",
+        "shirtNumber": 22,
+        "position": "MID",
+        "stats": {
+          "pace": 71,
+          "shooting": 63,
+          "passing": 81,
+          "defending": 71
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "SEN-26",
+      "player": {
+        "id": "SEN-26",
+        "displayName": "SEN #26",
+        "nationTag": "SEN",
+        "shirtNumber": 26,
+        "position": "GK",
+        "stats": {
+          "pace": 64,
+          "shooting": 43,
+          "passing": 67,
+          "defending": 84
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.handball"
+    },
+    {
+      "id": "GER-6",
+      "player": {
+        "id": "GER-6",
+        "displayName": "GER #6",
+        "nationTag": "GER",
+        "shirtNumber": 6,
+        "position": "DEF",
+        "stats": {
+          "pace": 67,
+          "shooting": 54,
+          "passing": 70,
+          "defending": 77
+        }
+      },
+      "rarity": "silver",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "URU-3",
+      "player": {
+        "id": "URU-3",
+        "displayName": "URU #3",
+        "nationTag": "URU",
+        "shirtNumber": 3,
+        "position": "DEF",
+        "stats": {
+          "pace": 71,
+          "shooting": 59,
+          "passing": 66,
+          "defending": 79
+        }
+      },
+      "rarity": "silver",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "NED-9",
+      "player": {
+        "id": "NED-9",
+        "displayName": "NED #9",
+        "nationTag": "NED",
+        "shirtNumber": 9,
+        "position": "FWD",
+        "stats": {
+          "pace": 77,
+          "shooting": 71,
+          "passing": 62,
+          "defending": 47
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "USA-12",
+      "player": {
+        "id": "USA-12",
+        "displayName": "USA #12",
+        "nationTag": "USA",
+        "shirtNumber": 12,
+        "position": "DEF",
+        "stats": {
+          "pace": 66,
+          "shooting": 50,
+          "passing": 66,
+          "defending": 76
+        }
+      },
+      "rarity": "silver",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "KSA-24",
+      "player": {
+        "id": "KSA-24",
+        "displayName": "KSA #24",
+        "nationTag": "KSA",
+        "shirtNumber": 24,
+        "position": "MID",
+        "stats": {
+          "pace": 70,
+          "shooting": 70,
+          "passing": 77,
+          "defending": 71
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "NED-24",
+      "player": {
+        "id": "NED-24",
+        "displayName": "NED #24",
+        "nationTag": "NED",
+        "shirtNumber": 24,
+        "position": "MID",
+        "stats": {
+          "pace": 67,
+          "shooting": 67,
+          "passing": 80,
+          "defending": 70
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "BRA-18",
+      "player": {
+        "id": "BRA-18",
+        "displayName": "BRA #18",
+        "nationTag": "BRA",
+        "shirtNumber": 18,
+        "position": "GK",
+        "stats": {
+          "pace": 55,
+          "shooting": 47,
+          "passing": 61,
+          "defending": 83
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.handball"
+    },
+    {
+      "id": "WAL-9",
+      "player": {
+        "id": "WAL-9",
+        "displayName": "WAL #9",
+        "nationTag": "WAL",
+        "shirtNumber": 9,
+        "position": "DEF",
+        "stats": {
+          "pace": 70,
+          "shooting": 49,
+          "passing": 63,
+          "defending": 82
+        }
+      },
+      "rarity": "silver",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "CRO-14",
+      "player": {
+        "id": "CRO-14",
+        "displayName": "CRO #14",
+        "nationTag": "CRO",
+        "shirtNumber": 14,
+        "position": "GK",
+        "stats": {
+          "pace": 55,
+          "shooting": 48,
+          "passing": 62,
+          "defending": 84
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.handball"
+    },
+    {
+      "id": "GER-7",
+      "player": {
+        "id": "GER-7",
+        "displayName": "GER #7",
+        "nationTag": "GER",
+        "shirtNumber": 7,
+        "position": "MID",
+        "stats": {
+          "pace": 71,
+          "shooting": 63,
+          "passing": 75,
+          "defending": 67
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "GHA-2",
+      "player": {
+        "id": "GHA-2",
+        "displayName": "GHA #2",
+        "nationTag": "GHA",
+        "shirtNumber": 2,
+        "position": "DEF",
+        "stats": {
+          "pace": 67,
+          "shooting": 53,
+          "passing": 66,
+          "defending": 76
+        }
+      },
+      "rarity": "silver",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "BRA-7",
+      "player": {
+        "id": "BRA-7",
+        "displayName": "BRA #7",
+        "nationTag": "BRA",
+        "shirtNumber": 7,
+        "position": "MID",
+        "stats": {
+          "pace": 65,
+          "shooting": 73,
+          "passing": 81,
+          "defending": 65
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "URU-19",
+      "player": {
+        "id": "URU-19",
+        "displayName": "URU #19",
+        "nationTag": "URU",
+        "shirtNumber": 19,
+        "position": "FWD",
+        "stats": {
+          "pace": 77,
+          "shooting": 80,
+          "passing": 63,
+          "defending": 47
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "CAN-26",
+      "player": {
+        "id": "CAN-26",
+        "displayName": "CAN #26",
+        "nationTag": "CAN",
+        "shirtNumber": 26,
+        "position": "FWD",
+        "stats": {
+          "pace": 75,
+          "shooting": 76,
+          "passing": 72,
+          "defending": 56
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "TUN-19",
+      "player": {
+        "id": "TUN-19",
+        "displayName": "TUN #19",
+        "nationTag": "TUN",
+        "shirtNumber": 19,
+        "position": "MID",
+        "stats": {
+          "pace": 65,
+          "shooting": 68,
+          "passing": 74,
+          "defending": 68
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "ECU-11",
+      "player": {
+        "id": "ECU-11",
+        "displayName": "ECU #11",
+        "nationTag": "ECU",
+        "shirtNumber": 11,
+        "position": "DEF",
+        "stats": {
+          "pace": 68,
+          "shooting": 53,
+          "passing": 68,
+          "defending": 76
+        }
+      },
+      "rarity": "silver",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "BEL-12",
+      "player": {
+        "id": "BEL-12",
+        "displayName": "BEL #12",
+        "nationTag": "BEL",
+        "shirtNumber": 12,
+        "position": "MID",
+        "stats": {
+          "pace": 75,
+          "shooting": 64,
+          "passing": 79,
+          "defending": 64
+        }
+      },
+      "rarity": "silver",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "POR-24",
+      "player": {
+        "id": "POR-24",
+        "displayName": "POR #24",
+        "nationTag": "POR",
+        "shirtNumber": 24,
+        "position": "DEF",
+        "stats": {
+          "pace": 64,
+          "shooting": 46,
+          "passing": 65,
+          "defending": 68
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "BRA-3",
+      "player": {
+        "id": "BRA-3",
+        "displayName": "BRA #3",
+        "nationTag": "BRA",
+        "shirtNumber": 3,
+        "position": "DEF",
+        "stats": {
+          "pace": 62,
+          "shooting": 51,
+          "passing": 61,
+          "defending": 66
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "CAM-25",
+      "player": {
+        "id": "CAM-25",
+        "displayName": "CAM #25",
+        "nationTag": "CAM",
+        "shirtNumber": 25,
+        "position": "FWD",
+        "stats": {
+          "pace": 72,
+          "shooting": 67,
+          "passing": 63,
+          "defending": 47
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "QAT-2",
+      "player": {
+        "id": "QAT-2",
+        "displayName": "QAT #2",
+        "nationTag": "QAT",
+        "shirtNumber": 2,
+        "position": "DEF",
+        "stats": {
+          "pace": 56,
+          "shooting": 49,
+          "passing": 63,
+          "defending": 74
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "CAM-15",
+      "player": {
+        "id": "CAM-15",
+        "displayName": "CAM #15",
+        "nationTag": "CAM",
+        "shirtNumber": 15,
+        "position": "FWD",
+        "stats": {
+          "pace": 62,
+          "shooting": 66,
+          "passing": 62,
+          "defending": 41
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "URU-15",
+      "player": {
+        "id": "URU-15",
+        "displayName": "URU #15",
+        "nationTag": "URU",
+        "shirtNumber": 15,
+        "position": "MID",
+        "stats": {
+          "pace": 60,
+          "shooting": 62,
+          "passing": 66,
+          "defending": 54
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "ARG-15",
+      "player": {
+        "id": "ARG-15",
+        "displayName": "ARG #15",
+        "nationTag": "ARG",
+        "shirtNumber": 15,
+        "position": "GK",
+        "stats": {
+          "pace": 53,
+          "shooting": 39,
+          "passing": 63,
+          "defending": 75
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.handball"
+    },
+    {
+      "id": "ENG-17",
+      "player": {
+        "id": "ENG-17",
+        "displayName": "ENG #17",
+        "nationTag": "ENG",
+        "shirtNumber": 17,
+        "position": "FWD",
+        "stats": {
+          "pace": 68,
+          "shooting": 71,
+          "passing": 63,
+          "defending": 41
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "TUN-21",
+      "player": {
+        "id": "TUN-21",
+        "displayName": "TUN #21",
+        "nationTag": "TUN",
+        "shirtNumber": 21,
+        "position": "DEF",
+        "stats": {
+          "pace": 64,
+          "shooting": 41,
+          "passing": 63,
+          "defending": 69
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "USA-19",
+      "player": {
+        "id": "USA-19",
+        "displayName": "USA #19",
+        "nationTag": "USA",
+        "shirtNumber": 19,
+        "position": "MID",
+        "stats": {
+          "pace": 67,
+          "shooting": 65,
+          "passing": 66,
+          "defending": 56
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "TUN-14",
+      "player": {
+        "id": "TUN-14",
+        "displayName": "TUN #14",
+        "nationTag": "TUN",
+        "shirtNumber": 14,
+        "position": "MID",
+        "stats": {
+          "pace": 58,
+          "shooting": 57,
+          "passing": 63,
+          "defending": 63
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "BEL-22",
+      "player": {
+        "id": "BEL-22",
+        "displayName": "BEL #22",
+        "nationTag": "BEL",
+        "shirtNumber": 22,
+        "position": "DEF",
+        "stats": {
+          "pace": 57,
+          "shooting": 43,
+          "passing": 56,
+          "defending": 73
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "KSA-25",
+      "player": {
+        "id": "KSA-25",
+        "displayName": "KSA #25",
+        "nationTag": "KSA",
+        "shirtNumber": 25,
+        "position": "GK",
+        "stats": {
+          "pace": 53,
+          "shooting": 38,
+          "passing": 55,
+          "defending": 71
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.handball"
+    },
+    {
+      "id": "NED-14",
+      "player": {
+        "id": "NED-14",
+        "displayName": "NED #14",
+        "nationTag": "NED",
+        "shirtNumber": 14,
+        "position": "GK",
+        "stats": {
+          "pace": 54,
+          "shooting": 41,
+          "passing": 57,
+          "defending": 74
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.handball"
+    },
+    {
+      "id": "POL-15",
+      "player": {
+        "id": "POL-15",
+        "displayName": "POL #15",
+        "nationTag": "POL",
+        "shirtNumber": 15,
+        "position": "MID",
+        "stats": {
+          "pace": 66,
+          "shooting": 63,
+          "passing": 68,
+          "defending": 55
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "ARG-14",
+      "player": {
+        "id": "ARG-14",
+        "displayName": "ARG #14",
+        "nationTag": "ARG",
+        "shirtNumber": 14,
+        "position": "DEF",
+        "stats": {
+          "pace": 62,
+          "shooting": 49,
+          "passing": 64,
+          "defending": 69
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "ENG-12",
+      "player": {
+        "id": "ENG-12",
+        "displayName": "ENG #12",
+        "nationTag": "ENG",
+        "shirtNumber": 12,
+        "position": "DEF",
+        "stats": {
+          "pace": 56,
+          "shooting": 48,
+          "passing": 61,
+          "defending": 64
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "POR-26",
+      "player": {
+        "id": "POR-26",
+        "displayName": "POR #26",
+        "nationTag": "POR",
+        "shirtNumber": 26,
+        "position": "FWD",
+        "stats": {
+          "pace": 63,
+          "shooting": 73,
+          "passing": 62,
+          "defending": 39
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.soccer"
+    },
+    {
+      "id": "BEL-17",
+      "player": {
+        "id": "BEL-17",
+        "displayName": "BEL #17",
+        "nationTag": "BEL",
+        "shirtNumber": 17,
+        "position": "GK",
+        "stats": {
+          "pace": 54,
+          "shooting": 38,
+          "passing": 61,
+          "defending": 72
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.handball"
+    },
+    {
+      "id": "BRA-4",
+      "player": {
+        "id": "BRA-4",
+        "displayName": "BRA #4",
+        "nationTag": "BRA",
+        "shirtNumber": 4,
+        "position": "DEF",
+        "stats": {
+          "pace": 65,
+          "shooting": 48,
+          "passing": 61,
+          "defending": 73
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "WAL-17",
+      "player": {
+        "id": "WAL-17",
+        "displayName": "WAL #17",
+        "nationTag": "WAL",
+        "shirtNumber": 17,
+        "position": "DEF",
+        "stats": {
+          "pace": 64,
+          "shooting": 41,
+          "passing": 65,
+          "defending": 67
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "POR-15",
+      "player": {
+        "id": "POR-15",
+        "displayName": "POR #15",
+        "nationTag": "POR",
+        "shirtNumber": 15,
+        "position": "DEF",
+        "stats": {
+          "pace": 63,
+          "shooting": 46,
+          "passing": 56,
+          "defending": 73
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "CRO-26",
+      "player": {
+        "id": "CRO-26",
+        "displayName": "CRO #26",
+        "nationTag": "CRO",
+        "shirtNumber": 26,
+        "position": "MID",
+        "stats": {
+          "pace": 57,
+          "shooting": 56,
+          "passing": 71,
+          "defending": 61
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "KSA-5",
+      "player": {
+        "id": "KSA-5",
+        "displayName": "KSA #5",
+        "nationTag": "KSA",
+        "shirtNumber": 5,
+        "position": "GK",
+        "stats": {
+          "pace": 55,
+          "shooting": 38,
+          "passing": 59,
+          "defending": 71
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.handball"
+    },
+    {
+      "id": "SEN-22",
+      "player": {
+        "id": "SEN-22",
+        "displayName": "SEN #22",
+        "nationTag": "SEN",
+        "shirtNumber": 22,
+        "position": "MID",
+        "stats": {
+          "pace": 59,
+          "shooting": 57,
+          "passing": 72,
+          "defending": 54
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.run"
+    },
+    {
+      "id": "DEN-17",
+      "player": {
+        "id": "DEN-17",
+        "displayName": "DEN #17",
+        "nationTag": "DEN",
+        "shirtNumber": 17,
+        "position": "GK",
+        "stats": {
+          "pace": 54,
+          "shooting": 42,
+          "passing": 58,
+          "defending": 73
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.handball"
+    },
+    {
+      "id": "JPN-20",
+      "player": {
+        "id": "JPN-20",
+        "displayName": "JPN #20",
+        "nationTag": "JPN",
+        "shirtNumber": 20,
+        "position": "DEF",
+        "stats": {
+          "pace": 63,
+          "shooting": 48,
+          "passing": 58,
+          "defending": 70
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "shield.lefthalf.filled"
+    },
+    {
+      "id": "ESP-4",
+      "player": {
+        "id": "ESP-4",
+        "displayName": "ESP #4",
+        "nationTag": "ESP",
+        "shirtNumber": 4,
+        "position": "MID",
+        "stats": {
+          "pace": 66,
+          "shooting": 61,
+          "passing": 70,
+          "defending": 57
+        }
+      },
+      "rarity": "bronze",
+      "artRef": "figure.run"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import Foundation
 import AuthenticationServices
+import FirebaseCore
 import FirebaseAuth
 
 /// Firebase-backed authentication. Quarantines FirebaseAuth behind `AuthService`.
@@ -9,6 +10,13 @@ final class FirebaseAuthService: AuthService {
     var currentUser: AuthUser?
 
     init() {
+        // `Auth.auth()` traps if no FirebaseApp is configured (e.g. the unit-test
+        // host, which bundles no GoogleService-Info.plist). When unconfigured
+        // there is no session anyway, so start signed-out.
+        guard FirebaseApp.app() != nil else {
+            currentUser = nil
+            return
+        }
         currentUser = Self.map(Auth.auth().currentUser)
     }
 

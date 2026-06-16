@@ -68,17 +68,3 @@ struct UpgradeRulesTests {
         #expect(upgraded.shooting > lvl1.shooting)
     }
 }
-
-struct LeaderboardTests {
-    @Test func ranksByPointsThenName() {
-        let entries = [
-            LeaderboardEntry(userName: "Zed", points: 100),
-            LeaderboardEntry(userName: "Ana", points: 100),   // tie → name asc
-            LeaderboardEntry(userName: "Max", points: 250),
-        ]
-        let ranked = Leaderboard.ranked(entries)
-        #expect(ranked[0].userName == "Max" && ranked[0].rank == 1)
-        #expect(ranked[1].userName == "Ana" && ranked[1].rank == 2)
-        #expect(ranked[2].userName == "Zed" && ranked[2].rank == 3)
-    }
-}

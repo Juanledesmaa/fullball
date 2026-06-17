@@ -29,6 +29,7 @@ struct RootView: View {
             guard auth.currentUser != nil, container == nil else { return }
             let c = await AppContainer.bootstrap(context: modelContext,
                                                  uid: auth.currentUser?.uid,
+                                                 userName: auth.currentUser?.displayName,
                                                  loader: FullballConfig.catalogLoader)
             // Launch-arg demo seed for UI verification only (`-seedDemo 1`).
             if UserDefaults.standard.bool(forKey: "seedDemo"), c.collection.owned().isEmpty {

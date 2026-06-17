@@ -26,6 +26,7 @@ final class AppContainer {
          catalog: any CatalogService = BundledCatalogService(),
          wallet injectedWallet: (any WalletService)? = nil,
          collection injectedCollection: (any CollectionService)? = nil,
+         leaderboard injectedLeaderboard: (any LeaderboardService)? = nil,
          rng: any RandomProvider = SystemRandomProvider()) {
         self.catalog = catalog
         let wallet = injectedWallet ?? SwiftDataWalletService(context: context)
@@ -39,7 +40,7 @@ final class AppContainer {
         self.slate = MatchSlateService(context: context, catalog: catalog, wallet: wallet)
         self.live = MockLiveMatchService()
         self.matchStore = SwiftDataMatchStore(context: context)
-        self.leaderboard = MockLeaderboardService()
+        self.leaderboard = injectedLeaderboard ?? MockLeaderboardService()
         self.score = ScoreBoard(context: context)
         self.rewards = DefaultRewardsService(context: context, wallet: wallet)
         self.lineup = SwiftDataLineupService(context: context)
@@ -57,6 +58,7 @@ final class AppContainer {
     /// cloud before returning. Signed-out (previews/tests) uses local services.
     static func bootstrap(context: ModelContext,
                           uid: String? = nil,
+                          userName: String? = nil,
                           loader: any CatalogLoading = BundledCatalogLoader()) async -> AppContainer {
         let data: CatalogData
         if let loaded = try? await loader.load() {
@@ -81,8 +83,12 @@ final class AppContainer {
         await cloudWallet.hydrate()
         await cloudCollection.hydrate()
 
+        let displayName = (userName?.isEmpty == false ? userName! : "Agent \(uid.prefix(4))")
+        let leaderboard = FirestoreLeaderboardService(uid: uid, currentUserName: displayName, client: client)
+
         return AppContainer(context: context, catalog: catalog,
-                            wallet: cloudWallet, collection: cloudCollection)
+                            wallet: cloudWallet, collection: cloudCollection,
+                            leaderboard: leaderboard)
     }
 }
 

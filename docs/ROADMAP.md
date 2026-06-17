@@ -41,7 +41,8 @@ any phase that changes them).
 - **Agencies**: local leaderboard, user highlighted.
 - **Portraits**: 150 bundled illustrated portraits, deterministic per card, top-anchored crop, full image on detail.
 - **Funny names**, **onboarding intro**, **light/dark** theme with adaptive contrast.
-- **Tooling**: XcodeGen project, `tools/generate_catalog.py`, dev launch args, 41 passing tests.
+- **Real nation flags**: 32 WC-nation flags bundled as vector assets (`Assets.xcassets/Flags/flag_<TAG>`, ~680 KB) from lipis/flag-icons (MIT/public-domain); `NationBadge` renders them with the old gray stand-in as fallback. Fetched offline by `tools/fetch_flags.sh` (no api-football, no key).
+- **Tooling**: XcodeGen project, `tools/generate_catalog.py`, `tools/fetch_flags.sh`, dev launch args, 55 passing tests.
 
 ## 🟡 Stubbed / fake on purpose (MVP scope)
 
@@ -56,6 +57,7 @@ any phase that changes them).
 - **Card Detail not visually verified from automation** — navigation needs a tap; computer-use screen-recording was ungranted, so the full-portrait hero was shipped on build-correctness + logic, not a screenshot. **Eyeball it on device.**
 - **Transfer prices vs starter Cash**: cheapest listing (~4,240) > starter (2,500). Intended grind, but may feel gated early — tune `TransferRules` / starter Cash if so.
 - **Avatar art is anime school-students, not footballers** (the bundle the user supplied). The card frame/name/nation carries the football context. If a football-kit set arrives, it's a drop-in swap into `Resources/Avatars/` + `AvatarAssets.count`.
+- **Live-match tab-switch freeze — FIXED.** `LiveMatchesView` used to `vm.stop()` on `onDisappear`, cancelling in-flight matches on every tab switch (they only finalized on relaunch). Removed; matches now keep ticking in the background and settle. Note: a hard app-kill mid-match still relies on `restore()` finalizing on next launch (Task.sleep is suspended while backgrounded).
 - **Only 150 of 399 source portraits bundled** (even spacing for variety, ~5.8 MB). Bump to 399 (~+10 MB) for less repetition on a full 80-card roster — rerun the crop with `N=399`.
 - **Portrait crop is a fixed top square** (2% offset); a few source poses have a hand near the face. Per-image blacklist/tuning possible if any bug you.
 - **Market has no gem-refresh** (unlike the match slate) — could add the same `RefreshRules`-style sink.

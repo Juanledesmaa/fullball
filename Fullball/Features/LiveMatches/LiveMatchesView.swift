@@ -37,7 +37,11 @@ struct LiveMatchesView: View {
         .background(ScreenBackground())
         .overlay(alignment: .top) { toast }
         .sheet(isPresented: $showLineup) { LineupSheet(container: container) }
-        .onDisappear { vm.stop() }
+        // NOTE: deliberately no `.onDisappear { vm.stop() }`. Live matches are a
+        // cosmetic drip-feed of an already-deterministic result (fixture.scriptedEvents);
+        // cancelling on tab-switch froze in-flight matches until relaunch. Tasks are
+        // [weak self] so they keep ticking across tabs and settle in the background;
+        // a hard app-kill still finalizes via restore() on next launch.
     }
 
     @ViewBuilder private var toast: some View {

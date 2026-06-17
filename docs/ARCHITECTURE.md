@@ -101,7 +101,7 @@ Everything "random but stable" is seeded:
 ## UI components & theme
 
 - `WC` ([Theme.swift](../Fullball/Features/Components/Theme.swift)) — colors (adaptive neutrals via asset colorsets; `WC.spectrum` brand palette) + system display/ui fonts (Archivo not bundled).
-- `SharedUI.swift` — `ScreenHeader`, `SectionLabel`, `Chip`, `LiveDot`, `NationBadge`, `PanelCard`, `RarityTag`, `StarRow`, etc.
+- `SharedUI.swift` — `ScreenHeader`, `SectionLabel`, `Chip`, `LiveDot`, `NationBadge` (real flag from `Assets.xcassets/Flags/flag_<TAG>`, gray stand-in fallback), `PanelCard`, `RarityTag`, `StarRow`, etc.
 - `CardFace.swift` — `CardArt` (portrait window), `CardTile` (roster card), `CardHero` (reveal/detail header).
 - Navigation: each tab is its own `NavigationStack`; `Navigator` (in `AppContainer`) holds the selected tab so any screen can route (e.g. empty Roster → Scout).
 

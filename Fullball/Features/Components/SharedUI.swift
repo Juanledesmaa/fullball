@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // MARK: - Screen scaffold
 
@@ -93,24 +94,37 @@ struct LiveDot: View {
     }
 }
 
-/// Grayscale "flag" stand-in: a striped rounded rect with the nation code.
+/// Nation flag badge: shows the bundled flag (`flag_<TAG>` in Assets) when one
+/// exists, falling back to a grayscale striped stand-in + code for any tag we
+/// don't have art for.
 struct NationBadge: View {
     let code: String
     var width: CGFloat = 30
+
     var body: some View {
         let h = (width * 0.68).rounded()
-        ZStack {
-            RoundedRectangle(cornerRadius: 4).fill(WC.fillD)
-            HStack(spacing: 0) {
-                ForEach(0..<3, id: \.self) { i in
-                    (i == 1 ? Color(hex: 0xD2CCC3) : WC.fillD).opacity(0.6)
+        // UIKit caches named-image lookups, so this membership check is cheap.
+        let hasFlag = UIImage(named: "flag_\(code)") != nil
+        return Group {
+            if hasFlag {
+                Image("flag_\(code)")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 4).fill(WC.fillD)
+                    HStack(spacing: 0) {
+                        ForEach(0..<3, id: \.self) { i in
+                            (i == 1 ? Color(hex: 0xD2CCC3) : WC.fillD).opacity(0.6)
+                        }
+                    }
+                    Text(code).font(WC.display(min(9, width * 0.28))).tracking(0.2)
+                        .foregroundStyle(WC.sub)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 4))
-            Text(code).font(WC.display(min(9, width * 0.28))).tracking(0.2)
-                .foregroundStyle(WC.sub)
         }
         .frame(width: width, height: h)
+        .clipShape(RoundedRectangle(cornerRadius: 4))
         .overlay(RoundedRectangle(cornerRadius: 4).strokeBorder(WC.lineColor, lineWidth: 1))
     }
 }

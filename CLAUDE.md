@@ -119,10 +119,10 @@ Fullball/
   Features/   PackOpening(Scout) · Market · Collection(Roster) · CardDetail · LiveMatches · Leaderboard(Agencies)
               · Wallet · Onboarding · Components/ (Theme tokens, SharedUI, CardFace, AssetAvatar)
   Mocks/      MockCatalogService + AppContainer.preview()
-  Resources/  catalog.json · banners.json · fixtures.json(unused by live now) · Assets.xcassets · Avatars/*.jpg
+  Resources/  catalog.json · banners.json · fixtures.json(unused by live now) · Assets.xcassets (incl. Flags/flag_<TAG> vector flags) · Avatars/*.jpg
 FullballTests/  GachaEngine · UpgradeRules · Leaderboard · Fictionalizer · NameGenerator · Economy ·
                 FixtureGenerator · LineupService · Nonce · CloudDTO · DeviceSeed   (55 tests, pure logic only)
-tools/          generate_catalog.py · wc_nations.json
+tools/          generate_catalog.py · wc_nations.json · fetch_flags.sh
 docs/           GAMEPLAY.md · ARCHITECTURE.md · ROADMAP.md · superpowers/specs + superpowers/plans (Firebase backend design + per-phase plans)
 firestore.rules · ci_scripts/ (ci_post_clone.sh, Package.resolved)
 ```

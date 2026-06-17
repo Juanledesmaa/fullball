@@ -49,13 +49,26 @@ shows `MainTabView`, and presents the first-run `LoopIntroView`
 | `MilestoneService` | yes (`@MainActor`) | `DefaultMilestoneService` | grant career-point milestones |
 | `ExchangeService` | yes (`@MainActor`) | `DefaultExchangeService` | Rep → Scouts/Gems |
 | `RewardsService` | yes (`@MainActor`) | `DefaultRewardsService` | daily drop |
-| `LeaderboardService` | yes | `MockLeaderboardService` | agency ranking |
-| `ScoreBoard` | class (`@Observable`) | SwiftData `LiveProgress` | live points/Rep/daily/milestone/slate meta |
+| `LeaderboardService` | yes (`@MainActor`) | `MockLeaderboardService` / `FirestoreLeaderboardService` | agency ranking (shared via Firestore) |
+| `ScoreBoard` | class (`@Observable`) | SwiftData `LiveProgress` (+ optional Firestore write-through) | live points/Rep/daily/milestone/slate meta |
+| `AuthService` | yes (`@MainActor`) | `FirebaseAuthService` / `MockAuthService` | Sign in with Apple → Firebase session |
+
+## Firebase backend (branch `feat/firebase-backend`, merged to `main`)
+
+Server-authoritative backend behind the existing protocols — no ViewModel/View churn. Firebase is quarantined in `Services/Auth` + `Services/Firestore`. See the spec + per-phase plans under `docs/superpowers/`.
+
+- **Auth (P0):** `RootView` gates the app behind `SignInView` (Sign in with Apple) until `auth.currentUser != nil`. `FirebaseApp.configure()` runs at launch *only if* `GoogleService-Info.plist` is bundled (gitignored; injected in CI).
+- **Cloud save (P1):** `FirestoreWalletService` / `FirestoreCollectionService` **decorators** wrap the SwiftData impls — reads hit the local cache; mutations write through to Firestore async; `hydrate()` on login (cloud wins, seed-if-absent). Same pattern for progress via the cloud-aware `ScoreBoard` (P4).
+- **Leaderboard (P2):** `FirestoreLeaderboardService` publishes `leaderboard/{uid}`, fetches top-N, merges a cosmetic rival floor + the live user entry via the pure `Leaderboard.dedupedRanked`.
+- **Shared slate (P4):** `DeviceSeed.sharedSeed(for:)` (no device base) → all players share fixtures per time block.
+- **Composition:** `AppContainer.bootstrap(context:uid:userName:loader:)` builds the Firestore-backed services + hydrates only when signed in; signed-out (previews/tests) uses the local/mock services. `FirestoreClient` (`@MainActor`) is the single DB entry point; `CloudDTOs` are the Codable wire types. Firestore types are non-`Sendable` → confined to `@MainActor`.
+- **Rules:** `firestore.rules` — `users/{uid}/**` owner-only, `leaderboard/{uid}` read-all/owner-write, `config/**` read-only. Publish in the console after changes.
+- **Parked/deferred:** P3 remote catalog (with asset revamp), P5 server gacha (needs Cloud Functions/Blaze — not on free tier). Monetization decided = StoreKit-only. See ROADMAP.
 
 ## SwiftData (`AppContainer.schema`)
 
 `Wallet`, `CardInstance`, `BannerPity`, `LiveProgress`, `Lineup`, `MatchRecord`.
-**Add a model → add it here** or it won't persist.
+**Add a model → add it here** or it won't persist. When signed in these mirror to Firestore (`users/{uid}/state/wallet`, `…/collection/{cardID}`, `…/pity/{bannerID}`, `…/state/progress`); `Lineup` + `MatchRecord` are not cloud-saved yet (deferred).
 
 - `Wallet` — currency balances (single row).
 - `CardInstance` — owned card: `cardID` (unique), `level`, `stars`, `xp`, `copies`, `dateAcquired`.
@@ -94,9 +107,11 @@ Everything "random but stable" is seeded:
 
 ## Tests (`FullballTests`, Swift Testing)
 
-41 tests / 8 suites, all on the **pure** economy/generation layer:
+55 tests, all on the **pure** layer (economy/generation + cloud mapping + auth nonce):
 `GachaEngineTests` (odds over 300k N, soft/hard pity, 50/50, counter resets),
-`UpgradeRulesTests`, `LeaderboardTests`, `FictionalizerTests` (names stay fictional),
+`UpgradeRulesTests`, `LeaderboardTests` (ranking + `dedupedRanked` merge), `FictionalizerTests` (names stay fictional),
 `NameGeneratorTests`, `EconomyTests` (milestones, exchange, refresh, commission, transfer pricing),
-`FixtureGeneratorTests` (determinism, valid refs), `LineupServiceTests` (field/captain/cap, in-memory SwiftData).
-No view/navigation/wiring tests by design.
+`FixtureGeneratorTests` (determinism, valid refs), `LineupServiceTests` (field/captain/cap, in-memory SwiftData),
+`NonceTests` (Sign in with Apple nonce), `CloudDTOTests` (wallet/card/pity/progress DTO round-trips),
+`DeviceSeedTests` (shared slate seed is device-independent).
+No view/navigation/Firebase-wiring tests by design. (Run on `iPhone 16` — the `iPhone 15` sim is gone on current Xcode.)

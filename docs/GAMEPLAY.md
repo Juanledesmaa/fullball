@@ -77,7 +77,7 @@ On Card Detail:
 - **Earnings** (per fielded client event): points (×2 if captain) → matchday/career points + a **Cash commission** (`AgentRules.commission = points × 3`) + **Rep** (`formTokens`).
 - **Win bonus**: if a match's points ≥ **150** (`winBonusTarget`) → **+1 Scout** (`winBonusTickets`).
 - **Concurrent**: you can enter several matches at once (one task per match; feed merges).
-- **Procedural + persisted slates** (`FixtureGenerator` + `DeviceSeed` + `MatchRecord`/`MatchProgressStore`): the slate (teams, stages, scripted events) is generated deterministically from `identifierForVendor` + an **8-hour** time block (`hoursPerBlock`) — personal, stable for hours, then refreshes. Entries/results persist across relaunch; a match interrupted mid-play finalizes on next launch.
+- **Procedural + persisted slates** (`FixtureGenerator` + `DeviceSeed` + `MatchRecord`/`MatchProgressStore`): the slate (teams, stages, scripted events) is generated deterministically from an **8-hour** time block (`hoursPerBlock`). Since the Firebase backend the base slate uses `DeviceSeed.sharedSeed` (time-block only, no device component) so **all players share the same fixtures** per block — stable for hours, then refreshes. A Gem refresh stays personal (counter-mixed). Entries/results persist across relaunch; a match interrupted mid-play finalizes on next launch.
 - **Refresh for Gems** (premium sink, `RefreshRules`): regenerate a fresh slate now instead of waiting for the free block. Escalating cost `150 × (n+1)` per refresh within a block; resets when the block rolls over. Gated to between-matches.
 
 ## Progression & meta

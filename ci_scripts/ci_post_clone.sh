@@ -10,8 +10,14 @@ fi
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 xcodegen generate
 
-# The generated .xcodeproj is not committed, so its SwiftPM Package.resolved
-# doesn't exist on a fresh CI clone. Xcode Cloud disables automatic dependency
-# resolution and requires a resolved file, so resolve explicitly here (this
-# writes Package.resolved into the freshly-generated project before the build).
-xcodebuild -resolvePackageDependencies -project Fullball.xcodeproj -scheme Fullball
+# Xcode Cloud disables automatic SwiftPM resolution and REQUIRES a committed
+# Package.resolved (an explicit `xcodebuild -resolvePackageDependencies` also
+# fails there with code 74). The generated .xcodeproj is gitignored, so its
+# resolved file can't be committed in place. Instead we keep a tracked copy at
+# ci_scripts/Package.resolved and drop it into the freshly-generated project.
+# KEEP IN SYNC: after changing SPM deps/versions, regenerate locally and copy
+# Fullball.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+# back to ci_scripts/Package.resolved.
+RESOLVED_DIR="Fullball.xcodeproj/project.xcworkspace/xcshareddata/swiftpm"
+mkdir -p "$RESOLVED_DIR"
+cp ci_scripts/Package.resolved "$RESOLVED_DIR/Package.resolved"

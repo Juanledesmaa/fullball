@@ -4,6 +4,30 @@ Snapshot of what's built, what's intentionally fake, the rough edges, and where
 to go next. Keep this honest — it's the first thing a future session should read
 to avoid re-discovering known gaps.
 
+## ☁️ Firebase backend — branch `feat/firebase-backend` (in progress)
+
+Server-authoritative backend behind the existing service protocols (no ViewModel/View
+churn). Spec: [`docs/superpowers/specs/2026-06-16-firebase-backend-design.md`]; per-phase
+plans under `docs/superpowers/plans/`. Firebase (Auth + Firestore) is the one third-party
+dep — a deliberate exception to the zero-dep constraint, quarantined in `Services/Auth` +
+`Services/Firestore`. Security rules live in `firestore.rules` (publish in the console after
+any phase that changes them).
+
+**Done (build green, 55 tests):**
+- **P0 — Auth foundation:** Firebase SPM, **Sign in with Apple** gate (`SignInView`/`RootView`), `FirestoreClient`.
+- **P1 — Cloud save:** wallet + collection + pity → Firestore via write-through decorators (cloud-wins hydrate on login, seed-if-absent). Verified on device.
+- **P2 — Real leaderboard:** `leaderboard/{uid}` (owner-write/read-all), top-N + cosmetic rival floor, ranked.
+- **P4 — Shared slate + progress:** device-independent slate seed (all players share fixtures per time block); `LiveProgress` cloud-saved via cloud-aware `ScoreBoard` (fixes the P2 points-reset-on-reinstall bug).
+
+**Next steps (prioritized):**
+1. **Auth-invasiveness rework** (free, high-value) — the SIWA-at-launch wall is too aggressive for a casual game. Move to **anonymous-first** (play immediately) → optional "link Apple ID" later. Same pass: fix the latent **sign-out container bug** (`RootView` never resets `container = nil` when `currentUser` clears → cross-account leak once sign-out ships). See memory `fullball-auth-invasiveness`.
+2. **StoreKit 2 IAP seam** (free, no server) — turn the Gems "buy" stub into real IAP. On-device signed-`Transaction` verification, then credit Gems. **Monetization is decided to be solely StoreKit.** This is the real next monetization step.
+3. **P3 — Remote catalog** — DEFERRED until the **player-asset revamp** (catalog is changing anyway; seeding now is wasted). Then: Firestore `config/catalog`, `Fictionalizer` stays the name chokepoint, bundled JSON = offline fallback. Seeding is out-of-band (admin script).
+4. **Deferred cloud-save:** `Lineup` (persistent, minor) + `MatchRecord` (slate-transient) — optional; low value.
+5. **P5 — Server gacha:** PARKED. Not achievable on free Spark (owner-scoped rules let a client write its own collection). The *one* server (Blaze) investment that ever makes sense is **server-side App Store receipt validation + server-authoritative wallet** — which protects real (StoreKit) revenue **and** makes gacha cheating moot as a side effect. Never build P5 standalone.
+
+**Known limitations (current backend):** opportunistic progress sync (daily/milestone lag until next award/relaunch); leaderboard identity keyed by display-name not uid (collisions collapse rows); leaderboard points published on tab-open (slightly stale); no points anti-cheat. All documented in the phase plans.
+
 ## ✅ Done (works, offline, tested where it matters)
 
 - **Agent framing** end to end: Scout · Market · Roster · Live · Agencies + Wallet bar (Cash/Gems/Scouts/Rep).

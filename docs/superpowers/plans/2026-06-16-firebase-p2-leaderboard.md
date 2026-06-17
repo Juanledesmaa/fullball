@@ -408,6 +408,7 @@ git commit -m "P2: leaderboard security rules (read-all, owner-write)"
 - **Points are published on board-open / bootstrap**, not on every points change — others see your last-viewed points (slightly stale). Acceptable; could publish on match settlement later.
 - **No anti-cheat on points** — rules only enforce ownership, not value validity (a tampered client could post inflated points). A later hardening pass (or Cloud Functions) can validate.
 - **Display name** falls back to `Agent <uid prefix>` when Apple withheld the name (only provided on first sign-in).
+- **`LeaderboardEntry` identity is `userName`, not uid** (`id == userName`, dedupe keys by name). Two distinct real players sharing a display name collapse into one row (higher points kept). Harmless for the MVP floor (and it guards `ForEach` against duplicate ids), but once the real player base grows, switch `LeaderboardEntry.id` to carry uid and dedupe by uid. Tracked from the P2 review.
 
 ## Out of scope (later phases)
 

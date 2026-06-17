@@ -13,6 +13,10 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: YES
     GENERATE_INFOPLIST_FILE: YES
     SWIFT_EMIT_LOC_STRINGS: NO
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: "11.0.0"
 targets:
   Fullball:
     type: application
@@ -20,6 +24,11 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: Fullball
+    dependencies:
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.juanledesma.Fulbo.app
@@ -33,6 +42,7 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
+        CODE_SIGN_ENTITLEMENTS: Fullball/Fullball.entitlements
   FullballTests:
     type: bundle.unit-test
     platform: iOS

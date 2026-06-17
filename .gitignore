@@ -15,3 +15,6 @@ Fullball.xcodeproj/
 
 # stray nested template project (build uses repo-root Fullball.xcodeproj)
 Fullball/Fullball.xcodeproj/
+
+# Firebase config (secrets — never commit; each dev downloads from console)
+Fullball/GoogleService-Info.plist

@@ -16,4 +16,8 @@ final class LeaderboardViewModel {
     var currentUserRank: Int? {
         entries.first { $0.isCurrentUser }?.rank
     }
+
+    func refresh() async {
+        await service.refresh(userPoints: score.points)
+    }
 }

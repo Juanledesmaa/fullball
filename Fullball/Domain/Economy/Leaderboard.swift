@@ -14,4 +14,23 @@ enum Leaderboard {
             return e
         }
     }
+
+    /// Merge entries that may share a `userName`, keeping the current-user entry
+    /// on any collision (else the higher-points entry), then rank. Used to fold
+    /// the rival floor + real entries + the live current-user entry into one board.
+    static func dedupedRanked(_ entries: [LeaderboardEntry]) -> [LeaderboardEntry] {
+        var byName: [String: LeaderboardEntry] = [:]
+        for entry in entries {
+            if let existing = byName[entry.userName] {
+                if entry.isCurrentUser {
+                    byName[entry.userName] = entry
+                } else if !existing.isCurrentUser, entry.points > existing.points {
+                    byName[entry.userName] = entry
+                }
+            } else {
+                byName[entry.userName] = entry
+            }
+        }
+        return ranked(Array(byName.values))
+    }
 }

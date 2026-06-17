@@ -25,6 +25,7 @@ struct LeaderboardView: View {
             }
         }
         .background(ScreenBackground())
+        .task { await vm.refresh() }
     }
 
     private func row(_ entry: LeaderboardEntry) -> some View {

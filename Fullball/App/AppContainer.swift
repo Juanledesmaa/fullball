@@ -27,6 +27,7 @@ final class AppContainer {
          wallet injectedWallet: (any WalletService)? = nil,
          collection injectedCollection: (any CollectionService)? = nil,
          leaderboard injectedLeaderboard: (any LeaderboardService)? = nil,
+         score injectedScore: ScoreBoard? = nil,
          rng: any RandomProvider = SystemRandomProvider()) {
         self.catalog = catalog
         let wallet = injectedWallet ?? SwiftDataWalletService(context: context)
@@ -41,7 +42,7 @@ final class AppContainer {
         self.live = MockLiveMatchService()
         self.matchStore = SwiftDataMatchStore(context: context)
         self.leaderboard = injectedLeaderboard ?? MockLeaderboardService()
-        self.score = ScoreBoard(context: context)
+        self.score = injectedScore ?? ScoreBoard(context: context)
         self.rewards = DefaultRewardsService(context: context, wallet: wallet)
         self.lineup = SwiftDataLineupService(context: context)
         self.milestones = DefaultMilestoneService(context: context, wallet: wallet)
@@ -86,9 +87,12 @@ final class AppContainer {
         let displayName = (userName?.isEmpty == false ? userName! : "Agent \(uid.prefix(4))")
         let leaderboard = FirestoreLeaderboardService(uid: uid, currentUserName: displayName, client: client)
 
+        let score = ScoreBoard(context: context, client: client, uid: uid)
+        await score.hydrate()
+
         return AppContainer(context: context, catalog: catalog,
                             wallet: cloudWallet, collection: cloudCollection,
-                            leaderboard: leaderboard)
+                            leaderboard: leaderboard, score: score)
     }
 }
 

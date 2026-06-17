@@ -19,7 +19,7 @@ Cup. You play a representative ("representante") building a roster of clients:
 Core loop: **sign → field → live → earn → reinvest → climb the agency ranks.**
 
 This repo is a **complete, playable MVP vertical slice**. The core loop is
-offline/local; a **Firebase backend** (Sign in with Apple + cloud save +
+offline/local; a **Firebase backend** (anonymous-first auth + cloud save +
 shared leaderboard + shared match slate) was added on `main` — see the Firebase
 section in [ROADMAP](docs/ROADMAP.md). Still stubbed: real IAP (StoreKit), push,
 localization.
@@ -65,13 +65,13 @@ xcodegen generate              # regenerate Fullball.xcodeproj (after ANY file a
 xcodebuild build -project Fullball.xcodeproj -scheme Fullball \
   -destination 'platform=iOS Simulator,name=iPhone 16'
 
-# test (64 tests — economy/gacha/generation + cloud DTO mapping + nonce; no view/wiring tests)
+# test (65 tests — economy/gacha/generation + cloud DTO mapping + nonce; no view/wiring tests)
 xcodebuild test -project Fullball.xcodeproj -scheme Fullball \
   -only-testing:FullballTests \
   -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
-> **Firebase build note:** the app needs `Fullball/GoogleService-Info.plist` (gitignored) at runtime; `FirebaseApp.configure()` is guarded behind its presence. Without it the app *builds* fine but traps on the first Firebase call (e.g. sign-in). Sign in with Apple needs an iCloud-signed device/sim.
+> **Firebase build note:** the app needs `Fullball/GoogleService-Info.plist` (gitignored) at runtime; `FirebaseApp.configure()` is guarded behind its presence. Without it the app *builds* fine but traps on the first Firebase call (e.g. anonymous sign-in). Linking an Apple ID needs an iCloud-signed device/sim.
 
 CLI install + launch on a booted sim:
 ```bash
@@ -122,7 +122,7 @@ Fullball/
   Mocks/      MockCatalogService + AppContainer.preview()
   Resources/  catalog.json · banners.json · fixtures.json(unused by live now) · Assets.xcassets (incl. Flags/flag_<TAG> vector flags) · Avatars/*.jpg (now unused — images served from Firebase Storage)
 FullballTests/  GachaEngine · UpgradeRules · Leaderboard · Fictionalizer · NameGenerator · Economy ·
-                FixtureGenerator · LineupService · Nonce · CloudDTO · DeviceSeed   (64 tests, pure logic only)
+                FixtureGenerator · LineupService · Nonce · CloudDTO · DeviceSeed · LinkPromptPolicy   (65 tests, pure logic only)
 tools/          player_manifest.csv · build_catalog.py · parse_positions.py · fill_manifest.py ·
                 process_players.sh · fetch_flags.sh · wc_nations.json
 docs/           GAMEPLAY.md · ARCHITECTURE.md · ROADMAP.md · superpowers/specs + superpowers/plans (Firebase backend design + per-phase plans)
@@ -156,7 +156,7 @@ firestore.rules · ci_scripts/ (ci_post_clone.sh, Package.resolved)
 
 ## Current state (1-paragraph)
 
-Full agent loop: Scout (gacha w/ pity + 50/50 + disclosed odds), Market (transfer signings), Roster (collection, filters, DEX %, squad rating, taller rounded portrait tiles, card detail with full portrait + train/limit-break), Live (field XI + captain, pay Cash entry, fixed-duration procedurally-generated + persisted matches you can run concurrently, commission + Rep + points + win bonus, milestones, slate refresh for Gems), Agencies (leaderboard), Wallet bar (Cash/Gems/Scouts/Rep), daily drop, Rep→pull exchange, first-run intro. **Firebase backend on `main`** (branch `feat/firebase-backend` merged): Sign in with Apple gate, cloud-saved wallet/collection/pity + live progress, **shared** real leaderboard, **shared** match slate (same fixtures per time block for all players). **Asset & catalog revamp** (branch `feat/asset-catalog-revamp`): 61 curated players (51 regular + 10 icons) across 16 nations from `tools/player_manifest.csv`; 4-tier rarity (bronze/silver/gold/icon, no epic); authored mononym names + icon epithets; player images from Firebase Storage via `PlayerImageStore`; `FirestoreCatalogLoader` (P3 remote catalog — now done). 64 tests pass. **Stubs / next**: gem "buy" button (no StoreKit — monetization decided = StoreKit-only), api-football loader (opt-in), no push/localization; SIWA gate is too aggressive (rework to anonymous-first planned); P5 server gacha parked. See [ROADMAP](docs/ROADMAP.md) (Firebase section) for the prioritized next steps.
+Full agent loop: Scout (gacha w/ pity + 50/50 + disclosed odds), Market (transfer signings), Roster (collection, filters, DEX %, squad rating, taller rounded portrait tiles, card detail with full portrait + train/limit-break), Live (field XI + captain, pay Cash entry, fixed-duration procedurally-generated + persisted matches you can run concurrently, commission + Rep + points + win bonus, milestones, slate refresh for Gems), Agencies (leaderboard), Wallet bar (Cash/Gems/Scouts/Rep), daily drop, Rep→pull exchange, first-run intro. **Firebase backend on `main`** (branch `feat/firebase-backend` merged): anonymous-first auth (no SIWA launch wall — `signInAnonymously()` on launch, falls back to local-only if offline), cloud-saved wallet/collection/pity + live progress, **shared** real leaderboard, **shared** match slate (same fixtures per time block for all players). Optional Apple ID linking via the Agencies screen ("Guest agency" + Link button) + a one-time soft prompt at the first milestone (`LinkPromptPolicy`). `RootView` rebuilds the uid-keyed `AppContainer` on account change (latent cross-account leak fixed). **Asset & catalog revamp** (branch `feat/asset-catalog-revamp`): 61 curated players (51 regular + 10 icons) across 16 nations from `tools/player_manifest.csv`; 4-tier rarity (bronze/silver/gold/icon, no epic); authored mononym names + icon epithets; player images from Firebase Storage via `PlayerImageStore`; `FirestoreCatalogLoader` (P3 remote catalog — now done). 65 tests pass. **Stubs / next**: gem "buy" button (no StoreKit — monetization decided = StoreKit-only), api-football loader (opt-in), no push/localization; P5 server gacha parked. See [ROADMAP](docs/ROADMAP.md) (Firebase section) for the prioritized next steps.
 
 ---
 

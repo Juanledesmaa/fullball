@@ -2,9 +2,11 @@ import SwiftUI
 
 struct LeaderboardView: View {
     @State private var vm: LeaderboardViewModel
+    private let auth: any AuthService
 
     init(container: AppContainer) {
         _vm = State(initialValue: LeaderboardViewModel(container: container))
+        self.auth = container.auth
     }
 
     var body: some View {
@@ -19,6 +21,7 @@ struct LeaderboardView: View {
             }
             ScrollView {
                 VStack(spacing: 8) {
+                    LinkAccountView(auth: auth, mode: .inline)
                     ForEach(vm.entries) { entry in row(entry) }
                 }
                 .padding(16)

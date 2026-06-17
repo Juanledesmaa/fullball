@@ -21,6 +21,7 @@ final class AppContainer {
     let slate: MatchSlateService
     let market: TransferMarketService
     let imageStore: any PlayerImageStore
+    let auth: any AuthService
     let navigator = Navigator()
 
     init(context: ModelContext,
@@ -30,9 +31,11 @@ final class AppContainer {
          leaderboard injectedLeaderboard: (any LeaderboardService)? = nil,
          score injectedScore: ScoreBoard? = nil,
          imageStore: (any PlayerImageStore)? = nil,
+         auth: (any AuthService)? = nil,
          rng: any RandomProvider = SystemRandomProvider()) {
         self.catalog = catalog
         self.imageStore = imageStore ?? MockImageStore()
+        self.auth = auth ?? MockAuthService()
         let wallet = injectedWallet ?? SwiftDataWalletService(context: context)
         self.wallet = wallet
         let collection = injectedCollection
@@ -63,6 +66,7 @@ final class AppContainer {
     static func bootstrap(context: ModelContext,
                           uid: String? = nil,
                           userName: String? = nil,
+                          auth: (any AuthService)? = nil,
                           loader: any CatalogLoading = BundledCatalogLoader()) async -> AppContainer {
         let data: CatalogData
         if let loaded = try? await loader.load() {
@@ -74,7 +78,7 @@ final class AppContainer {
         let catalog = ResolvedCatalogService(data)
 
         guard let uid else {
-            return AppContainer(context: context, catalog: catalog)
+            return AppContainer(context: context, catalog: catalog, auth: auth)
         }
 
         let client = FirestoreClient()
@@ -96,7 +100,7 @@ final class AppContainer {
         return AppContainer(context: context, catalog: catalog,
                             wallet: cloudWallet, collection: cloudCollection,
                             leaderboard: leaderboard, score: score,
-                            imageStore: FirebaseImageStore())
+                            imageStore: FirebaseImageStore(), auth: auth)
     }
 }
 

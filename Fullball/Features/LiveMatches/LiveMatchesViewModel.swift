@@ -40,6 +40,8 @@ final class LiveMatchesViewModel {
     private let store: any MatchProgressStore
     private let slateService: MatchSlateService
     private var slateID: String
+    private let auth: any AuthService
+    private let navigator: Navigator
 
     var matches: [MatchState]
     var feed: [LiveFeedItem] = []
@@ -66,6 +68,8 @@ final class LiveMatchesViewModel {
         self.store = container.matchStore
         self.slateService = container.slate
         self.slateID = container.slate.slateID
+        self.auth = container.auth
+        self.navigator = container.navigator
         // Procedurally-generated slate; only live matches are enterable.
         self.matches = container.slate.fixtures
             .filter { $0.status == .live }
@@ -253,6 +257,12 @@ final class LiveMatchesViewModel {
     private func grantMilestones() {
         let granted = milestones.claim(points: careerPoints)
         guard !granted.isEmpty else { return }
+        // First milestone is the hook moment for the one-time "Link Apple ID" prompt.
+        if LinkPromptPolicy.shouldPrompt(isAnonymous: auth.currentUser?.isAnonymous ?? false,
+                                         alreadyPrompted: UserDefaults.standard.bool(forKey: "didPromptLink"),
+                                         firstMilestoneReached: true) {
+            navigator.linkPromptPending = true
+        }
         let gems = granted.reduce(0) { $0 + $1.gems }
         let tickets = granted.reduce(0) { $0 + $1.tickets }
         var msg = "Milestone! +\(gems) Gems"

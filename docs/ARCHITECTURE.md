@@ -24,14 +24,12 @@ services are constructed and wired. It's `@MainActor @Observable`, injected via
 `.environment`, and built async by `AppContainer.bootstrap(context:loader:)`
 (resolves the catalog — bundled or remote — then wires everything).
 
-Holds: `catalog`, `wallet`, `collection`, `gacha`, `live`, `leaderboard`,
+Holds: `auth` (`AuthService`), `catalog`, `wallet`, `collection`, `gacha`, `live`, `leaderboard`,
 `score` (`ScoreBoard`), `rewards`, `lineup`, `milestones`, `exchange`,
 `matchStore`, `slate` (`MatchSlateService`), `market` (`TransferMarketService`),
 `navigator`. `static schema` lists the SwiftData models.
 
-`RootView` builds the container from the environment `modelContext` in `.task`,
-shows `MainTabView`, and presents the first-run `LoopIntroView`
-(`@AppStorage("didSeeIntro")`).
+`RootView` calls `signInAnonymously()` in `.task` (anon-first), then builds the uid-keyed container and shows `MainTabView`. `.onChange(of: auth.currentUser?.uid)` triggers a container rebuild on account/uid change. Also presents the first-run `LoopIntroView` (`@AppStorage("didSeeIntro")`) and `LinkAccountView` when `navigator.linkPromptPending` is set.
 
 ## Services
 
@@ -51,13 +49,13 @@ shows `MainTabView`, and presents the first-run `LoopIntroView`
 | `RewardsService` | yes (`@MainActor`) | `DefaultRewardsService` | daily drop |
 | `LeaderboardService` | yes (`@MainActor`) | `MockLeaderboardService` / `FirestoreLeaderboardService` | agency ranking (shared via Firestore) |
 | `ScoreBoard` | class (`@Observable`) | SwiftData `LiveProgress` (+ optional Firestore write-through) | live points/Rep/daily/milestone/slate meta |
-| `AuthService` | yes (`@MainActor`) | `FirebaseAuthService` / `MockAuthService` | Sign in with Apple → Firebase session |
+| `AuthService` | yes (`@MainActor`) | `FirebaseAuthService` / `MockAuthService` | anonymous sign-in + optional Apple ID linking → Firebase session; exposes `isAnonymous`, `signInAnonymously()`, `linkApple(...)` |
 
 ## Firebase backend (branch `feat/firebase-backend`, merged to `main`)
 
 Server-authoritative backend behind the existing protocols — no ViewModel/View churn. Firebase is quarantined in `Services/Auth` + `Services/Firestore`. See the spec + per-phase plans under `docs/superpowers/`.
 
-- **Auth (P0):** `RootView` gates the app behind `SignInView` (Sign in with Apple) until `auth.currentUser != nil`. `FirebaseApp.configure()` runs at launch *only if* `GoogleService-Info.plist` is bundled (gitignored; injected in CI).
+- **Auth (P0 — anonymous-first):** On launch `RootView` calls `signInAnonymously()` via `AuthService` (zero-friction; no SIWA wall). If offline, `uid` is nil and the app runs with local-only services, retrying anon sign-in later. `FirebaseApp.configure()` runs at launch *only if* `GoogleService-Info.plist` is bundled (gitignored; injected in CI). `RootView` rebuilds the uid-keyed `AppContainer` via `.onChange(of: auth.currentUser?.uid)` whenever the account changes (cross-account container leak fixed). Optional Apple ID linking surfaces on the **Agencies** screen ("Guest agency" label + Link Apple ID button when anonymous; "Linked · name" when linked) and via a **one-time soft prompt** at the first career milestone (`LinkPromptPolicy.shouldPrompt(...)` — pure, tested). `linkApple(...)` upgrades the anon account (same uid, data preserved) or switches to the existing Apple account (uid changes, container rebuilds). `SignInView` removed.
 - **Cloud save (P1):** `FirestoreWalletService` / `FirestoreCollectionService` **decorators** wrap the SwiftData impls — reads hit the local cache; mutations write through to Firestore async; `hydrate()` on login (cloud wins, seed-if-absent). Same pattern for progress via the cloud-aware `ScoreBoard` (P4).
 - **Leaderboard (P2):** `FirestoreLeaderboardService` publishes `leaderboard/{uid}`, fetches top-N, merges a cosmetic rival floor + the live user entry via the pure `Leaderboard.dedupedRanked`.
 - **Shared slate (P4):** `DeviceSeed.sharedSeed(for:)` (no device base) → all players share fixtures per time block.
@@ -84,6 +82,7 @@ Everything "random but stable" is seeded:
 - FNV-1a hashes turn ids/strings into seeds (`NameGenerator`, `DeviceSeed`, `WC.spectrumColor`).
 - `FixtureGenerator.slate(seed:nations:cards:)` — pure procedural fixtures.
 - `DeviceSeed` — `identifierForVendor` (UDID-equivalent) ⊕ an 8-hour time block ⊕ refresh counter.
+- `LinkPromptPolicy.shouldPrompt(isAnonymous:didPrompt:milestonesReached:)` — pure, tested; decides when to show the one-time Apple ID link soft-prompt.
 
 ## Catalog data
 
@@ -108,11 +107,11 @@ Everything "random but stable" is seeded:
 
 ## Tests (`FullballTests`, Swift Testing)
 
-64 tests, all on the **pure** layer (economy/generation + cloud mapping + auth nonce):
+65 tests, all on the **pure** layer (economy/generation + cloud mapping + auth nonce):
 `GachaEngineTests` (odds over 300k N, soft/hard pity, 50/50, counter resets),
 `UpgradeRulesTests`, `LeaderboardTests` (ranking + `dedupedRanked` merge), `FictionalizerTests` (names stay fictional),
 `NameGeneratorTests`, `EconomyTests` (milestones, exchange, refresh, commission, transfer pricing),
 `FixtureGeneratorTests` (determinism, valid refs), `LineupServiceTests` (field/captain/cap, in-memory SwiftData),
 `NonceTests` (Sign in with Apple nonce), `CloudDTOTests` (wallet/card/pity/progress DTO round-trips),
-`DeviceSeedTests` (shared slate seed is device-independent).
+`DeviceSeedTests` (shared slate seed is device-independent), `LinkPromptPolicyTests` (prompt-once gate logic).
 No view/navigation/Firebase-wiring tests by design. (Run on `iPhone 16` — the `iPhone 15` sim is gone on current Xcode.)

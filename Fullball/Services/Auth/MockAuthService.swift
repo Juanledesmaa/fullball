@@ -11,10 +11,18 @@ final class MockAuthService: AuthService {
         currentUser = signedIn ? AuthUser(uid: "preview-uid", displayName: "Preview Agent") : nil
     }
 
+    func signInAnonymously() async throws {
+        currentUser = AuthUser(uid: "anon-uid", displayName: nil, isAnonymous: true)
+    }
+
     func prepareAppleRequest(_ request: ASAuthorizationAppleIDRequest) -> String { "mock-nonce" }
 
     func signInWithApple(authorization: ASAuthorization, rawNonce: String) async throws {
         currentUser = AuthUser(uid: "preview-uid", displayName: "Preview Agent")
+    }
+
+    func linkApple(authorization: ASAuthorization, rawNonce: String) async throws {
+        currentUser = AuthUser(uid: currentUser?.uid ?? "preview-uid", displayName: "Tester", isAnonymous: false)
     }
 
     func signOut() throws { currentUser = nil }

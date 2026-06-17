@@ -18,3 +18,4 @@ Fullball/Fullball.xcodeproj/
 
 # Firebase config (secrets — never commit; each dev downloads from console)
 Fullball/GoogleService-Info.plist
+.superpowers/

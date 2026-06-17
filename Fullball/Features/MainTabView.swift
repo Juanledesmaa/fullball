@@ -4,6 +4,7 @@ import SwiftUI
 struct MainTabView: View {
     @Environment(AppContainer.self) private var container
     @State private var showBuyGems = false
+    @AppStorage("didPromptLink") private var didPromptLink = false
 
     var body: some View {
         @Bindable var nav = container.navigator
@@ -33,6 +34,14 @@ struct MainTabView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Gem purchases aren't available in this preview build. Earn Gems and Tickets through the live loop instead.")
+        }
+        .sheet(isPresented: $nav.linkPromptPending) {
+            LinkAccountView(auth: container.auth, mode: .prompt) {
+                nav.linkPromptPending = false
+            }
+        }
+        .onChange(of: nav.linkPromptPending) { _, pending in
+            if pending { didPromptLink = true }   // prompt shown once, ever
         }
     }
 }

@@ -8,6 +8,19 @@ if ! command -v xcodegen >/dev/null 2>&1; then
 fi
 
 cd "$CI_PRIMARY_REPOSITORY_PATH"
+
+# GoogleService-Info.plist is gitignored (the repo is public). Xcode Cloud
+# injects it from a secret env var holding the base64-encoded plist; decode it
+# into the bundle source path BEFORE xcodegen so the generated project includes
+# it. Without it FirebaseApp.configure() is skipped and the app traps on the
+# first Firebase call (e.g. Sign in with Apple).
+if [ -n "$GOOGLE_SERVICE_INFO_PLIST_BASE64" ]; then
+  printf '%s' "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | openssl base64 -d -A > Fullball/GoogleService-Info.plist
+  echo "Decoded GoogleService-Info.plist from env var."
+else
+  echo "WARNING: GOOGLE_SERVICE_INFO_PLIST_BASE64 not set — Firebase will be unconfigured and the app will crash on sign-in."
+fi
+
 xcodegen generate
 
 # Xcode Cloud disables automatic SwiftPM resolution and REQUIRES a committed

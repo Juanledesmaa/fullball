@@ -48,7 +48,7 @@ final class TransferMarketService {
         var rng = SeededRandomProvider(seed: DeviceSeed.seed(for: "market-" + DeviceSeed.slateID()))
         let byRarity = Dictionary(grouping: catalog.cards, by: { $0.rarity })
         // Marquee shortlist: a couple of each high tier, deterministic.
-        let plan: [(Rarity, Int)] = [(.icon, 2), (.epic, 2), (.gold, 2), (.silver, 1)]
+        let plan: [(Rarity, Int)] = [(.icon, 2), (.gold, 3), (.silver, 1)]
         var listings: [TransferListing] = []
         for (rarity, n) in plan {
             let pool = FixtureGenerator.shuffle(byRarity[rarity] ?? [], &rng)

@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Player portraits: world-readable, authored via console/CI only.
+    match /players/{file} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

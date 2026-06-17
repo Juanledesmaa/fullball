@@ -53,5 +53,7 @@ struct Player: Codable, Sendable, Identifiable, Hashable {
     let nationTag: String     // e.g. "ARG"
     let shirtNumber: Int
     let position: Position
+    var name: String? = nil       // authored display name (e.g. "Kaito")
+    var epithet: String? = nil    // icons only (e.g. "The Comet")
     let stats: Stats
 }

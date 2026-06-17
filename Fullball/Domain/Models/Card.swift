@@ -6,7 +6,9 @@ struct Card: Codable, Sendable, Identifiable, Hashable {
     let id: String
     let player: Player
     let rarity: Rarity
-    let artRef: String   // SF Symbol name used as stand-in art
+    var artRef: String? = nil   // legacy SF-symbol stand-in (unused once images land)
 
     var displayName: String { player.displayName }
+    /// Storage path / cache key for the portrait. Convention: the card id.
+    var imageRef: String { id }
 }

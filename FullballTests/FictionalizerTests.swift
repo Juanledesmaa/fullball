@@ -36,7 +36,7 @@ struct FictionalizerTests {
 
     @Test func ratingMapsToRarityBands() {
         #expect(Fictionalizer.rarity(forRating: 7.9) == .icon)
-        #expect(Fictionalizer.rarity(forRating: 7.3) == .epic)
+        #expect(Fictionalizer.rarity(forRating: 7.3) == .gold)
         #expect(Fictionalizer.rarity(forRating: 7.0) == .gold)
         #expect(Fictionalizer.rarity(forRating: 6.7) == .silver)
         #expect(Fictionalizer.rarity(forRating: 6.0) == .bronze)

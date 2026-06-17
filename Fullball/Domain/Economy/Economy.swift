@@ -71,7 +71,6 @@ enum TransferRules {
         let base: Int
         switch rarity {
         case .icon:   base = 6000
-        case .epic:   base = 2800
         case .gold:   base = 1200
         case .silver: base = 500
         case .bronze: base = 200

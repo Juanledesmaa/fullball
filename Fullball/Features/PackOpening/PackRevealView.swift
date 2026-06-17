@@ -10,13 +10,13 @@ struct PackRevealView: View {
     @State private var flare = false
 
     private var bestRarity: Rarity { results.map(\.card.rarity).max() ?? .bronze }
-    private var isBigPull: Bool { bestRarity >= .epic }
+    private var isBigPull: Bool { bestRarity >= .gold }
 
     var body: some View {
         ZStack {
             WC.ink.opacity(0.93).ignoresSafeArea()
 
-            // Rarity flare: a soft rotating halo behind the reveal for epic+.
+            // Rarity flare: a soft rotating halo behind the reveal for gold+.
             if isBigPull {
                 AngularGradient(colors: [bestRarity.color.opacity(0.0), bestRarity.color.opacity(0.55),
                                          bestRarity.color.opacity(0.0)],

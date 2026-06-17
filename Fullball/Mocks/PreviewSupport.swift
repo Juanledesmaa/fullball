@@ -25,7 +25,7 @@ struct MockCatalogService: CatalogService {
             c("NED-10", "NED", 10, .fwd, .gold, st),
             c("ENG-8", "ENG", 8, .mid, .silver, Stats(pace: 70, shooting: 68, passing: 80, defending: 66)),
             c("GER-5", "GER", 5, .mid, .silver, Stats(pace: 66, shooting: 60, passing: 78, defending: 70)),
-            c("ESP-6", "ESP", 6, .mid, .epic, Stats(pace: 74, shooting: 70, passing: 88, defending: 72)),
+            c("ESP-6", "ESP", 6, .mid, .gold, Stats(pace: 74, shooting: 70, passing: 88, defending: 72)),
             c("USA-7", "USA", 7, .def, .bronze, Stats(pace: 64, shooting: 40, passing: 60, defending: 72)),
             c("JPN-11", "JPN", 11, .fwd, .bronze, Stats(pace: 75, shooting: 64, passing: 62, defending: 44)),
             c("ITA-1", "ITA", 1, .gk, .bronze, Stats(pace: 50, shooting: 30, passing: 58, defending: 80)),

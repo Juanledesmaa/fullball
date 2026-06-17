@@ -41,14 +41,14 @@ Starter wallet ([Wallet.starter](../Fullball/Domain/Models/Wallet.swift)): **250
 ### Scout (gacha) — `GachaEngine` + `DefaultGachaService`
 Per-pull rarity odds (disclosed in the in-app Odds sheet; `Rarity.baseOdds`):
 
-| Rarity | Odds | Star cap |
+| Rarity | Odds  | Star cap |
 |---|---|---|
-| Bronze | 70%  | 3 |
-| Silver | 22%  | 4 |
-| Gold   | 6.5% | 5 |
-| Epic   | 1.2% | 5 |
-| Icon   | 0.3% | 5 |
+| Bronze | 70.0% | 3 |
+| Silver | 22.0% | 4 |
+| Gold   | 7.3%  | 5 |
+| Icon   | 0.7%  | 5 |
 
+- Cards have **authored short names**: mononym for regulars (e.g. "Kaelan"), mononym + " — epithet" for icons (e.g. "Vasco — The Wall"). `NameGenerator` is a fallback for any card without an authored name.
 - **Soft pity**: from pull **40** (`softPityStart`), Icon odds ramp up each pull.
 - **Hard pity**: pull **50** (`hardPity`) guarantees an Icon; counter resets on any Icon.
 - **50/50**: first guaranteed Icon may be off-banner; if so the *next* guaranteed Icon is the featured one. State persists per banner (`BannerPity`).
@@ -57,8 +57,8 @@ Per-pull rarity odds (disclosed in the in-app Odds sheet; `Rarity.baseOdds`):
 - Duplicates → `+1 copy` (limit-break fuel), not a new card.
 
 ### Transfer Market — `TransferMarketService`
-- A deterministic daily shortlist (seeded by device + day) of specific high-rarity clients (2 Icon, 2 Epic, 2 Gold, 1 Silver).
-- Price (`TransferRules.price`): base by rarity (`Icon 6000 · Epic 2800 · Gold 1200 · Silver 500 · Bronze 200`) `+ overall × 40`.
+- A deterministic daily shortlist (seeded by device + day) of specific high-rarity clients (2 Icon, 2 Gold, 2 Silver, 1 Bronze).
+- Price (`TransferRules.price`): base by rarity (`Icon 6000 · Gold 1200 · Silver 500 · Bronze 200`) `+ overall × 40`.
 - **Sign** debits Cash, adds the client to your roster, removes the listing. Re-signing an owned client adds a copy.
 - Listings are in-session (regenerate per day); purchases persist (the client is in your roster).
 
@@ -106,6 +106,6 @@ On Card Detail:
 | Daily drop | `RewardsService.dailyReward` |
 | Lineup size, captain multiplier | `LineupService.maxFielded`, `LineupRules.captainMultiplier` |
 | Slate cadence | `DeviceSeed.hoursPerBlock` |
-| # of bundled portraits | `AvatarAssets.count` (+ files in `Resources/Avatars/`) |
+| Player images | Firebase Storage `players/{id}.jpg` (via `PlayerImageStore`) |
 
 > Balance note: cheapest transfer (~4,240 Cash) currently > starter Cash (2,500), so early signings require a couple of matches' commission. Intentional, but easy to soften (lower `TransferRules` bases or raise starter Cash).

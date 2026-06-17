@@ -19,4 +19,15 @@ struct NameGeneratorTests {
             #expect(name.contains(" "))   // at least first + last
         }
     }
+
+    @Test func authoredNameWinsAndEpithetAppends() {
+        let icon = Player(id: "P1", displayName: "ARG #10", nationTag: "ARG",
+                          shirtNumber: 10, position: .fwd, name: "Raiden",
+                          epithet: "The Comet", stats: Stats(pace:90,shooting:90,passing:80,defending:60))
+        #expect(icon.funnyName == "Raiden — The Comet")
+        let reg = Player(id: "P2", displayName: "BRA #7", nationTag: "BRA",
+                         shirtNumber: 7, position: .fwd, name: "Kaito",
+                         stats: Stats(pace:80,shooting:80,passing:80,defending:60))
+        #expect(reg.funnyName == "Kaito")
+    }
 }

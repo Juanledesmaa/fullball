@@ -15,11 +15,11 @@
   {
     "id": "featured",
     "title": "Today's Match",
-    "subtitle": "ARG #10 & FRA #10 rate-up",
+    "subtitle": "Fumio & Junpei rate-up",
     "type": "featured",
     "featuredCardIDs": [
-      "ARG-10",
-      "FRA-10"
+      "P052",
+      "P056"
     ],
     "singleCost": {
       "ticket": 1

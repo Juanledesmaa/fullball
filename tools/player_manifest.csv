@@ -1,0 +1,62 @@
+id,sourceFile,sourceDir,name,epithet,nationTag,position,rarity,pace,shooting,passing,defending
+P001,Character_left_winger_MALE_chaotic_trickster_pale_skin_sharp__eb925ff1-9e87-4516-a62c-c9083a0edfa7_0.png,/Users/juanito/Downloads/Regular_player,Kaito,,BEL,FWD,bronze,77,81,71,55
+P002,Character_left_winger_chaotic_trickster_pale_skin_sharp_cheek_b5947cbd-1fff-4989-a8aa-7f69a7133762_3.png,/Users/juanito/Downloads/Regular_player,Ren,,ENG,FWD,bronze,75,80,66,51
+P003,Character_striker_arrogant_prodigy_tan_skin_angular_face_shar_6e7940eb-6c38-4dc4-8e68-53dc11d6eaeb_0.png,/Users/juanito/Downloads/Regular_player,Sora,,ESP,FWD,silver,81,83,74,65
+P004,Character_striker_arrogant_prodigy_white_skin_angular_face_sh_81551167-3915-4884-96d0-9cd5d5a4414a_0.png,/Users/juanito/Downloads/Regular_player,Riku,,BEL,FWD,silver,82,87,78,61
+P005,Character_striker_shy_prodigy_tan_skin_straight_face_sharp_ca_ef86d694-f8c0-4d2f-bd85-97d2ed256ddc_2.png,/Users/juanito/Downloads/Regular_player,Haru,,ARG,FWD,silver,87,84,74,59
+P006,Character_winger_chaotic_freestyle_prodigy_medium_brown_skin__cc07bb82-e01d-4b8e-8053-83f4efba5bd2_1.png,/Users/juanito/Downloads/Regular_player,Yuto,,BRA,FWD,silver,85,89,78,59
+P007,attacking_midfielder_elegant_technician_fair_skin_refined_ova_d1d0c086-01c3-4837-808c-01f3fd9ae7f7_3.png,/Users/juanito/Downloads/Regular_player,Kenji,,CRO,MID,silver,76,76,85,77
+P008,attacking_midfielder_illusion_dribbler_pale_olive_skin_elegan_373ad8ff-08d8-49df-83dd-89ee00547502_0.png,/Users/juanito/Downloads/Regular_player,Daichi,,ARG,MID,gold,86,81,94,80
+P009,attacking_midfielder_magician_playmaker_medium_brown_skin_sof_1a849bfa-d65c-4128-9915-ff06772bc373_3.png,/Users/juanito/Downloads/Regular_player,Takumi,,MEX,MID,gold,85,83,96,83
+P010,box-to-box_midfielder_veteran_captain_tan_skin_rugged_face_wi_3424154f-49a3-4c66-8aab-1a546a21bc1a_2.png,/Users/juanito/Downloads/Regular_player,Akira,,MEX,MID,gold,87,87,91,85
+P011,center_back_quiet_giant_fair_skin_broad_face_calm_intimidatin_538bc0a1-9d6c-4854-a37d-97e8c8ad459f_0.png,/Users/juanito/Downloads/Regular_player,Ryo,,GER,DEF,bronze,69,56,67,79
+P012,center_back_ruthless_enforcer_dark_skin_heavy_brows_broken_no_355583a0-f82e-47ad-8c9e-8c70a3920e3b_1.png,/Users/juanito/Downloads/Regular_player,Sho,,ENG,DEF,silver,77,63,76,86
+P013,center_back_silent_samurai_fair_skin_stern_angular_face_calm__0f8cecde-7f23-4b40-ad8d-d64e1d895c64_3.png,/Users/juanito/Downloads/Regular_player,Kazu,,JPN,DEF,silver,74,67,75,91
+P014,center_forward_street-football_brawler_medium_brown_skin_wide_cbdbbc93-1cb7-4af3-88a3-095b430ad5a7_2.png,/Users/juanito/Downloads/Regular_player,Hiroshi,,BRA,FWD,bronze,75,80,69,57
+P015,deep_playmaker_analytical_genius_light_tan_skin_clean_sharp_f_25c52e01-9780-457d-afe3-20e918b495a3_1.png,/Users/juanito/Downloads/Regular_player,Jin,,POR,MID,gold,87,82,95,80
+P016,deep_playmaker_analytical_genius_light_tan_skin_clean_sharp_f_5ff1cadc-761a-40f3-a4db-d64000dfbfe6_0.png,/Users/juanito/Downloads/Regular_player,Rei,,URU,MID,gold,88,81,97,80
+P017,deep_playmaker_analytical_genius_light_tan_skin_clean_sharp_f_81d5eded-d1e9-4483-8d3f-0ed43a65e2b8_2.png,/Users/juanito/Downloads/Regular_player,Tora,,MEX,MID,gold,89,86,95,85
+P018,defensive_midfielder_relentless_destroyer_dark_brown_skin_sca_87afcceb-8f04-48ef-a90f-448e8d7d877e_2.png,/Users/juanito/Downloads/Regular_player,Kai,,FRA,MID,silver,75,79,84,71
+P019,defensive_midfielder_tactical_monk_tan_skin_shaved_head_seren_5e47005d-db5d-4027-8596-244a03371e09_2.png,/Users/juanito/Downloads/Regular_player,Yuki,,KOR,MID,silver,80,79,84,71
+P020,explosive_striker_arrogant_prodigy_tan_skin_angular_face_shar_7c749c66-83fc-42f8-8f00-c3329590688b_2.png,/Users/juanito/Downloads/Regular_player,Shin,,ARG,FWD,silver,82,86,74,62
+P021,false_nine_mysterious_genius_light_brown_skin_elegant_narrow__2f7a14a3-58fe-4f41-8534-cbcd639200cf_1.png,/Users/juanito/Downloads/Regular_player,Raiden,,MEX,FWD,gold,95,97,86,71
+P022,fullback_disciplined_soldier_fair_skin_square_face_stern_expr_5ec2b579-da28-4ccd-aea9-820a8613d8ec_1.png,/Users/juanito/Downloads/Regular_player,Goro,,GER,DEF,bronze,67,55,65,83
+P023,goalkeeper_fearless_rookie_fair_skin_freckled_face_nervous_gr_b70d0375-cf4b-46bb-8570-68c422f7686c_3.png,/Users/juanito/Downloads/Regular_player,Taiga,,CRO,GK,bronze,61,54,63,84
+P024,goalkeeper_flamboyant_showman_olive_skin_handsome_angular_fac_e4d606f3-ecba-404b-9aa9-80698c3ffccf_1.png,/Users/juanito/Downloads/Regular_player,Aoi,,POR,GK,silver,67,62,72,93
+P025,goalkeeper_ice-cold_prodigy_pale_skin_sharp_cheekbones_focuse_c68c83b7-b233-4ba9-aab7-ce7d73b29f2d_0.png,/Users/juanito/Downloads/Regular_player,Hayato,,GER,GK,silver,72,63,69,90
+P026,goalkeeper_silent_wall_deep_brown_skin_square_jaw_calm_intimi_ff7f2ae4-516e-4c1e-918c-e8496caef5ff_3.png,/Users/juanito/Downloads/Regular_player,Itsuki,,MAR,GK,bronze,59,50,63,84
+P027,left_back_graceful_defender_dark_skin_elegant_face_calm_smile_f76f0b18-8eeb-42e9-abaf-e98c7c3b0309_2.png,/Users/juanito/Downloads/Regular_player,Kuro,,NED,DEF,bronze,63,59,70,83
+P028,left_winger_chaotic_trickster_pale_skin_sharp_cheekbones_play_14be06c3-457c-4e88-8dd0-2e52f535d5e8_0.png,/Users/juanito/Downloads/Regular_player,Mako,,CRO,FWD,bronze,73,81,70,55
+P029,playmaker_electric_prince_pale_skin_clean_handsome_face_confi_f9789a04-c871-4cce-a98a-e096c612cb9d_1.png,/Users/juanito/Downloads/Regular_player,Nori,,BEL,MID,gold,89,83,91,82
+P030,playmaker_sleepy_genius_pale_skin_soft_tired_face_relaxed_hal_54d3af5a-fbb0-4d6b-834a-32f27e91f3ef_1.png,/Users/juanito/Downloads/Regular_player,Osamu,,GER,MID,silver,76,79,84,77
+P031,poacher_striker_obsessive_finisher_pale_olive_skin_narrow_fox_49a0c1bb-0782-4236-986b-dfc4f2f40a3d_0.png,/Users/juanito/Downloads/Regular_player,Reo,,POR,FWD,silver,82,85,74,61
+P032,poacher_striker_obsessive_finisher_pale_olive_skin_narrow_fox_49a0c1bb-0782-4236-986b-dfc4f2f40a3d_3.png,/Users/juanito/Downloads/Regular_player,Satoru,,ARG,FWD,silver,81,87,78,59
+P033,right_back_cheerful_engine_warm_brown_skin_round_face_bright__fa7a1285-da3d-496e-9ea9-7f57cdbef324_1.png,/Users/juanito/Downloads/Regular_player,Tatsu,,FRA,DEF,bronze,68,59,70,78
+P034,right_back_cheerful_engine_warm_brown_skin_round_face_bright__fa7a1285-da3d-496e-9ea9-7f57cdbef324_2.png,/Users/juanito/Downloads/Regular_player,Eiji,,URU,DEF,bronze,67,59,69,79
+P035,right_winger_lightning_speedster_dark_skin_triangular_face_ma_0733225a-26c9-4e83-810e-c9cc53af822d_3.png,/Users/juanito/Downloads/Regular_player,Fuma,,SEN,FWD,silver,84,84,78,62
+P036,right_winger_lightning_speedster_light_skin_triangular_face_m_7f038217-a9d5-4e43-b88b-d9a1b4ac2184_2.png,/Users/juanito/Downloads/Regular_player,Genji,,ENG,FWD,silver,82,85,77,63
+P037,right_winger_lightning_speedster_light_skin_triangular_face_m_7f038217-a9d5-4e43-b88b-d9a1b4ac2184_3.png,/Users/juanito/Downloads/Regular_player,Ichiro,,NED,FWD,silver,85,89,75,59
+P038,striker_brutal_powerhouse_dark_skin_square_jaw_roaring_expres_f9fc74a1-ec8d-4696-b467-50e622cd658b_1.png,/Users/juanito/Downloads/Regular_player,Joji,,ENG,FWD,silver,87,87,79,64
+P039,striker_chaotic_finisher_freckled_fair_skin_boyish_adult_face_1a68fc30-019e-4e96-b6fe-261348311cf5_0.png,/Users/juanito/Downloads/Regular_player,Koji,,BEL,FWD,silver,83,88,78,61
+P040,striker_ruthless_rival_captain_warm_tan_skin_angular_jaw_arro_afb0e481-6451-41ba-939d-6cf5c32ecea4_3.png,/Users/juanito/Downloads/Regular_player,Masa,,MEX,FWD,silver,86,85,78,62
+P041,striker_villainous_poacher_pale_skin_hollow_cheeks_predatory__7f1c6145-ea75-4eaa-b730-107c522dc3ca_0.png,/Users/juanito/Downloads/Regular_player,Naoki,,BEL,FWD,silver,86,84,76,62
+P042,striker_warrior_finisher_medium_brown_skin_scar_across_nose_f_70aa41df-bc21-40b4-9b4e-82d9fc9feda8_3.png,/Users/juanito/Downloads/Regular_player,Ryuji,,MEX,FWD,silver,82,85,73,65
+P043,target_striker_calm_monster_very_pale_skin_square_jaw_emotion_dd753279-82fc-40b0-8264-7eb1ab981204_1.png,/Users/juanito/Downloads/Regular_player,Seiji,,GER,FWD,gold,94,95,84,71
+P044,target_striker_calm_monster_very_pale_skin_square_jaw_emotion_e1bd2b5c-a267-4e85-a2f4-37edb464499e_0.png,/Users/juanito/Downloads/Regular_player,Toma,,GER,FWD,gold,94,97,85,67
+P045,target_striker_very_calm_monster_very_pale_skin_square_jaw_em_dc553ded-97d3-468e-bed8-2549dd2cff63_3.png,/Users/juanito/Downloads/Regular_player,Yusei,,BEL,FWD,gold,91,94,86,69
+P046,wingback_high-energy_sprinter_olive_skin_angular_face_confide_f4fb5fce-0662-49a3-a0bd-9c7894ca19b5_2.png,/Users/juanito/Downloads/Regular_player,Zen,,ARG,DEF,silver,73,66,74,87
+P047,winger_neon_trickster_medium_brown_skin_sharp_cheekbones_play_9a333be5-ebea-45fa-a988-5bb7e78fb8f4_0.png,/Users/juanito/Downloads/Regular_player,Arata,,MEX,FWD,silver,85,89,79,59
+P048,winger_neon_trickster_medium_brown_skin_sharp_cheekbones_play_9a333be5-ebea-45fa-a988-5bb7e78fb8f4_1.png,/Users/juanito/Downloads/Regular_player,Banri,,MEX,FWD,silver,83,88,75,63
+P049,winger_neon_trickster_medium_brown_skin_sharp_cheekbones_play_9a333be5-ebea-45fa-a988-5bb7e78fb8f4_2.png,/Users/juanito/Downloads/Regular_player,Chiro,,BRA,FWD,silver,81,83,78,65
+P050,winger_neon_trickster_medium_brown_skin_sharp_cheekbones_play_9a333be5-ebea-45fa-a988-5bb7e78fb8f4_3.png,/Users/juanito/Downloads/Regular_player,Daigo,,POR,FWD,silver,85,84,77,60
+P051,winger_stylish_superstar_golden_brown_skin_model-like_face_co_87e311c2-9e2e-4261-8d63-3f02767d9830_0.png,/Users/juanito/Downloads/Regular_player,Enzo,,FRA,FWD,gold,92,92,83,68
+P052,Argentinian_messi_striker_flashy_speed_demon_tan_skin_pointed_d8b7a46d-53cb-4467-89de-e902ea820079_1.png,/Users/juanito/Downloads/ICONS,Fumio,The Maestro,ARG,FWD,icon,99,99,92,78
+P053,Variant_winger_flashy_speed_demon_tan_skin_pointed_chin_confi_95874d38-27bc-4690-8dd0-295c821e7918_2.png,/Users/juanito/Downloads/ICONS,Gen,Quicksilver,POR,FWD,icon,99,98,86,76
+P054,Variant_winger_flashy_street_dribbler_tan_skin_narrow_angular_5b213c8e-7430-452c-aa09-3af8298202e5_2.png,/Users/juanito/Downloads/ICONS,Haruki,Street King,POR,FWD,icon,94,98,88,77
+P055,Variant_winger_neon_trickster_medium_brown_skin_sharp_cheekbo_bf8e4013-eba3-4327-b0e3-4af57fbffa49_3.png,/Users/juanito/Downloads/ICONS,Issei,Neon,POR,FWD,icon,99,99,90,77
+P056,brazilian_neymar_winger_stylish_ankle-breaker_tan_skin_narrow_88de79fe-4f75-4e39-a83c-2f4085c68671_1.png,/Users/juanito/Downloads/ICONS,Junpei,The Showman,BRA,FWD,icon,99,99,86,74
+P057,winger_chaotic_freestyle_prodigy_medium_brown_skin_foxlike_fa_c6bbed2d-cba1-47ba-8755-26e31513a29f_3.png,/Users/juanito/Downloads/ICONS,Keita,The Phantom,BRA,FWD,icon,94,99,90,76
+P058,winger_glitchy_trickster_medium_brown_skin_foxlike_features_w_20b686a4-d5ef-4e55-b065-50a7f48cc111_0.png,/Users/juanito/Downloads/ICONS,Manabu,The Glitch,URU,FWD,icon,99,97,87,72
+P059,winger_high-energy_freestyle_menace_olive_skin_sharp_cheekbon_6c814869-fbdb-431f-95c6-5c00011c3697_3.png,/Users/juanito/Downloads/ICONS,Noboru,The Menace,ESP,FWD,icon,99,97,86,77
+P060,winger_stylish_ankle-breaker_tan_skin_narrow_face_playful_sne_480562c3-0653-424b-b704-2c0cbd0adf97_1.png,/Users/juanito/Downloads/ICONS,Ryota,Ankle Breaker,ESP,FWD,icon,95,99,87,74
+P061,winger_stylish_dribble_artist_dark_skin_defined_cheekbones_pl_1cf888c5-bf35-4e79-a380-c4078f242040_3.png,/Users/juanito/Downloads/ICONS,Souta,The Artist,MAR,FWD,icon,95,96,88,76

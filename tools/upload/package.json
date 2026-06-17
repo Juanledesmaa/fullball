@@ -1,0 +1,7 @@
+{
+  "name": "fullball-asset-uploader",
+  "private": true,
+  "type": "module",
+  "description": "One-off uploader: player portraits -> Storage, catalog.json -> Firestore catalog/current",
+  "dependencies": { "firebase-admin": "^13.0.0" }
+}

@@ -102,4 +102,15 @@ final class FirestoreClient {
     func putProgress(uid: String, _ dto: ProgressDTO) async throws {
         try progressDoc(uid).setData(from: dto)
     }
+
+    // MARK: Catalog (shared, world-readable)
+
+    private func catalogDoc() -> DocumentReference {
+        db.collection("catalog").document("current")
+    }
+    func fetchCatalog() async throws -> CatalogDTO? {
+        let snap = try await catalogDoc().getDocument()
+        guard snap.exists else { return nil }
+        return try snap.data(as: CatalogDTO.self)
+    }
 }

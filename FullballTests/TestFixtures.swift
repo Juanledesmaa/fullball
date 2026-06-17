@@ -15,7 +15,7 @@ enum Fixtures {
 
     static let pool: [Card] = {
         var cards: [Card] = []
-        for r in [Rarity.bronze, .silver, .gold, .epic] {
+        for r in [Rarity.bronze, .silver, .gold] {
             for i in 0..<5 { cards.append(card("\(r.rawValue)-\(i)", r)) }
         }
         // Icons: two featured, two off-banner.

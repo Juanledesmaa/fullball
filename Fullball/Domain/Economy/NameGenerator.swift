@@ -46,8 +46,15 @@ enum NameGenerator {
 }
 
 extension Player {
-    /// Memorable, fictional display name (e.g. "Turbo Nutmegger").
-    var funnyName: String { NameGenerator.funnyName(for: id) }
+    /// Authored name if present (icons append " — epithet"); else the
+    /// deterministic generated fallback.
+    var funnyName: String {
+        if let n = name, !n.isEmpty {
+            if let e = epithet, !e.isEmpty { return "\(n) — \(e)" }
+            return n
+        }
+        return NameGenerator.funnyName(for: id)
+    }
 }
 
 extension Card {

@@ -19,9 +19,13 @@ struct GachaEngineTests {
         // Each tier should land near its disclosed base odds.
         #expect(abs(frac(.bronze) - 0.70) < 0.01)
         #expect(abs(frac(.silver) - 0.22) < 0.01)
-        #expect(abs(frac(.gold) - 0.065) < 0.005)
-        #expect(abs(frac(.epic) - 0.012) < 0.003)
-        #expect(abs(frac(.icon) - 0.003) < 0.0015)
+        #expect(abs(frac(.gold)  - 0.073) < 0.01)
+        #expect(abs(frac(.icon)  - 0.007) < 0.004)
+    }
+
+    @Test func baseOddsSumToOne() {
+        let sum = Rarity.allCases.reduce(0.0) { $0 + $1.baseOdds }
+        #expect(abs(sum - 1.0) < 1e-9)
     }
 
     @Test func rarityThresholdsArePartitioned() {

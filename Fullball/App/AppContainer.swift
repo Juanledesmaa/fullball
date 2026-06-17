@@ -20,6 +20,7 @@ final class AppContainer {
     let matchStore: any MatchProgressStore
     let slate: MatchSlateService
     let market: TransferMarketService
+    let imageStore: any PlayerImageStore
     let navigator = Navigator()
 
     init(context: ModelContext,
@@ -28,8 +29,10 @@ final class AppContainer {
          collection injectedCollection: (any CollectionService)? = nil,
          leaderboard injectedLeaderboard: (any LeaderboardService)? = nil,
          score injectedScore: ScoreBoard? = nil,
+         imageStore: (any PlayerImageStore)? = nil,
          rng: any RandomProvider = SystemRandomProvider()) {
         self.catalog = catalog
+        self.imageStore = imageStore ?? MockImageStore()
         let wallet = injectedWallet ?? SwiftDataWalletService(context: context)
         self.wallet = wallet
         let collection = injectedCollection
@@ -92,7 +95,8 @@ final class AppContainer {
 
         return AppContainer(context: context, catalog: catalog,
                             wallet: cloudWallet, collection: cloudCollection,
-                            leaderboard: leaderboard, score: score)
+                            leaderboard: leaderboard, score: score,
+                            imageStore: FirebaseImageStore())
     }
 }
 

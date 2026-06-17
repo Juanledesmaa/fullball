@@ -22,11 +22,11 @@ enum GachaEngine {
     static func rarity(forPullNumber n: Int, roll: Double) -> Rarity {
         let ico = iconOdds(forPullNumber: n)
         let nonIconBase = Rarity.bronze.baseOdds + Rarity.silver.baseOdds
-            + Rarity.gold.baseOdds + Rarity.epic.baseOdds   // 0.997
+            + Rarity.gold.baseOdds   // 0.993
         let scale = (1.0 - ico) / nonIconBase
 
         var cumulative = 0.0
-        for rarity in [Rarity.bronze, .silver, .gold, .epic] {
+        for rarity in [Rarity.bronze, .silver, .gold] {
             cumulative += rarity.baseOdds * scale
             if roll < cumulative { return rarity }
         }

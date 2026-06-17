@@ -16,6 +16,7 @@ struct RootView: View {
             } else if let container {
                 MainTabView()
                     .environment(container)
+                    .environment(\.playerImageStore, container.imageStore)
                     .fullScreenCover(isPresented: Binding(
                         get: { !didSeeIntro },
                         set: { if $0 { didSeeIntro = false } })) {
@@ -30,7 +31,7 @@ struct RootView: View {
             let c = await AppContainer.bootstrap(context: modelContext,
                                                  uid: auth.currentUser?.uid,
                                                  userName: auth.currentUser?.displayName,
-                                                 loader: FullballConfig.catalogLoader)
+                                                 loader: FirestoreCatalogLoader(client: FirestoreClient()))
             // Launch-arg demo seed for UI verification only (`-seedDemo 1`).
             if UserDefaults.standard.bool(forKey: "seedDemo"), c.collection.owned().isEmpty {
                 let seeded = Array(c.catalog.cards.prefix(14))

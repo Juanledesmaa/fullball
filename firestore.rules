@@ -14,6 +14,13 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Shared player catalog (`catalog/current`): world-readable so the app can
+    // load it pre-auth/offline; authored via console/CI only.
+    match /catalog/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Shared leaderboard: anyone signed in may read; a player may write only
     // their own entry (doc id == their uid). No validation of the points value
     // yet (anti-cheat is a later hardening pass).

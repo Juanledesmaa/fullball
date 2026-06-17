@@ -18,9 +18,8 @@ enum Fictionalizer {
         guard let r = rating else { return .bronze }
         switch r {
         case 7.6...: return .icon
-        case 7.2..<7.6: return .epic
-        case 6.9..<7.2: return .gold
-        case 6.6..<6.9: return .silver
+        case 6.8..<7.6: return .gold
+        case 6.6..<6.8: return .silver
         default: return .bronze
         }
     }
@@ -29,7 +28,7 @@ enum Fictionalizer {
         let overall: Int = {
             switch rarity {
             case .bronze: return 62; case .silver: return 70; case .gold: return 78
-            case .epic: return 85; case .icon: return 91
+            case .icon: return 91
             }
         }()
         func jit(_ base: Int, _ salt: Int) -> Int {

@@ -36,7 +36,7 @@ localization.
 6. **Virtual currency only** — no real-money wagering / cash-out / crypto. Shippable under App Store rule 3.1.1, not 5.3.
 7. **Disclose gacha odds** in the UI (Odds sheet on Scout).
 8. **Minimal TDD** — tests only for deterministic economy/gacha/generation logic (Swift Testing). No view/navigation/SwiftData-wiring tests.
-9. Prefer **zero third-party packages** (SPM + Apple frameworks only). **One deliberate exception:** the **Firebase iOS SDK** (FirebaseAuth + FirebaseFirestore + FirebaseStorage), added for the backend — quarantined behind service protocols in `Services/Auth` + `Services/Firestore`; never import Firebase in Views/ViewModels.
+9. Prefer **zero third-party packages** (SPM + Apple frameworks only). **One deliberate exception:** the **Firebase iOS SDK** (FirebaseAuth + FirebaseFirestore + FirebaseStorage + FirebaseAppCheck), added for the backend — quarantined behind service protocols in `Services/Auth` + `Services/Firestore`; never import Firebase in Views/ViewModels (App Check is the one bootstrap-only exception, in `FullballApp`).
 10. Develop against **SwiftUI Previews + mock data**, not full clean builds.
 
 > Workflow prefs: **no "Co-Authored-By" trailer** in commits. Plans/design docs are auto-approved — don't block on approval. Use `context7` MCP to confirm current SwiftUI/SwiftData/Swift-concurrency APIs before implementing.

@@ -58,9 +58,9 @@ any phase that changes them).
 - **Transfer prices vs starter Cash**: cheapest listing (~4,240) > starter (2,500). Intended grind, but may feel gated early — tune `TransferRules` / starter Cash if so.
 - **Player art style** — images now served from Firebase Storage (`players/{id}.jpg`). A new art set is a Storage-only swap; no code change needed.
 - **Live-match tab-switch freeze — FIXED.** `LiveMatchesView` used to `vm.stop()` on `onDisappear`, cancelling in-flight matches on every tab switch (they only finalized on relaunch). Removed; matches now keep ticking in the background and settle. Note: a hard app-kill mid-match still relies on `restore()` finalizing on next launch (Task.sleep is suspended while backgrounded).
-- **Portrait crop** — images are square-cropped server-side before Storage upload. Per-image tuning requires re-uploading; the old bundled `avatar_NNN.jpg` files in `Resources/Avatars/` are now unused and can be removed to save ~5.8 MB.
+- **Portrait crop** — images are square-cropped server-side before Storage upload. Per-image tuning requires re-uploading. (The old bundled `avatar_NNN.jpg` set was removed — saved ~5.8 MB.)
 - **Market has no gem-refresh** (unlike the match slate) — could add the same `RefreshRules`-style sink.
-- **`fixtures.json` is now unused** by Live (generator replaced it) — still loaded by `CatalogService`; harmless, could be removed.
+- **`fixtures.json` removed** — Live uses the procedural `MatchSlateService`; `CatalogService` now loads fixtures tolerantly (→ `[]` if absent) for the opt-in api-football loader.
 - **api-football key**: a real key was shared in chat during development — **rotate it** before any production use; it is NOT stored in the repo.
 
 ## 🚀 Suggested next steps (roughly prioritized)
@@ -69,7 +69,6 @@ any phase that changes them).
 2. **"Today" home hub** — a landing tab tying live matches × your holdings × daily × next action into one glance (the biggest remaining clarity lever; the WC26 wireframe originally had a Today screen).
 3. **Objectives / quests** — a rewarded checklist turning systems into next-taps ("sign a client", "field an XI", "win a match", "reach squad 80").
 4. **Settings** — sound/haptics toggles, restore purchases, a place for legal/odds.
-5. **Remove unused `Resources/Avatars/`** — old `avatar_NNN.jpg` bundle (~5.8 MB) superseded by Storage; safe to delete and drop from `project.yml`.
 6. **Persistence polish** — persist matchday session points; consider migrating SwiftData carefully (additive fields only) as models grow.
 7. **Auth-invasiveness rework** — SIWA gate too aggressive; move to anonymous-first.
 

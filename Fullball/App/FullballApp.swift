@@ -1,6 +1,20 @@
 import SwiftUI
 import SwiftData
 import FirebaseCore
+import FirebaseAppCheck
+
+/// App Check provider: App Attest on real builds (proves requests come from this
+/// genuine app), debug provider on simulator/DEBUG (prints a token to register
+/// in the Firebase console). Must be set BEFORE `FirebaseApp.configure()`.
+private final class FullballAppCheckFactory: NSObject, AppCheckProviderFactory {
+    func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+        #if DEBUG
+        AppCheckDebugProvider(app: app)
+        #else
+        AppAttestProvider(app: app)
+        #endif
+    }
+}
 
 @main
 struct FullballApp: App {
@@ -12,6 +26,8 @@ struct FullballApp: App {
         // aborting at launch in `FirebaseApp.configure()`; in production the
         // plist is present so Firebase configures normally.
         if Bundle.main.url(forResource: "GoogleService-Info", withExtension: "plist") != nil {
+            // App Check factory MUST be registered before configure().
+            AppCheck.setAppCheckProviderFactory(FullballAppCheckFactory())
             FirebaseApp.configure()
         }
         do {

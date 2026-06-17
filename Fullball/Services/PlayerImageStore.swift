@@ -1,8 +1,8 @@
 import UIKit
 import FirebaseStorage
 
-/// Async portrait source: memory → disk → Firebase Storage. Replaces the old
-/// hash-mapped bundled `AvatarAssets`. Quarantines Storage from the UI.
+/// Async portrait source: memory → disk → Firebase Storage. Quarantines
+/// Storage from the UI.
 protocol PlayerImageStore: Sendable {
     func image(for id: String) async -> UIImage?
 }

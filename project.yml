@@ -31,6 +31,8 @@ targets:
         product: FirebaseFirestore
       - package: Firebase
         product: FirebaseStorage
+      - package: Firebase
+        product: FirebaseAppCheck
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.juanledesma.Fulbo.app

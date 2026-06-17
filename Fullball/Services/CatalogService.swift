@@ -36,10 +36,18 @@ struct BundledCatalogService: CatalogService {
             }
             return value
         }
+        // Optional resource: returns [] if the json isn't bundled.
+        func loadOptional<T: Decodable>(_ name: String, as: T.Type) -> T? {
+            guard let url = bundle.url(forResource: name, withExtension: "json"),
+                  let data = try? Data(contentsOf: url) else { return nil }
+            return try? dec.decode(T.self, from: data)
+        }
         let catalog = load("catalog", as: CatalogFile.self)
         self.cards = catalog.cards
         self.nations = catalog.nations
         self.banners = load("banners", as: [Banner].self)
-        self.fixtures = load("fixtures", as: [Fixture].self)
+        // Live uses the procedural MatchSlateService, not bundled fixtures; the
+        // file was removed. Kept tolerant for the opt-in api-football loader.
+        self.fixtures = loadOptional("fixtures", as: [Fixture].self) ?? []
     }
 }

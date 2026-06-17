@@ -68,3 +68,8 @@ struct PityDTO: Codable, Equatable {
         PityState(pullsSinceIcon: pullsSinceIcon, guaranteeFeatured: guaranteeFeatured)
     }
 }
+
+struct LeaderboardEntryDTO: Codable, Equatable {
+    var name: String
+    var points: Int
+}

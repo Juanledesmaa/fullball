@@ -63,4 +63,28 @@ final class FirestoreClient {
     func putPity(uid: String, _ dto: PityDTO) async throws {
         try pityRef(uid).document(dto.bannerID).setData(from: dto)
     }
+
+    // MARK: Leaderboard
+
+    private func leaderboardRef() -> CollectionReference {
+        db.collection("leaderboard")
+    }
+
+    func putLeaderboardEntry(uid: String, name: String, points: Int) async throws {
+        try leaderboardRef().document(uid)
+            .setData(from: LeaderboardEntryDTO(name: name, points: points))
+    }
+
+    /// Top entries by points descending. Returns each doc's id (the player uid)
+    /// alongside the decoded name/points.
+    func fetchTopLeaderboard(limit: Int) async throws -> [(uid: String, name: String, points: Int)] {
+        let snap = try await leaderboardRef()
+            .order(by: "points", descending: true)
+            .limit(to: limit)
+            .getDocuments()
+        return try snap.documents.map { doc in
+            let dto = try doc.data(as: LeaderboardEntryDTO.self)
+            return (uid: doc.documentID, name: dto.name, points: dto.points)
+        }
+    }
 }

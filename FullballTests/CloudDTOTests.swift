@@ -6,7 +6,7 @@ import SwiftData
 @MainActor
 struct CloudDTOTests {
     private let container = try! ModelContainer(
-        for: Schema([Wallet.self, CardInstance.self]),
+        for: Schema([Wallet.self, CardInstance.self, LiveProgress.self]),
         configurations: ModelConfiguration(isStoredInMemoryOnly: true))
 
     @Test func walletRoundTrips() {
@@ -34,5 +34,21 @@ struct CloudDTOTests {
         let dto = PityDTO(bannerID: "featured", state: PityState(pullsSinceIcon: 7, guaranteeFeatured: true))
         #expect(dto.pullsSinceIcon == 7 && dto.guaranteeFeatured == true)
         #expect(dto.state == PityState(pullsSinceIcon: 7, guaranteeFeatured: true))
+    }
+
+    @Test func progressRoundTrips() {
+        let date = Date(timeIntervalSince1970: 1_700_000_000)
+        let p = LiveProgress(points: 1200, formTokensEarned: 40,
+                             lastDailyClaim: date, milestonesClaimed: 2)
+        p.slateBlock = "20260617-1"
+        p.slateRefreshCount = 3
+        let dto = ProgressDTO(p)
+        #expect(dto.points == 1200 && dto.formTokensEarned == 40)
+        #expect(dto.lastDailyClaim == date && dto.milestonesClaimed == 2)
+        #expect(dto.slateBlock == "20260617-1" && dto.slateRefreshCount == 3)
+        let p2 = LiveProgress()
+        dto.apply(to: p2)
+        #expect(p2.points == 1200 && p2.formTokensEarned == 40 && p2.milestonesClaimed == 2)
+        #expect(p2.lastDailyClaim == date && p2.slateBlock == "20260617-1" && p2.slateRefreshCount == 3)
     }
 }

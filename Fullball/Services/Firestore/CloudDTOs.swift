@@ -73,3 +73,31 @@ struct LeaderboardEntryDTO: Codable, Equatable {
     var name: String
     var points: Int
 }
+
+struct ProgressDTO: Codable, Equatable {
+    var points: Int
+    var formTokensEarned: Int
+    var lastDailyClaim: Date?
+    var milestonesClaimed: Int
+    var slateBlock: String?
+    var slateRefreshCount: Int
+
+    init(points: Int, formTokensEarned: Int, lastDailyClaim: Date?,
+         milestonesClaimed: Int, slateBlock: String?, slateRefreshCount: Int) {
+        self.points = points; self.formTokensEarned = formTokensEarned
+        self.lastDailyClaim = lastDailyClaim; self.milestonesClaimed = milestonesClaimed
+        self.slateBlock = slateBlock; self.slateRefreshCount = slateRefreshCount
+    }
+
+    @MainActor init(_ p: LiveProgress) {
+        self.init(points: p.points, formTokensEarned: p.formTokensEarned,
+                  lastDailyClaim: p.lastDailyClaim, milestonesClaimed: p.milestonesClaimed,
+                  slateBlock: p.slateBlock, slateRefreshCount: p.slateRefreshCount)
+    }
+
+    @MainActor func apply(to p: LiveProgress) {
+        p.points = points; p.formTokensEarned = formTokensEarned
+        p.lastDailyClaim = lastDailyClaim; p.milestonesClaimed = milestonesClaimed
+        p.slateBlock = slateBlock; p.slateRefreshCount = slateRefreshCount
+    }
+}

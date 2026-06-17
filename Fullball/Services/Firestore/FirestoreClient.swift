@@ -87,4 +87,19 @@ final class FirestoreClient {
             return (uid: doc.documentID, name: dto.name, points: dto.points)
         }
     }
+
+    // MARK: Progress
+
+    private func progressDoc(_ uid: String) -> DocumentReference {
+        userDoc(uid).collection("state").document("progress")
+    }
+
+    func fetchProgress(uid: String) async throws -> ProgressDTO? {
+        let snap = try await progressDoc(uid).getDocument()
+        guard snap.exists else { return nil }
+        return try snap.data(as: ProgressDTO.self)
+    }
+    func putProgress(uid: String, _ dto: ProgressDTO) async throws {
+        try progressDoc(uid).setData(from: dto)
+    }
 }

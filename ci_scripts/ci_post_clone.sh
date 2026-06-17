@@ -9,3 +9,9 @@ fi
 
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 xcodegen generate
+
+# The generated .xcodeproj is not committed, so its SwiftPM Package.resolved
+# doesn't exist on a fresh CI clone. Xcode Cloud disables automatic dependency
+# resolution and requires a resolved file, so resolve explicitly here (this
+# writes Package.resolved into the freshly-generated project before the build).
+xcodebuild -resolvePackageDependencies -project Fullball.xcodeproj -scheme Fullball

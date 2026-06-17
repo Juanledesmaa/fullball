@@ -59,7 +59,7 @@ final class MatchSlateService {
     }
 
     private static func generate(slateID: String, catalog: any CatalogService) -> [Fixture] {
-        FixtureGenerator.slate(seed: DeviceSeed.seed(for: slateID),
+        FixtureGenerator.slate(seed: DeviceSeed.sharedSeed(for: slateID),
                                nations: catalog.nations, cards: catalog.cards)
     }
 }

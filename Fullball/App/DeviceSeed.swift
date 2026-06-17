@@ -34,6 +34,10 @@ enum DeviceSeed {
     /// Seed combining the device base and the slate id.
     static func seed(for slateID: String) -> UInt64 { deviceBase ^ fnv1a(slateID) }
 
+    /// Device-INDEPENDENT seed: a pure function of the slate id, so every
+    /// device derives the same slate for a given time block (shared world).
+    static func sharedSeed(for slateID: String) -> UInt64 { fnv1a(slateID) }
+
     private static func fnv1a(_ s: String) -> UInt64 {
         var h: UInt64 = 1469598103934665603
         for b in s.utf8 { h = (h ^ UInt64(b)) &* 1099511628211 }

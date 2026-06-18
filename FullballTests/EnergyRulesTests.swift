@@ -27,4 +27,17 @@ struct EnergyRulesTests {
         #expect(EnergyRules.regen(from: 90, minutesElapsed: 1000) == EnergyRules.maxEnergy)
         #expect(EnergyRules.regen(from: 50, minutesElapsed: 0) == 50)
     }
+
+    @Test func drainAfterMatchSubtractsBaseAndCaptainExtra() {
+        #expect(EnergyRules.afterMatch(energy: 100, isCaptain: false) == 80)
+        #expect(EnergyRules.afterMatch(energy: 100, isCaptain: true) == 70)
+        #expect(EnergyRules.afterMatch(energy: 10, isCaptain: true) == 0)
+    }
+
+    @Test func refillCostIsProportionalToMissingEnergy() {
+        #expect(EnergyRules.refillCost(currentEnergy: 100) == 0)
+        #expect(EnergyRules.refillCost(currentEnergy: 0) == EnergyRules.maxRefillGems)
+        let half = EnergyRules.refillCost(currentEnergy: 50)
+        #expect(half > 0 && half < EnergyRules.maxRefillGems)
+    }
 }

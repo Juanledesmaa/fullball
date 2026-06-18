@@ -156,4 +156,18 @@ enum EnergyRules {
         // .rounded(.down) is intentional: regen is slightly stingy (conservative floor).
         min(maxEnergy, energy + Int((regenPerMinute * minutesElapsed).rounded(.down)))
     }
+
+    static let maxRefillGems = 60       // Gems to fully refill from empty
+
+    /// Energy left after fielding in one match (captain works harder).
+    static func afterMatch(energy: Int, isCaptain: Bool) -> Int {
+        let drain = drainPerMatch + (isCaptain ? captainExtraDrain : 0)
+        return max(0, energy - drain)
+    }
+
+    /// Gem cost to refill to full, proportional to the energy missing.
+    static func refillCost(currentEnergy: Int) -> Int {
+        let missing = max(0, maxEnergy - currentEnergy)
+        return Int((Double(missing) / Double(maxEnergy) * Double(maxRefillGems)).rounded())
+    }
 }

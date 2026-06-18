@@ -208,7 +208,7 @@ struct TacticsMatchView: View {
             } label: {
                 HStack(spacing: 8) {
                     Text("KICK OFF").font(WC.ui(16)).foregroundStyle(.white)
-                    CurrencyCost(currency: .coins, amount: vm.entryFee)
+                    CurrencyCost(currency: .coins, amount: vm.entryFee, onColor: true)
                 }
                 .frame(maxWidth: .infinity)
                 .padding()

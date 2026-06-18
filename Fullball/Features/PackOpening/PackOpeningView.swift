@@ -197,7 +197,7 @@ struct PackOpeningView: View {
         } label: {
             VStack(spacing: 3) {
                 Text(title).font(WC.display(15)).tracking(0.5)
-                CurrencyCost(currency: pullCost.currency, amount: pullCost.amount)
+                CurrencyCost(currency: pullCost.currency, amount: pullCost.amount, onColor: filled)
             }
             .frame(maxWidth: .infinity).padding(.vertical, 14)
             .foregroundStyle(filled ? .white : WC.inkText)

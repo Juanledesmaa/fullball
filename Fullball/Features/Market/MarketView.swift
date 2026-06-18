@@ -77,7 +77,7 @@ struct MarketView: View {
         Button { vm.sign(l) } label: {
             VStack(spacing: 2) {
                 Text(owned ? "RE-SIGN" : "SIGN").font(WC.display(12)).foregroundStyle(.white)
-                CurrencyCost(currency: .coins, amount: l.price)
+                CurrencyCost(currency: .coins, amount: l.price, onColor: true)
             }
             .padding(.horizontal, 16).padding(.vertical, 10)
             .background(Capsule().fill(afford ? WC.go : WC.faint))

@@ -75,35 +75,21 @@ enum FutsalEngine {
 
     static func chanceProbability(atk: MatchSide, def: MatchSide) -> Double {
         let atkMid = midfieldStrength(atk), defMid = midfieldStrength(def)
-        let formation = atk.tactics.formation.edge(against: def.tactics.formation)
-        // Both sides' attacking intent adds: your own attack raises your chances,
-        // and a high mentality also opens you up, raising what you concede on
-        // the opponent's possession.
-        let mentality = atk.tactics.mentality.rawValue + def.tactics.mentality.rawValue
-        let counter = counterEdge(atk: atk, def: def)
+        let focus = atk.tactics.focus.rawValue + def.tactics.focus.rawValue
+        let intensity = atk.tactics.intensity.rawValue + def.tactics.intensity.rawValue
         let p = FutsalRules.baseChance
             + FutsalRules.strengthWeight * (atkMid - defMid)
-            + FutsalRules.formationEdgeWeight * Double(formation)
-            + FutsalRules.mentalityWeight * Double(mentality)
-            + FutsalRules.counterEdgeWeight * Double(counter)
+            + FutsalRules.focusWeight * Double(focus)
+            + FutsalRules.intensityWeight * Double(intensity)
         return min(FutsalRules.chanceCeil, max(FutsalRules.chanceFloor, p))
     }
 
     static func goalProbability(shooter: MatchPlayer, atk: MatchSide, def: MatchSide) -> Double {
         let gkDef = def.goalkeeper?.stats.defending ?? 50
-        var shooting = Double(shooter.stats.shooting)
-        // Marking is danger-man-specific: only the danger man faces the assigned
-        // marker (shooting reduction + style duel). Everyone else is judged vs the GK.
-        let defenderStyle: PlayStyle
-        if shooter.id == atk.dangerManID, let marker = def.player(def.tactics.markerID) {
-            shooting -= FutsalRules.markWeight * Double(marker.stats.defending)
-            defenderStyle = marker.style
-        } else {
-            defenderStyle = def.goalkeeper?.style ?? .physical
-        }
-        let styleEdge = shooter.style.edge(against: defenderStyle)
+        let gkStyle = def.goalkeeper?.style ?? .physical
+        let styleEdge = shooter.style.edge(against: gkStyle)
         let p = FutsalRules.baseGoal
-            + FutsalRules.shotWeight * (shooting - Double(gkDef))
+            + FutsalRules.shotWeight * (Double(shooter.stats.shooting) - Double(gkDef))
             + FutsalRules.styleEdgeWeight * Double(styleEdge)
         return min(FutsalRules.goalCeil, max(FutsalRules.goalFloor, p))
     }
@@ -113,11 +99,6 @@ enum FutsalEngine {
         guard !outfield.isEmpty else { return 0 }
         let sum = outfield.reduce(0.0) { $0 + Double($1.stats.passing + $1.stats.pace) / 2.0 }
         return sum / Double(outfield.count)
-    }
-
-    static func counterEdge(atk: MatchSide, def: MatchSide) -> Int {
-        guard let pick = atk.tactics.counter else { return 0 }
-        return pick.edge(against: def.teamStyle)
     }
 
     private static func weightedPick<R: RandomProvider>(

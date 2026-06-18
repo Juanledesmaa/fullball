@@ -108,28 +108,23 @@ enum RefreshRules {
 /// All tunable constants for the 5-a-side resolution engine. Pure; the engine
 /// reads these so balancing is a one-file change.
 enum FutsalRules {
-    static let possessionCount = 14         // alternating possessions per match
+    static let possessionCount = 14
 
-    // Chance creation (per attacking possession).
+    // Chance creation.
     static let baseChance = 0.45
-    static let strengthWeight = 0.004       // per point of midfield diff ((passing+pace)/2, atk - def)
-    static let formationEdgeWeight = 0.05   // per RPS edge step
-    static let mentalityWeight = 0.06       // per mentality step, attacker plus defender (intent opens both ends)
-    static let counterEdgeWeight = 0.04     // per counter RPS edge step
+    static let strengthWeight = 0.004     // per point of midfield diff ((passing+pace)/2, atk - def)
+    static let focusWeight = 0.06         // per focus step, summed across both sides (attack opens both ends)
+    static let intensityWeight = 0.05     // per intensity step, summed across both sides (more tempo = more chances)
     static let chanceFloor = 0.05, chanceCeil = 0.90
 
-    // Shot resolution (when a chance is created).
+    // Shot resolution.
     static let baseGoal = 0.30
-    static let shotWeight = 0.004           // per point of (shooting - GK defending)
-    static let styleEdgeWeight = 0.03       // per shooter-vs-marker RPS edge step
-    static let saveBand = 0.30              // share of non-goal outcomes that are saves vs misses
+    static let shotWeight = 0.004         // per point of (shooting - GK defending)
+    static let styleEdgeWeight = 0.03     // shooter style vs GK style (automatic depth)
+    static let saveBand = 0.30
     static let goalFloor = 0.03, goalCeil = 0.90
 
-    // Marking: a strong marker on the danger man reduces their effective shooting.
-    static let markWeight = 0.20            // fraction of marker.defending subtracted
-
-    // Reward premium (used by the rewards phase; defined here with engine tuning).
-    static let maxTacticsBonus = 1.5        // cap on the active-play payout multiplier
+    static let maxTacticsBonus = 1.5
 }
 
 /// Per-player energy: tired players underperform. Pure functions; storage and

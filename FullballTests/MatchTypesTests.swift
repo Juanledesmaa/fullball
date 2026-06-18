@@ -19,8 +19,7 @@ struct MatchTypesTests {
             player("f1", .fwd, Stats(pace: 70, shooting: 80, passing: 50, defending: 30)),
             player("f2", .fwd, Stats(pace: 80, shooting: 70, passing: 40, defending: 30)),
         ]
-        let side = MatchSide(players: players, tactics: Tactics(),
-                             teamStyle: .technical, dangerManID: "f1", captainID: "f1")
+        let side = MatchSide(players: players, tactics: Tactics(), captainID: "f1")
         #expect(side.goalkeeper?.id == "gk")
         #expect(side.outfield.map(\.id) == ["d", "m", "f1", "f2"])
     }

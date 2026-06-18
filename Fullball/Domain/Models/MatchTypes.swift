@@ -12,12 +12,10 @@ struct MatchPlayer: Sendable, Equatable, Identifiable {
 }
 
 /// One team entering a match: exactly 5 players (one GK) plus their tactics
-/// and the scouting facts the opposing side reacts to.
+/// and the captain.
 struct MatchSide: Sendable, Equatable {
     let players: [MatchPlayer]
     let tactics: Tactics
-    let teamStyle: PlayStyle    // dominant style, scored by the opponent's counter-pick
-    let dangerManID: String     // highest-threat player, target of opponent marking
     let captainID: String?
 
     var goalkeeper: MatchPlayer? { players.first { $0.position == .gk } }

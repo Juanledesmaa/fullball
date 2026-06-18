@@ -14,7 +14,7 @@ struct FutsalPitchView: View {
         VStack(spacing: 14) {
             scoreboard
             pitch
-            ticker
+            eventFeed
             if vm.phase == .fullTime { fullTime }
             Spacer(minLength: 0)
         }
@@ -252,47 +252,81 @@ struct FutsalPitchView: View {
 
     private struct Slot { let id: String; let player: MatchPlayer; let point: CGPoint }
 
+    /// Depth of a position column. Home defends the left goal, so its forwards
+    /// push right (toward center); away mirrors. Matches the setup field layout.
+    private func depthX(for pos: Position, isHome: Bool) -> CGFloat {
+        let homeFrac: CGFloat
+        switch pos {
+        case .gk:  homeFrac = 0.07
+        case .def: homeFrac = 0.20
+        case .mid: homeFrac = 0.34
+        case .fwd: homeFrac = 0.46
+        }
+        return isHome ? homeFrac : (1 - homeFrac)
+    }
+
     private func horizontalSlots(_ players: [MatchPlayer], isHome: Bool, in size: CGSize) -> [Slot] {
         guard !players.isEmpty else { return [] }
-        let gk = players.first { $0.position == .gk }
-        let outs = players.filter { $0.position != .gk }
-
-        // Home = LEFT side (x 0.05..0.45), Away = RIGHT side (x 0.55..0.95)
-        let gkX: CGFloat = isHome ? 0.07 : 0.93
-        let outX: CGFloat = isHome ? 0.32 : 0.68   // outfield column
-
         var result: [Slot] = []
-        if let gk {
-            result.append(Slot(id: gk.id, player: gk,
-                               point: CGPoint(x: size.width * gkX, y: size.height * 0.5)))
-        }
-        for (i, p) in outs.enumerated() {
-            let frac = Double(i + 1) / Double(outs.count + 1)
-            let y = size.height * frac
-            result.append(Slot(id: p.id, player: p,
-                               point: CGPoint(x: size.width * outX, y: y)))
+        // Group into position columns (GK → DEF → MID → FWD); stack each column vertically.
+        for pos in [Position.gk, .def, .mid, .fwd] {
+            let group = players.filter { $0.position == pos }
+            guard !group.isEmpty else { continue }
+            let x = size.width * depthX(for: pos, isHome: isHome)
+            for (i, p) in group.enumerated() {
+                let frac = Double(i + 1) / Double(group.count + 1)
+                result.append(Slot(id: p.id, player: p,
+                                   point: CGPoint(x: x, y: size.height * frac)))
+            }
         }
         return result
     }
 
-    // MARK: - Ticker
+    // MARK: - Event feed (running list below the pitch)
 
-    private var ticker: some View {
-        Text(eventText)
-            .font(WC.ui(14))
-            .foregroundStyle(WC.inkText)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .animation(.default, value: vm.minuteIndex)
+    /// Scoring/keeper events played so far, newest first (turnovers omitted).
+    private var playedEvents: [PossessionEvent] {
+        guard let res = vm.result else { return [] }
+        return Array(res.events.prefix(vm.minuteIndex))
+            .filter { $0.outcome != .turnover }
+            .reversed()
     }
 
-    private var eventText: String {
-        guard let e = vm.lastEvent else { return "Kick off!" }
-        let who = vm.catalogCard(e.ballPlayerID)?.displayName ?? "#\(e.ballPlayerID)"
-        switch e.outcome {
-        case .goal:     return "⚽ GOAL — \(who)"
-        case .save:     return "🧤 Save"
-        case .miss:     return "💨 Miss — \(who)"
-        case .turnover: return "↩︎ Turnover"
+    private var eventFeed: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 6) {
+                if playedEvents.isEmpty {
+                    Text("Kick off!").font(WC.ui(13)).foregroundStyle(WC.sub)
+                }
+                ForEach(playedEvents) { feedRow($0) }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxHeight: 170)
+        .animation(.default, value: vm.minuteIndex)
+    }
+
+    private func feedRow(_ e: PossessionEvent) -> some View {
+        let total = vm.result?.events.count ?? FutsalRules.possessionCount
+        let minute = Int((Double(e.index + 1) / Double(max(1, total))) * 90)
+        let who = vm.catalogCard(e.ballPlayerID)?.displayName ?? "Player"
+        let side = e.attackingHome ? vm.fixture.homeTag : vm.opponentName.uppercased()
+        let (icon, label, tint): (String, String, Color) = {
+            switch e.outcome {
+            case .goal:     return ("soccerball", "GOAL", WC.gold)
+            case .save:     return ("hand.raised.fill", "Save", WC.sub)
+            case .miss:     return ("wind", "Miss", WC.sub)
+            case .turnover: return ("arrow.uturn.left", "Turnover", WC.sub)
+            }
+        }()
+        return HStack(spacing: 8) {
+            Text("\(minute)'").font(WC.display(11)).foregroundStyle(WC.sub)
+                .frame(width: 30, alignment: .leading)
+            Image(systemName: icon).font(.system(size: 12)).foregroundStyle(tint)
+            Text("\(label) — \(who)").font(WC.ui(13))
+                .foregroundStyle(e.outcome == .goal ? WC.inkText : WC.sub).lineLimit(1)
+            Spacer()
+            Text(side).font(WC.display(9)).foregroundStyle(WC.sub)
         }
     }
 

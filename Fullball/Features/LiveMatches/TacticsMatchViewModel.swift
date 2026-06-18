@@ -152,6 +152,7 @@ final class TacticsMatchViewModel {
 
         score.award(points: pay.points, formTokens: pay.rep)
         if pay.cash > 0 { wallet.credit(.coins, pay.cash) }
+        if pay.rep > 0  { wallet.credit(.formTokens, pay.rep) }
         if pay.wonBonus { wallet.credit(.tickets, LiveRules.winBonusTickets) }
         wallet.save()
 

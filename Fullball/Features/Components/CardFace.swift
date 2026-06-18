@@ -21,38 +21,53 @@ struct CardTile: View {
 
     var body: some View {
         let card = owned.card
-        VStack(spacing: 0) {
-            // header bar — rarity + OVR
-            HStack {
-                Text(card.rarity.displayName.uppercased())
-                    .font(WC.display(8.5)).tracking(0.6).foregroundStyle(.white)
-                Spacer()
-                Text("\(owned.effectiveStats.overall)")
-                    .font(WC.display(13)).foregroundStyle(.white)
-            }
-            .padding(.horizontal, 9).padding(.vertical, 5)
-            .background(card.rarity.color)
-
-            CardArt(card: card)
-
-            // nameplate
-            VStack(alignment: .leading, spacing: 4) {
-                Text(card.funnyName).font(WC.display(12))
-                    .foregroundStyle(WC.inkText).lineLimit(1).minimumScaleFactor(0.6)
-                HStack(spacing: 6) {
-                    NationBadge(code: card.player.nationTag, width: 22)
-                    Text("#\(card.player.shirtNumber) · \(card.player.position.rawValue)")
-                        .font(WC.ui(10, weight: .semibold)).foregroundStyle(WC.sub)
+        ZStack(alignment: .topTrailing) {
+            VStack(spacing: 0) {
+                // header bar — rarity + OVR
+                HStack {
+                    Text(card.rarity.displayName.uppercased())
+                        .font(WC.display(8.5)).tracking(0.6).foregroundStyle(.white)
                     Spacer()
-                    StarRow(stars: owned.instance.stars, cap: card.rarity.starCap, size: 9)
+                    Text("\(owned.effectiveStats.overall)")
+                        .font(WC.display(13)).foregroundStyle(.white)
                 }
+                .padding(.horizontal, 9).padding(.vertical, 5)
+                .background(card.rarity.color)
+
+                CardArt(card: card)
+
+                // nameplate
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(card.funnyName).font(WC.display(12))
+                        .foregroundStyle(WC.inkText).lineLimit(1).minimumScaleFactor(0.6)
+                    HStack(spacing: 6) {
+                        NationBadge(code: card.player.nationTag, width: 22)
+                        Text("#\(card.player.shirtNumber) · \(card.player.position.rawValue)")
+                            .font(WC.ui(10, weight: .semibold)).foregroundStyle(WC.sub)
+                        Spacer()
+                        StarRow(stars: owned.instance.stars, cap: card.rarity.starCap, size: 9)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(10)
+                .background(WC.cardBG)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(10)
-            .background(WC.cardBG)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(card.rarity.color, lineWidth: 2))
+
+            // Multiple-copies badge: shown when extra duplicates are held.
+            // `copies` = unconsumed duplicates beyond the base card, so total
+            // owned = copies + 1. Badge shows "×N" (total) so the player can
+            // immediately see how many copies are available for limit-breaking.
+            if owned.instance.copies > 0 {
+                Text("×\(owned.instance.copies + 1)")
+                    .font(WC.display(10)).tracking(0.4)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 7).padding(.vertical, 3)
+                    .background(Capsule().fill(WC.coral))
+                    .padding(.top, 6).padding(.trailing, 6)
+            }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(card.rarity.color, lineWidth: 2))
     }
 }
 

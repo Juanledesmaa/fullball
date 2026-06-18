@@ -2,18 +2,27 @@ import Foundation
 import FirebaseFirestore
 
 /// Thin wrapper over Firestore. The single place the rest of the app reaches
-/// the database; later phases add typed read/write helpers here. Offline
-/// persistence is on by default in the Firebase SDK, set explicitly for clarity.
+/// the database; later phases add typed read/write helpers here.
+///
+/// NOTE: Firestore settings (offline cache) are configured exactly ONCE at
+/// launch in `FullballApp` via `configureSettings()`. Firestore throws
+/// `FIRIllegalStateException` if `settings` is assigned after the instance has
+/// been used, and the app builds more than one `FirestoreClient` (catalog loader
+/// + bootstrap), so this init must NOT touch settings.
 @MainActor
 final class FirestoreClient {
     let db: Firestore
 
     init() {
+        self.db = Firestore.firestore()
+    }
+
+    /// Set offline persistence once, before any Firestore use. Call from app launch.
+    static func configureSettings() {
         let store = Firestore.firestore()
         let settings = store.settings
-        settings.cacheSettings = PersistentCacheSettings()   // offline persistence
+        settings.cacheSettings = PersistentCacheSettings()
         store.settings = settings
-        self.db = store
     }
 
     /// Per-user document root: `users/{uid}`.

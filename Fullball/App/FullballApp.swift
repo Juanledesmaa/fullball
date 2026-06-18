@@ -29,6 +29,9 @@ struct FullballApp: App {
             // App Check factory MUST be registered before configure().
             AppCheck.setAppCheckProviderFactory(FullballAppCheckFactory())
             FirebaseApp.configure()
+            // Firestore settings can only be set once, before any use — do it here
+            // (the app builds multiple FirestoreClients).
+            FirestoreClient.configureSettings()
         }
         do {
             modelContainer = try ModelContainer(for: AppContainer.schema)

@@ -15,6 +15,8 @@ protocol LineupService: AnyObject {
     /// full (and the card wasn't already fielded).
     @discardableResult func toggleField(_ id: String) -> Bool
     func setCaptain(_ id: String?)
+    var tactics: Tactics { get }
+    func setTactics(_ tactics: Tactics)
 }
 
 /// Captain scores double — the multiplier other features read.
@@ -70,6 +72,23 @@ final class SwiftDataLineupService: LineupService {
     func setCaptain(_ id: String?) {
         if let id, !model.fieldedIDs.contains(id) { return }
         model.captainID = id
+        try? context.save()
+    }
+
+    var tactics: Tactics {
+        Tactics(
+            formation: Formation(rawValue: model.formationRaw) ?? .diamond,
+            mentality: Mentality(rawValue: model.mentalityRaw) ?? .balanced,
+            markerID: model.markerID,
+            counter: model.counterRaw.flatMap { PlayStyle(rawValue: $0) }
+        )
+    }
+
+    func setTactics(_ tactics: Tactics) {
+        model.formationRaw = tactics.formation.rawValue
+        model.mentalityRaw = tactics.mentality.rawValue
+        model.markerID = tactics.markerID
+        model.counterRaw = tactics.counter?.rawValue
         try? context.save()
     }
 }

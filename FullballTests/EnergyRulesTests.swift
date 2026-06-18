@@ -29,9 +29,18 @@ struct EnergyRulesTests {
     }
 
     @Test func drainAfterMatchSubtractsBaseAndCaptainExtra() {
-        #expect(EnergyRules.afterMatch(energy: 100, isCaptain: false) == 80)
-        #expect(EnergyRules.afterMatch(energy: 100, isCaptain: true) == 70)
-        #expect(EnergyRules.afterMatch(energy: 10, isCaptain: true) == 0)
+        #expect(EnergyRules.afterMatch(energy: 100, isCaptain: false, intensity: .balanced) == 80)
+        #expect(EnergyRules.afterMatch(energy: 100, isCaptain: true,  intensity: .balanced) == 70)
+        #expect(EnergyRules.afterMatch(energy: 10,  isCaptain: true,  intensity: .balanced) == 0)
+    }
+    @Test func aggressiveDrainsMoreThanConservative() {
+        let agg  = EnergyRules.afterMatch(energy: 100, isCaptain: false, intensity: .aggressive)
+        let cons = EnergyRules.afterMatch(energy: 100, isCaptain: false, intensity: .conservative)
+        #expect(agg < cons)   // less energy left after aggressive
+    }
+    @Test func regenApproximatelyFourPerHour() {
+        // 60 minutes ≈ +4 energy.
+        #expect(EnergyRules.regen(from: 0, minutesElapsed: 60) == 4)
     }
 
     @Test func refillCostIsProportionalToMissingEnergy() {

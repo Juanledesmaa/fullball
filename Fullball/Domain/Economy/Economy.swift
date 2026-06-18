@@ -135,7 +135,7 @@ enum EnergyRules {
     static let maxPenaltyFraction = 0.30    // worst-case stat reduction at 0 energy
     static let drainPerMatch = 20           // outfield drain when fielded
     static let captainExtraDrain = 10       // captain drains 30 total (×2 workload)
-    static let regenPerMinute = 0.25        // ~6.7h for a full refill
+    static let regenPerMinute = 4.0 / 60.0      // ~4 energy/hour → full in ~24h
 
     /// Linear stat scaling below the threshold; identity at/above it.
     static func applyPenalty(to s: Stats, energy: Int) -> Stats {
@@ -155,8 +155,9 @@ enum EnergyRules {
     static let maxRefillGems = 60       // Gems to fully refill from empty
 
     /// Energy left after fielding in one match (captain works harder).
-    static func afterMatch(energy: Int, isCaptain: Bool) -> Int {
-        let drain = drainPerMatch + (isCaptain ? captainExtraDrain : 0)
+    static func afterMatch(energy: Int, isCaptain: Bool, intensity: Intensity) -> Int {
+        let base = Double(drainPerMatch + (isCaptain ? captainExtraDrain : 0))
+        let drain = Int((base * intensity.drainFactor).rounded())
         return max(0, energy - drain)
     }
 

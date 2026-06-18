@@ -284,6 +284,13 @@ struct TacticsMatchView: View {
                         .offset(x: -4, y: -4)
                 }
             }
+            .overlay(alignment: .topTrailing) {
+                Text(owned.card.player.position.rawValue)
+                    .font(WC.display(8)).tracking(0.4).foregroundStyle(.white)
+                    .padding(.horizontal, 5).padding(.vertical, 2)
+                    .background(Capsule().fill(positionColor(owned.card.player.position)))
+                    .padding(3)
+            }
             // Energy bar
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
@@ -306,6 +313,16 @@ struct TacticsMatchView: View {
         .frame(width: 72)
         .opacity(isAssigned ? 1 : 0.75)
         .draggable(owned.id)
+    }
+
+    /// Distinct color per position so the role reads at a glance.
+    private func positionColor(_ pos: Position) -> Color {
+        switch pos {
+        case .gk:  return WC.gold
+        case .def: return Color(hex: 0x4A90D9)
+        case .mid: return WC.go
+        case .fwd: return WC.coral
+        }
     }
 
     private func energyColor(_ pct: Double) -> Color {

@@ -18,6 +18,16 @@ struct CardArt: View {
 /// A collection grid tile styled like a trading card.
 struct CardTile: View {
     let owned: OwnedCard
+    /// Current energy (0–100). Pass via `vm.energy(owned.id)`. Defaults to full when omitted.
+    var energy: Int = EnergyRules.maxEnergy
+
+    private var energyPct: Double { Double(max(0, min(energy, EnergyRules.maxEnergy))) / Double(EnergyRules.maxEnergy) }
+
+    private var energyColor: Color {
+        if energyPct < 0.25 { return WC.coral }
+        if energyPct < 0.50 { return WC.gold }
+        return WC.go
+    }
 
     var body: some View {
         let card = owned.card
@@ -50,6 +60,17 @@ struct CardTile: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(10)
+                .background(WC.cardBG)
+
+                // Energy bar — 4pt capsule pinned to the bottom of the card
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(WC.fill)
+                        Capsule().fill(energyColor)
+                            .frame(width: max(2, geo.size.width * energyPct))
+                    }
+                }
+                .frame(height: 4)
                 .background(WC.cardBG)
             }
             .clipShape(RoundedRectangle(cornerRadius: 16))

@@ -15,21 +15,45 @@ struct CollectionView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 ScreenHeader(kicker: "Your agency", title: "Roster") {
-                    VStack(spacing: -2) {
-                        Text("\(vm.squadRating)").font(WC.display(22)).foregroundStyle(WC.coral)
-                        Text("SQUAD").font(WC.display(8)).tracking(1).foregroundStyle(WC.sub)
+                    HStack(spacing: 10) {
+                        Menu {
+                            ForEach(RosterSort.allCases, id: \.self) { s in
+                                Button {
+                                    vm.sort = s
+                                } label: {
+                                    HStack {
+                                        Text(s.rawValue)
+                                        if vm.sort == s { Image(systemName: "checkmark") }
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.up.arrow.down")
+                                    .font(.system(size: 12))
+                                Text(vm.sort.rawValue)
+                                    .font(WC.display(11))
+                            }
+                            .foregroundStyle(WC.coral)
+                            .padding(.horizontal, 10).padding(.vertical, 6)
+                            .overlay(Capsule().strokeBorder(WC.coral, lineWidth: 1.5))
+                        }
+                        VStack(spacing: -2) {
+                            Text("\(vm.squadRating)").font(WC.display(22)).foregroundStyle(WC.coral)
+                            Text("SQUAD").font(WC.display(8)).tracking(1).foregroundStyle(WC.sub)
+                        }
                     }
                 }
                 completionStrip
                 filters
-                if vm.filtered.isEmpty {
+                if vm.sortedItems.isEmpty {
                     emptyState
                 } else {
                     ScrollView {
                         LazyVGrid(columns: columns, spacing: 12) {
-                            ForEach(vm.filtered) { owned in
+                            ForEach(vm.sortedItems) { owned in
                                 NavigationLink(value: owned.id) {
-                                    CardTile(owned: owned)
+                                    CardTile(owned: owned, energy: vm.energy(owned.id))
                                 }.buttonStyle(.plain)
                             }
                         }

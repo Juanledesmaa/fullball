@@ -49,7 +49,7 @@ struct MarketView: View {
         let afford = vm.canAfford(l)
         return PanelCard(borderColor: card.rarity.color, borderWidth: 2) {
             HStack(spacing: 12) {
-                AvatarView(card: card).frame(width: 64, height: 64)
+                AvatarView(card: card).frame(width: 64, height: 96)
                     .background(card.rarity.color.opacity(0.14))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(card.rarity.color, lineWidth: 1.5))

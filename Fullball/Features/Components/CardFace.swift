@@ -1,16 +1,17 @@
 import SwiftUI
 
-/// The art window: the bundled portrait, filling the frame.
+/// The art window: the player portrait in a 3:2 vertical (2:3 w:h) container,
+/// filling its width — height is always width × 1.5.
 struct CardArt: View {
     let card: Card
-    var height: CGFloat = 96
 
     var body: some View {
-        AvatarView(card: card)
+        Color.clear
+            .aspectRatio(2.0 / 3.0, contentMode: .fit)
             .frame(maxWidth: .infinity)
-            .frame(height: height)
-            .clipped()
+            .overlay(AvatarView(card: card))
             .background(card.rarity.color.opacity(0.12))
+            .clipped()
     }
 }
 
@@ -32,7 +33,7 @@ struct CardTile: View {
             .padding(.horizontal, 9).padding(.vertical, 5)
             .background(card.rarity.color)
 
-            CardArt(card: card, height: 168)
+            CardArt(card: card)
 
             // nameplate
             VStack(alignment: .leading, spacing: 4) {
@@ -78,7 +79,7 @@ struct CardHero: View {
                     LinearGradient(colors: [card.rarity.color, card.rarity.color.opacity(0.7)],
                                    startPoint: .leading, endPoint: .trailing))
 
-                CardArt(card: card, height: 200)
+                CardArt(card: card)
 
                 VStack(spacing: 6) {
                     Text(card.funnyName).font(WC.display(20))

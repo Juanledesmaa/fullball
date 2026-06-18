@@ -157,7 +157,7 @@ struct LiveMatchesView: View {
         let live = vm.isNationLive(owned.card.player.nationTag)
         return VStack(spacing: 4) {
             ZStack(alignment: .topTrailing) {
-                AvatarView(card: owned.card).frame(width: 58, height: 58)
+                AvatarView(card: owned.card).frame(width: 58, height: 87)
                     .background(owned.card.rarity.color.opacity(0.14))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(RoundedRectangle(cornerRadius: 10)
@@ -262,7 +262,7 @@ struct LiveMatchesView: View {
         let captain = container.lineup.isCaptain(owned.id)
         return HStack(spacing: 5) {
             ZStack(alignment: .topTrailing) {
-                AvatarView(card: owned.card).frame(width: 26, height: 26)
+                AvatarView(card: owned.card).frame(width: 26, height: 39)
                     .background(owned.card.rarity.color.opacity(0.14))
                     .clipShape(RoundedRectangle(cornerRadius: 6))
                     .overlay(RoundedRectangle(cornerRadius: 6)

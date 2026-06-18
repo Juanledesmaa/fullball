@@ -58,7 +58,7 @@ struct LineupSheet: View {
         return PanelCard(borderColor: fielded ? WC.coral : WC.lineColor,
                          borderWidth: fielded ? 2 : 1.5) {
             HStack(spacing: 10) {
-                AvatarView(card: owned.card).frame(width: 40, height: 40)
+                AvatarView(card: owned.card).frame(width: 40, height: 60)
                     .background(owned.card.rarity.color.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 VStack(alignment: .leading, spacing: 2) {

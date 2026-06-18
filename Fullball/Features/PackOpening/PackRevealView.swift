@@ -89,7 +89,7 @@ struct PackRevealView: View {
                                 GridItem(.flexible(), spacing: 10)], spacing: 10) {
                 ForEach(Array(results.enumerated()), id: \.element.id) { index, r in
                     VStack(spacing: 4) {
-                        CardArt(card: r.card, height: 70)
+                        CardArt(card: r.card)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .overlay(RoundedRectangle(cornerRadius: 10)
                                 .strokeBorder(r.card.rarity.color, lineWidth: 1.5))

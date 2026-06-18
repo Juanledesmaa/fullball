@@ -142,7 +142,7 @@ struct PackOpeningView: View {
                 HStack(spacing: 10) {
                     ForEach(vm.featuredCards()) { card in
                         VStack(spacing: 6) {
-                            CardArt(card: card, height: 80)
+                            CardArt(card: card)
                                 .frame(width: 110)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .overlay(RoundedRectangle(cornerRadius: 12)

@@ -11,6 +11,8 @@ final class CardInstance {
     var xp: Int
     var copies: Int          // unconsumed duplicate copies (limit-break fuel)
     var dateAcquired: Date
+    var energy: Int = EnergyRules.maxEnergy
+    var lastEnergyUpdate: Date = Date()
 
     init(cardID: String,
          level: Int = 1,

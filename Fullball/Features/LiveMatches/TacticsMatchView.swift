@@ -27,10 +27,8 @@ struct TacticsMatchView: View {
                     Button("Close") { dismiss() }.foregroundStyle(WC.sub)
                 }
                 scouting
-                picker("FORMATION", Formation.allCases, vm.tactics.formation, \.displayName) { vm.tactics.formation = $0 }
-                picker("MENTALITY", Mentality.allCases, vm.tactics.mentality, \.displayName) { vm.tactics.mentality = $0 }
-                markerPicker
-                counterPicker
+                picker("INTENSITY", Intensity.allCases, vm.tactics.intensity, \.displayName) { vm.tactics.intensity = $0 }
+                picker("FOCUS", Focus.allCases, vm.tactics.focus, \.displayName) { vm.tactics.focus = $0 }
                 kickOff
             }
             .padding(20)
@@ -41,41 +39,11 @@ struct TacticsMatchView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("SCOUTING").font(WC.ui(12)).foregroundStyle(WC.sub)
             Text(vm.opponentName).font(WC.display(22)).foregroundStyle(WC.inkText)
-            Text("Shape: \(vm.opponent.tactics.formation.displayName)").font(WC.ui(13)).foregroundStyle(WC.sub)
-            Text("Style: \(vm.opponent.teamStyle.displayName)").font(WC.ui(13)).foregroundStyle(WC.sub)
-            if let d = vm.dangerMan {
-                Text("Danger man: \(vm.catalogCard(d.id)?.displayName ?? "#\(d.id)") · SHO \(d.stats.shooting)")
-                    .font(WC.ui(13)).foregroundStyle(WC.coral)
-            }
+            Text("Intensity: \(vm.opponent.tactics.intensity.displayName)").font(WC.ui(13)).foregroundStyle(WC.sub)
+            Text("Focus: \(vm.opponent.tactics.focus.displayName)").font(WC.ui(13)).foregroundStyle(WC.sub)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14).background(WC.cardBG).clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
-    private var counterPicker: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("COUNTER-PICK").font(WC.ui(12)).foregroundStyle(WC.sub)
-            HStack {
-                chip("None", vm.tactics.counter == nil) { vm.tactics.counter = nil }
-                ForEach(PlayStyle.allCases, id: \.self) { s in
-                    chip(s.displayName, vm.tactics.counter == s) { vm.tactics.counter = s }
-                }
-            }
-        }
-    }
-
-    private var markerPicker: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("MARK THEIR DANGER MAN").font(WC.ui(12)).foregroundStyle(WC.sub)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    chip("None", vm.tactics.markerID == nil) { vm.tactics.markerID = nil }
-                    ForEach(vm.myFieldedCards()) { oc in
-                        chip(oc.card.displayName, vm.tactics.markerID == oc.id) { vm.tactics.markerID = oc.id }
-                    }
-                }
-            }
-        }
     }
 
     private var kickOff: some View {

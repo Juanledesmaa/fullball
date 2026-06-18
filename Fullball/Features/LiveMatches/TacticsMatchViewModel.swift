@@ -160,13 +160,12 @@ final class TacticsMatchViewModel {
         // Claim any newly-unlocked milestones.
         awardedTiers = milestones.claim(points: score.points)
 
-        energy.drainAfterMatch(fieldedIDs: lineup.fielded(), captainID: lineup.captainID)
+        energy.drainAfterMatch(fieldedIDs: lineup.fielded(), captainID: lineup.captainID, intensity: tactics.intensity)
     }
 
     // MARK: - Scouting helpers (for views)
 
     var opponentName: String { catalog.nationName(fixture.awayTag) }
-    var dangerMan: MatchPlayer? { opponent.player(opponent.dangerManID) }
     var yourFieldedCount: Int { lineup.fielded().count }
 
     func myFieldedCards() -> [OwnedCard] {

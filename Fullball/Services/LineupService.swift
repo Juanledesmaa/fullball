@@ -76,19 +76,13 @@ final class SwiftDataLineupService: LineupService {
     }
 
     var tactics: Tactics {
-        Tactics(
-            formation: Formation(rawValue: model.formationRaw) ?? .diamond,
-            mentality: Mentality(rawValue: model.mentalityRaw) ?? .balanced,
-            markerID: model.markerID,
-            counter: model.counterRaw.flatMap { PlayStyle(rawValue: $0) }
-        )
+        Tactics(intensity: Intensity(rawValue: model.intensityRaw) ?? .balanced,
+                focus: Focus(rawValue: model.focusRaw) ?? .balanced)
     }
 
-    func setTactics(_ tactics: Tactics) {
-        model.formationRaw = tactics.formation.rawValue
-        model.mentalityRaw = tactics.mentality.rawValue
-        model.markerID = tactics.markerID
-        model.counterRaw = tactics.counter?.rawValue
+    func setTactics(_ t: Tactics) {
+        model.intensityRaw = t.intensity.rawValue
+        model.focusRaw = t.focus.rawValue
         try? context.save()
     }
 }

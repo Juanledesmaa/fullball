@@ -76,7 +76,10 @@ enum FutsalEngine {
     static func chanceProbability(atk: MatchSide, def: MatchSide) -> Double {
         let atkMid = midfieldStrength(atk), defMid = midfieldStrength(def)
         let formation = atk.tactics.formation.edge(against: def.tactics.formation)
-        let mentality = atk.tactics.mentality.rawValue - def.tactics.mentality.rawValue
+        // Both sides' attacking intent adds: your own attack raises your chances,
+        // and a high mentality also opens you up, raising what you concede on
+        // the opponent's possession.
+        let mentality = atk.tactics.mentality.rawValue + def.tactics.mentality.rawValue
         let counter = counterEdge(atk: atk, def: def)
         let p = FutsalRules.baseChance
             + FutsalRules.strengthWeight * (atkMid - defMid)

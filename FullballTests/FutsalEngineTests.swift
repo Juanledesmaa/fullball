@@ -112,4 +112,36 @@ struct FutsalEngineTests {
         }
         #expect(markedGoals < freeGoals)
     }
+
+    @Test func attackingMentalityProducesMoreGoalsThanParkingTheBus() {
+        func bothSides(_ m: Mentality) -> (MatchSide, MatchSide) {
+            (Self.side(prefix: "h", base: 60, tactics: Tactics(mentality: m)),
+             Self.side(prefix: "a", base: 60, tactics: Tactics(mentality: m)))
+        }
+        var openGoals = 0, closedGoals = 0
+        for seed in UInt64(0)..<60 {
+            let (ho, ao) = bothSides(.allOut)
+            let openR = FutsalEngine.play(home: ho, away: ao, seed: seed)
+            openGoals += openR.homeGoals + openR.awayGoals
+            let (hc, ac) = bothSides(.parkBus)
+            let closedR = FutsalEngine.play(home: hc, away: ac, seed: seed)
+            closedGoals += closedR.homeGoals + closedR.awayGoals
+        }
+        #expect(openGoals > closedGoals)
+    }
+
+    @Test func favorableFormationOutscoresUnfavorable() {
+        // Favorable: home defensive vs away attacking → home shape edge +1.
+        // Unfavorable: home attacking vs away defensive → home shape edge -1.
+        let awayAtk = Self.side(prefix: "a", base: 60, tactics: Tactics(formation: .attacking))
+        let awayDef = Self.side(prefix: "a", base: 60, tactics: Tactics(formation: .defensive))
+        let homeFav = Self.side(prefix: "h", base: 60, tactics: Tactics(formation: .defensive))
+        let homeUnfav = Self.side(prefix: "h", base: 60, tactics: Tactics(formation: .attacking))
+        var favGoals = 0, unfavGoals = 0
+        for seed in UInt64(0)..<60 {
+            favGoals   += FutsalEngine.play(home: homeFav,   away: awayAtk, seed: seed).homeGoals
+            unfavGoals += FutsalEngine.play(home: homeUnfav, away: awayDef, seed: seed).homeGoals
+        }
+        #expect(favGoals > unfavGoals)
+    }
 }

@@ -1,5 +1,3 @@
-import Foundation
-
 /// 5-a-side shape (GK fixed + 4 outfield). Forms a shape RPS triangle.
 enum Formation: String, Codable, Sendable, CaseIterable, Equatable {
     case diamond     // 1-2-1, balanced

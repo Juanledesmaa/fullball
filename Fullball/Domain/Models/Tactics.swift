@@ -1,5 +1,3 @@
-import Foundation
-
 /// Attack↔Defend dial. Raises (attack) or lowers (defend) both your chances
 /// created AND chances conceded.
 enum Mentality: Int, Codable, Sendable, CaseIterable, Equatable {

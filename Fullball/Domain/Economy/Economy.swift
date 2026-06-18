@@ -114,7 +114,7 @@ enum FutsalRules {
     static let baseChance = 0.45
     static let strengthWeight = 0.004       // per point of midfield diff ((passing+pace)/2, atk - def)
     static let formationEdgeWeight = 0.05   // per RPS edge step
-    static let mentalityWeight = 0.06       // per mentality step, attacker minus defender
+    static let mentalityWeight = 0.06       // per mentality step, attacker plus defender (intent opens both ends)
     static let counterEdgeWeight = 0.04     // per counter RPS edge step
     static let chanceFloor = 0.05, chanceCeil = 0.90
 

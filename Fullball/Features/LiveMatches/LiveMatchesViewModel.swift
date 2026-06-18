@@ -42,6 +42,7 @@ final class LiveMatchesViewModel {
     private(set) var slateID: String
     private let auth: any AuthService
     private let navigator: Navigator
+    private let energyService: any EnergyService
 
     var matches: [MatchState]
     var feed: [LiveFeedItem] = []
@@ -70,6 +71,7 @@ final class LiveMatchesViewModel {
         self.slateID = container.slate.slateID
         self.auth = container.auth
         self.navigator = container.navigator
+        self.energyService = container.energy
         // Procedurally-generated slate; only live matches are enterable.
         self.matches = container.slate.fixtures
             .filter { $0.status == .live }
@@ -158,6 +160,11 @@ final class LiveMatchesViewModel {
     }
 
     func yourPlayers(in fixture: Fixture) -> Int { fieldedPlayers(in: fixture).count }
+
+    func energy(forCardID id: String) -> Int {
+        guard let inst = collection.instance(forCardID: id) else { return EnergyRules.maxEnergy }
+        return energyService.current(inst)
+    }
 
     var liveMatchCount: Int { tasks.count }
 

@@ -162,6 +162,7 @@ struct LiveMatchesView: View {
     private func fieldedChip(_ owned: OwnedCard) -> some View {
         let isCaptain = container.lineup.isCaptain(owned.id)
         let live = vm.isNationLive(owned.card.player.nationTag)
+        let pct = Double(vm.energy(forCardID: owned.id)) / Double(EnergyRules.maxEnergy)
         return VStack(spacing: 4) {
             ZStack(alignment: .topTrailing) {
                 AvatarView(card: owned.card).frame(width: 58, height: 87)
@@ -174,12 +175,25 @@ struct LiveMatchesView: View {
                         .foregroundStyle(WC.gold).background(Circle().fill(WC.ink)).offset(x: 5, y: -5)
                 }
             }
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(WC.fill)
+                    Capsule().fill(energyColor(pct)).frame(width: max(2, geo.size.width * pct))
+                }
+            }
+            .frame(height: 4)
             HStack(spacing: 3) {
                 if live { LiveDot().scaleEffect(0.8) }
                 Text(owned.card.funnyName).font(WC.display(9))
                     .foregroundStyle(live ? WC.coral : WC.sub).lineLimit(1).minimumScaleFactor(0.6)
             }
         }.frame(width: 72)
+    }
+
+    private func energyColor(_ pct: Double) -> Color {
+        if pct < 0.25 { return WC.coral }
+        if pct < 0.5 { return WC.gold }
+        return WC.go
     }
 
     // MARK: match cards

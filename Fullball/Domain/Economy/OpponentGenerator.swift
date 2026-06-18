@@ -21,6 +21,10 @@ enum OpponentGenerator {
         let players: [MatchPlayer] = chosen.map {
             MatchPlayer(id: $0.id, position: $0.player.position, stats: $0.player.stats)
         }
+        guard !players.isEmpty else {
+            return MatchSide(players: [], tactics: Tactics(), teamStyle: .technical,
+                             dangerManID: "", captainID: nil)
+        }
         let formations = Formation.allCases
         let mentalities = Mentality.allCases
         let tactics = Tactics(

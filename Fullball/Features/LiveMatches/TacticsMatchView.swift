@@ -33,8 +33,8 @@ struct TacticsMatchView: View {
                 // Scouting
                 scouting
 
-                // Player selection
-                playerSelection
+                // Field preview + roster strip
+                fieldSection
 
                 // Tactics
                 tacticRow("INTENSITY", Intensity.allCases, vm.tactics.intensity,
@@ -62,91 +62,250 @@ struct TacticsMatchView: View {
         .padding(14).background(WC.cardBG).clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
-    // MARK: - Player selection strip
+    // MARK: - Field section (field preview + roster strip)
 
-    private var playerSelection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+    private var fieldSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("YOUR SQUAD").font(WC.ui(12)).foregroundStyle(WC.sub)
                 Spacer()
-                Text("Selected \(vm.selected.count)/\(vm.maxPlayers)")
+                Text("\(vm.yourFieldedCount)/5")
                     .font(WC.display(11))
-                    .foregroundStyle(vm.selected.isEmpty ? WC.coral : WC.go)
+                    .foregroundStyle(vm.yourFieldedCount == 0 ? WC.coral : WC.go)
             }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(vm.ownedForSelection()) { owned in
-                        selectionTile(owned)
-                    }
+
+            // Off-position hint
+            let offPositionCount = (0..<5).filter { vm.isOffPosition($0) }.count
+            if offPositionCount > 0 {
+                HStack(spacing: 4) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(WC.gold)
+                    Text("Off-position players play at 0.5×")
+                        .font(WC.ui(11))
+                        .foregroundStyle(WC.gold)
                 }
-                .padding(.horizontal, 2)
+            }
+
+            // Field preview (horizontal pitch)
+            fieldPreview
+
+            // Roster strip
+            rosterStrip
+        }
+    }
+
+    // MARK: - Field preview
+
+    private var fieldPreview: some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = geo.size.height
+            ZStack {
+                // Grass background
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(LinearGradient(
+                        colors: [Color(hex: 0x1A5232), Color(hex: 0x0F3A1E)],
+                        startPoint: .top, endPoint: .bottom
+                    ))
+
+                // Center line
+                Rectangle()
+                    .fill(Color.white.opacity(0.25))
+                    .frame(width: 1.5)
+                    .position(x: w * 0.5, y: h * 0.5)
+
+                // Goal mouth — your goal on LEFT
+                Rectangle()
+                    .fill(Color.white.opacity(0.18))
+                    .frame(width: 8, height: h * 0.4)
+                    .position(x: 4, y: h * 0.5)
+
+                // "YOUR GOAL" label
+                Text("YOUR\nGOAL")
+                    .font(WC.display(7))
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color.white.opacity(0.4))
+                    .position(x: w * 0.06, y: h * 0.15)
+
+                // Slot circles
+                ForEach(0..<5, id: \.self) { i in
+                    slotView(index: i, in: CGSize(width: w, height: h))
+                        .position(slotPosition(index: i, in: CGSize(width: w, height: h)))
+                }
+            }
+        }
+        // Landscape aspect within portrait
+        .aspectRatio(1.75, contentMode: .fit)
+        .frame(maxWidth: .infinity)
+    }
+
+    /// Slot positions on the horizontal pitch:
+    /// GK (i=0) near left goal; DEF (i=1) left-center; MID×2 (i=2,3) center;
+    /// FWD (i=4) right side.
+    ///
+    /// X increases left→right (attacking direction).
+    /// Y positions: GK centered; DEF/FWD centered; MID staggered top+bottom.
+    private func slotPosition(index i: Int, in size: CGSize) -> CGPoint {
+        let w = size.width, h = size.height
+        switch i {
+        case 0: return CGPoint(x: w * 0.10, y: h * 0.50)   // GK
+        case 1: return CGPoint(x: w * 0.30, y: h * 0.50)   // DEF
+        case 2: return CGPoint(x: w * 0.52, y: h * 0.25)   // MID top
+        case 3: return CGPoint(x: w * 0.52, y: h * 0.75)   // MID bottom
+        case 4: return CGPoint(x: w * 0.72, y: h * 0.50)   // FWD
+        default: return CGPoint(x: w * 0.5, y: h * 0.5)
+        }
+    }
+
+    @ViewBuilder
+    private func slotView(index i: Int, in size: CGSize) -> some View {
+        let slotPos = vm.slots[i]
+        let occupied = vm.slotPlayer(i)
+        let isCaptain = occupied?.id == vm.captainID
+        let offPos = vm.isOffPosition(i)
+
+        ZStack {
+            if let oc = occupied {
+                // Filled slot: show avatar
+                Circle()
+                    .fill(oc.card.rarity.color.opacity(0.85))
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        Circle().strokeBorder(
+                            isCaptain ? WC.gold : oc.card.rarity.color,
+                            lineWidth: isCaptain ? 3 : 1.5
+                        )
+                    )
+                AvatarView(card: oc.card)
+                    .frame(width: 44, height: 44)
+                    .clipShape(Circle())
+
+                // Off-position badge
+                if offPos {
+                    Text("0.5×")
+                        .font(WC.display(7))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 3).padding(.vertical, 2)
+                        .background(Capsule().fill(Color.red))
+                        .offset(x: 14, y: 16)
+                }
+
+                // Captain badge
+                if isCaptain {
+                    Text("C")
+                        .font(WC.display(8))
+                        .foregroundStyle(WC.ink)
+                        .padding(3)
+                        .background(Circle().fill(WC.gold))
+                        .offset(x: 16, y: -16)
+                }
+
+            } else {
+                // Empty slot: show required position
+                Circle()
+                    .strokeBorder(Color.white.opacity(0.4), lineWidth: 1.5, antialiased: true)
+                    .frame(width: 44, height: 44)
+                    .background(Circle().fill(Color.white.opacity(0.07)))
+                Text(slotPos.rawValue)
+                    .font(WC.display(10))
+                    .foregroundStyle(Color.white.opacity(0.7))
+            }
+        }
+        // Tap filled slot → set captain
+        .onTapGesture {
+            if let oc = occupied {
+                vm.setCaptain(oc.id)
+            }
+        }
+        // Long-press → clear slot
+        .onLongPressGesture {
+            vm.clearSlot(i)
+        }
+        // Drop destination: accept a card ID string
+        .dropDestination(for: String.self) { ids, _ in
+            guard let id = ids.first else { return false }
+            vm.assign(id, toSlot: i)
+            return true
+        }
+        // "X" clear button when filled
+        .overlay(alignment: .topTrailing) {
+            if occupied != nil {
+                Button {
+                    vm.clearSlot(i)
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.white)
+                        .background(Circle().fill(Color.black.opacity(0.5)))
+                }
+                .offset(x: 6, y: -6)
             }
         }
     }
 
-    private func selectionTile(_ owned: OwnedCard) -> some View {
-        let isSelected = vm.selected.contains(owned.id)
-        let isCaptain = vm.captainID == owned.id
+    // MARK: - Roster strip
+
+    private var rosterStrip: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(vm.ownedForSelection()) { owned in
+                    rosterTile(owned)
+                }
+            }
+            .padding(.horizontal, 2)
+        }
+    }
+
+    private func rosterTile(_ owned: OwnedCard) -> some View {
+        let isAssigned = vm.assignedIDs.contains(owned.id)
         let e = vm.energy(owned.id)
         let ePct = Double(e) / Double(EnergyRules.maxEnergy)
-        let selectionIndex = vm.selected.firstIndex(of: owned.id)
 
-        return Button {
-            vm.toggle(owned.id)
-        } label: {
-            VStack(spacing: 4) {
-                ZStack(alignment: .topLeading) {
-                    AvatarView(card: owned.card)
-                        .frame(width: 58, height: 87)
-                        .background(owned.card.rarity.color.opacity(0.14))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .strokeBorder(
-                                    isCaptain ? WC.gold :
-                                    isSelected ? owned.card.rarity.color : WC.lineColor,
-                                    lineWidth: isSelected ? 2.5 : 1
-                                )
-                        )
-                    // Selection order badge
-                    if let idx = selectionIndex {
-                        Text("\(idx + 1)")
-                            .font(WC.display(9))
-                            .foregroundStyle(.white)
-                            .padding(3)
-                            .background(Circle().fill(isSelected ? WC.coral : WC.ink))
-                            .offset(x: -4, y: -4)
-                    }
-                    // Captain badge
-                    if isCaptain {
-                        Image(systemName: "c.circle.fill")
-                            .font(.system(size: 14))
-                            .foregroundStyle(WC.gold)
-                            .background(Circle().fill(WC.ink))
-                            .offset(x: -4, y: -4)
-                    }
+        return VStack(spacing: 4) {
+            ZStack(alignment: .topLeading) {
+                AvatarView(card: owned.card)
+                    .frame(width: 58, height: 87)
+                    .background(owned.card.rarity.color.opacity(0.14))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(
+                                isAssigned ? owned.card.rarity.color : WC.lineColor,
+                                lineWidth: isAssigned ? 2.5 : 1
+                            )
+                    )
+                // Assigned checkmark badge
+                if isAssigned {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 13))
+                        .foregroundStyle(WC.go)
+                        .background(Circle().fill(WC.ink))
+                        .offset(x: -4, y: -4)
                 }
-                // Energy bar
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        Capsule().fill(WC.fill)
-                        Capsule().fill(energyColor(ePct))
-                            .frame(width: max(2, geo.size.width * ePct))
-                    }
-                }.frame(height: 4)
-                // Name
-                Text(owned.card.funnyName)
-                    .font(WC.display(9))
-                    .foregroundStyle(isSelected ? WC.inkText : WC.sub)
-                    .lineLimit(1).minimumScaleFactor(0.6)
             }
-            .frame(width: 72)
-            .opacity(isSelected ? 1 : 0.75)
+            // Energy bar
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(WC.fill)
+                    Capsule().fill(energyColor(ePct))
+                        .frame(width: max(2, geo.size.width * ePct))
+                }
+            }.frame(height: 4)
+            // Overall
+            Text("\(owned.effectiveStats.overall)")
+                .font(WC.display(9))
+                .foregroundStyle(isAssigned ? WC.inkText : WC.sub)
+                .lineLimit(1)
+            // Name
+            Text(owned.card.funnyName)
+                .font(WC.display(8))
+                .foregroundStyle(isAssigned ? WC.inkText : WC.sub)
+                .lineLimit(1).minimumScaleFactor(0.6)
         }
-        .buttonStyle(.plain)
-        .simultaneousGesture(
-            LongPressGesture().onEnded { _ in vm.setCaptain(owned.id) }
-        )
+        .frame(width: 72)
+        .opacity(isAssigned ? 1 : 0.75)
+        .draggable(owned.id)
     }
 
     private func energyColor(_ pct: Double) -> Color {
@@ -195,8 +354,8 @@ struct TacticsMatchView: View {
         VStack(spacing: 8) {
             if vm.alreadyFinished {
                 Text("Already played this block.").font(WC.ui(13)).foregroundStyle(WC.sub)
-            } else if vm.selected.isEmpty {
-                Text("Select at least one player above.").font(WC.ui(13)).foregroundStyle(WC.coral)
+            } else if vm.yourFieldedCount == 0 {
+                Text("Drag players into the field slots above.").font(WC.ui(13)).foregroundStyle(WC.coral)
             } else if !vm.canAfford {
                 Text("Need \(vm.entryFee) Cash to play.").font(WC.ui(13)).foregroundStyle(WC.coral)
             } else if vm.hasTiredPlayers {

@@ -15,6 +15,7 @@ struct CardDetailView: View {
                     statsPanel
                     progressionPanel
                     limitBreakPanel
+                    if vm.owned { energyPanel }
                 }
                 .padding(.horizontal, 16)
             }
@@ -130,6 +131,35 @@ struct CardDetailView: View {
                     .font(WC.ui(10.5)).foregroundStyle(WC.faint)
                 actionButton(title: "LIMIT BREAK", subtitle: vm.maxedStars ? "Maxed" : "Consume \(vm.copiesForNextStar) copies",
                              enabled: vm.canLimitBreak, filled: false) { vm.limitBreak() }
+            }
+            .padding(14)
+        }
+    }
+
+    private var energyPanel: some View {
+        PanelCard {
+            VStack(alignment: .leading, spacing: 12) {
+                SectionLabel(title: "Energy")
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(WC.fill)
+                        Capsule()
+                            .fill(vm.currentEnergy >= EnergyRules.maxEnergy ? WC.go : WC.coral)
+                            .frame(width: max(4, geo.size.width * Double(vm.currentEnergy) / Double(EnergyRules.maxEnergy)))
+                    }
+                }
+                .frame(height: 8)
+                HStack {
+                    Text("Energy \(vm.currentEnergy) / \(EnergyRules.maxEnergy)")
+                        .font(WC.ui(13)).foregroundStyle(WC.sub)
+                    Spacer()
+                    Button { vm.refillEnergy() } label: {
+                        Label("Refill \(vm.refillCost) 💎", systemImage: "bolt.fill")
+                            .font(WC.ui(13))
+                    }
+                    .disabled(vm.refillCost == 0 || !vm.canAffordRefill)
+                    .opacity((vm.refillCost == 0 || !vm.canAffordRefill) ? 0.5 : 1)
+                }
             }
             .padding(14)
         }

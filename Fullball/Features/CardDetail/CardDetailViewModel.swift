@@ -5,12 +5,14 @@ import SwiftUI
 final class CardDetailViewModel {
     private let collection: any CollectionService
     private let wallet: any WalletService
+    private let energy: any EnergyService
     let card: Card
     private(set) var instance: CardInstance?
 
     init(container: AppContainer, cardID: String) {
         self.collection = container.collection
         self.wallet = container.wallet
+        self.energy = container.energy
         self.card = container.catalog.card(id: cardID)
             ?? Card(id: cardID, player: Player(id: cardID, displayName: cardID, nationTag: "?",
                     shirtNumber: 0, position: .mid, stats: Stats(pace: 0, shooting: 0, passing: 0, defending: 0)),
@@ -45,6 +47,11 @@ final class CardDetailViewModel {
     }
     var maxedStars: Bool { stars >= card.rarity.starCap }
 
+    var currentEnergy: Int { instance.map { energy.current($0) } ?? EnergyRules.maxEnergy }
+    var refillCost: Int { instance.map { energy.refillCost($0) } ?? 0 }
+    var canAffordRefill: Bool { wallet.balance(.gems) >= refillCost }
+
     func train() { if let instance { collection.train(instance) } }
     func limitBreak() { if let instance { collection.limitBreak(instance) } }
+    func refillEnergy() { if let instance { energy.refill(instance) } }
 }

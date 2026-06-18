@@ -91,7 +91,9 @@ final class AppContainer {
         await cloudWallet.hydrate()
         await cloudCollection.hydrate()
 
-        let displayName = (userName?.isEmpty == false ? userName! : "Agent \(uid.prefix(4))")
+        let stored = UserDefaults.standard.string(forKey: "agencyName")
+        let displayName = (stored?.isEmpty == false ? stored!
+                           : (userName?.isEmpty == false ? userName! : "Agent \(uid.prefix(4))"))
         let leaderboard = FirestoreLeaderboardService(uid: uid, currentUserName: displayName, client: client)
 
         let score = ScoreBoard(context: context, client: client, uid: uid)

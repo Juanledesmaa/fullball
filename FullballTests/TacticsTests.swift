@@ -3,24 +3,22 @@ import Foundation
 @testable import Fullball
 
 struct TacticsTests {
-    @Test func mentalityRawValuesSpanDefendToAttack() {
-        #expect(Mentality.parkBus.rawValue == -2)
-        #expect(Mentality.balanced.rawValue == 0)
-        #expect(Mentality.allOut.rawValue == 2)
-    }
-
-    @Test func tacticsHasBalancedDefaults() {
+    @Test func defaultsAreBalanced() {
         let t = Tactics()
-        #expect(t.formation == .diamond)
-        #expect(t.mentality == .balanced)
-        #expect(t.markerID == nil)
-        #expect(t.counter == nil)
+        #expect(t.intensity == .balanced)
+        #expect(t.focus == .balanced)
     }
-
-    @Test func tacticsIsCodableRoundTrips() throws {
-        let t = Tactics(formation: .attacking, mentality: .attack, markerID: "c1", counter: .pace)
-        let data = try JSONEncoder().encode(t)
-        let back = try JSONDecoder().decode(Tactics.self, from: data)
+    @Test func intensityDrainFactorOrders() {
+        #expect(Intensity.conservative.drainFactor < Intensity.balanced.drainFactor)
+        #expect(Intensity.balanced.drainFactor < Intensity.aggressive.drainFactor)
+    }
+    @Test func everyOptionHasImpactText() {
+        #expect(Intensity.allCases.allSatisfy { !$0.impact.isEmpty })
+        #expect(Focus.allCases.allSatisfy { !$0.impact.isEmpty })
+    }
+    @Test func codableRoundTrips() throws {
+        let t = Tactics(intensity: .aggressive, focus: .attack)
+        let back = try JSONDecoder().decode(Tactics.self, from: JSONEncoder().encode(t))
         #expect(back == t)
     }
 }

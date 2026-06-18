@@ -3,7 +3,6 @@ import SwiftUI
 struct LiveMatchesView: View {
     let container: AppContainer
     @State private var vm: LiveMatchesViewModel
-    @State private var showLineup = false
     @State private var activeFixture: Fixture?
 
     init(container: AppContainer) {
@@ -13,42 +12,31 @@ struct LiveMatchesView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ScreenHeader(kicker: "Enter matches · field your XI", title: "Live")
+            ScreenHeader(kicker: "Pick your squad · play each match", title: "Live")
             ScrollView {
                 VStack(spacing: 14) {
                     matchdayHero
-                    lineupSection
                     HStack(alignment: .firstTextBaseline) {
                         Text("MATCHES").font(WC.display(15)).tracking(0.3).foregroundStyle(WC.inkText)
                         Spacer()
-                        Text(vm.liveMatchCount > 0 ? "● \(vm.liveMatchCount) live · entry \(vm.entryFee)"
+                        Text(vm.liveMatchCount > 0 ? "● \(vm.liveMatchCount) live"
                                                    : "Entry \(vm.entryFee) Coins")
                             .font(WC.display(9.5)).tracking(0.6).foregroundStyle(WC.coral)
                     }.padding(.horizontal, 2)
                     refreshSlateButton
                     ForEach(vm.matches) { matchCard($0) }
-                    if !vm.feed.isEmpty {
-                        SectionLabel(title: "Match feed")
-                        ForEach(vm.feed) { feedRow($0) }
-                    }
                 }
                 .padding(16)
             }
         }
         .background(ScreenBackground())
         .overlay(alignment: .top) { toast }
-        .sheet(isPresented: $showLineup) { LineupSheet(container: container) }
         .fullScreenCover(item: $activeFixture) { fx in
             TacticsMatchView(fixture: fx, container: container, slateID: vm.slateID)
         }
         .onChange(of: activeFixture) { _, newValue in
             if newValue == nil { vm.restore() }
         }
-        // NOTE: deliberately no `.onDisappear { vm.stop() }`. Live matches are a
-        // cosmetic drip-feed of an already-deterministic result (fixture.scriptedEvents);
-        // cancelling on tab-switch froze in-flight matches until relaunch. Tasks are
-        // [weak self] so they keep ticking across tabs and settle in the background;
-        // a hard app-kill still finalizes via restore() on next launch.
     }
 
     @ViewBuilder private var toast: some View {
@@ -112,90 +100,6 @@ struct LiveMatchesView: View {
         }
     }
 
-    // MARK: lineup
-
-    private var lineupSection: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text("YOUR MATCHDAY XI").font(WC.display(15)).tracking(0.3).foregroundStyle(WC.inkText)
-                Text("\(vm.fieldedCount)/\(vm.maxFielded)").font(WC.display(11)).foregroundStyle(WC.sub)
-                Spacer()
-                Button { showLineup = true } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "slider.horizontal.3")
-                        Text("SET LINEUP").font(WC.display(10)).tracking(0.4)
-                    }
-                    .foregroundStyle(WC.coral)
-                    .padding(.horizontal, 10).padding(.vertical, 6)
-                    .overlay(Capsule().strokeBorder(WC.coral, lineWidth: 1.5))
-                }.buttonStyle(.plain)
-            }.padding(.horizontal, 2)
-
-            let fielded = vm.fieldedCards()
-            if fielded.isEmpty {
-                Button { showLineup = true } label: { emptyLineupCard }.buttonStyle(.plain)
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10) { ForEach(fielded) { fieldedChip($0) } }.padding(.horizontal, 2)
-                }
-            }
-        }
-    }
-
-    private var emptyLineupCard: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "person.3.sequence.fill").font(.system(size: 22)).foregroundStyle(WC.coral)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Field your squad").font(WC.display(13)).foregroundStyle(WC.inkText)
-                Text("Pick up to \(vm.maxFielded) cards. Only fielded players score in matches.")
-                    .font(WC.ui(11)).foregroundStyle(WC.sub)
-            }
-            Spacer()
-            Image(systemName: "chevron.right").foregroundStyle(WC.faint)
-        }
-        .padding(12).frame(maxWidth: .infinity)
-        .background(RoundedRectangle(cornerRadius: 14).fill(WC.cardBG))
-        .overlay(RoundedRectangle(cornerRadius: 14)
-            .strokeBorder(style: StrokeStyle(lineWidth: 1.5, dash: [5])).foregroundStyle(WC.coral.opacity(0.7)))
-    }
-
-    private func fieldedChip(_ owned: OwnedCard) -> some View {
-        let isCaptain = container.lineup.isCaptain(owned.id)
-        let live = vm.isNationLive(owned.card.player.nationTag)
-        let pct = Double(vm.energy(forCardID: owned.id)) / Double(EnergyRules.maxEnergy)
-        return VStack(spacing: 4) {
-            ZStack(alignment: .topTrailing) {
-                AvatarView(card: owned.card).frame(width: 58, height: 87)
-                    .background(owned.card.rarity.color.opacity(0.14))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .overlay(RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(isCaptain ? WC.gold : owned.card.rarity.color, lineWidth: 1.5))
-                if isCaptain {
-                    Image(systemName: "c.circle.fill").font(.system(size: 15))
-                        .foregroundStyle(WC.gold).background(Circle().fill(WC.ink)).offset(x: 5, y: -5)
-                }
-            }
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(WC.fill)
-                    Capsule().fill(energyColor(pct)).frame(width: max(2, geo.size.width * pct))
-                }
-            }
-            .frame(height: 4)
-            HStack(spacing: 3) {
-                if live { LiveDot().scaleEffect(0.8) }
-                Text(owned.card.funnyName).font(WC.display(9))
-                    .foregroundStyle(live ? WC.coral : WC.sub).lineLimit(1).minimumScaleFactor(0.6)
-            }
-        }.frame(width: 72)
-    }
-
-    private func energyColor(_ pct: Double) -> Color {
-        if pct < 0.25 { return WC.coral }
-        if pct < 0.5 { return WC.gold }
-        return WC.go
-    }
-
     // MARK: match cards
 
     private var refreshSlateButton: some View {
@@ -243,64 +147,9 @@ struct LiveMatchesView: View {
                 }
                 Rectangle().fill(WC.lineColor).frame(height: 1)
                 matchFooter(match)
-                earnersRow(match)
             }
             .padding(.horizontal, 14).padding(.vertical, 12)
         }
-    }
-
-    @ViewBuilder private func earnersRow(_ match: MatchState) -> some View {
-        let earners = vm.fieldedPlayers(in: match.fixture)
-        let live = match.phase == .live
-        Rectangle().fill(WC.lineColor).frame(height: 1)
-        if earners.isEmpty {
-            HStack(spacing: 6) {
-                Image(systemName: "person.crop.circle.badge.xmark")
-                    .font(.system(size: 12)).foregroundStyle(WC.faint)
-                Text("None of your clients play here").font(WC.ui(10.5)).foregroundStyle(WC.faint)
-                Spacer()
-            }
-        } else {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text(live ? "EARNING NOW" : "YOUR EARNERS")
-                        .font(WC.display(8.5)).tracking(0.8)
-                        .foregroundStyle(live ? WC.go : WC.sub)
-                    Spacer()
-                    Text("\(earners.count) client\(earners.count == 1 ? "" : "s")")
-                        .font(WC.display(8.5)).foregroundStyle(WC.faint)
-                }
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(earners) { earnerChip($0, live: live) }
-                    }
-                }
-            }
-        }
-    }
-
-    private func earnerChip(_ owned: OwnedCard, live: Bool) -> some View {
-        let captain = container.lineup.isCaptain(owned.id)
-        return HStack(spacing: 5) {
-            ZStack(alignment: .topTrailing) {
-                AvatarView(card: owned.card).frame(width: 26, height: 39)
-                    .background(owned.card.rarity.color.opacity(0.14))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .overlay(RoundedRectangle(cornerRadius: 6)
-                        .strokeBorder(captain ? WC.gold : owned.card.rarity.color, lineWidth: 1))
-                if live { Circle().fill(WC.go).frame(width: 6, height: 6).offset(x: 2, y: -2) }
-            }
-            Text(owned.card.funnyName).font(WC.display(8.5))
-                .foregroundStyle(WC.inkText).lineLimit(1)
-            if captain {
-                Text("C").font(WC.display(7)).foregroundStyle(WC.ink)
-                    .padding(.horizontal, 3).padding(.vertical, 0.5)
-                    .background(Capsule().fill(WC.gold))
-            }
-        }
-        .padding(.trailing, 6)
-        .padding(4)
-        .background(Capsule().fill(WC.fill))
     }
 
     @ViewBuilder private func matchCenter(_ match: MatchState) -> some View {
@@ -328,37 +177,30 @@ struct LiveMatchesView: View {
         switch match.phase {
         case .lobby:
             HStack {
-                Text("Entry \(vm.entryFee) Cash").font(WC.ui(11)).foregroundStyle(WC.sub)
+                CurrencyCost(currency: .coins, amount: vm.entryFee)
+                    .font(WC.ui(11))
                 Spacer()
                 Button { activeFixture = match.fixture } label: {
-                    Text("MANAGE & PLAY").font(WC.ui(13))
-                        .padding(.horizontal, 12).padding(.vertical, 8)
-                        .background(WC.fill).foregroundStyle(WC.inkText).clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                Button { vm.enter(match) } label: {
-                    Text("ENTER · \(vm.entryFee)").font(WC.display(11)).foregroundStyle(.white)
-                        .padding(.horizontal, 14).padding(.vertical, 7)
+                    Text("PLAY").font(WC.display(12)).foregroundStyle(.white)
+                        .padding(.horizontal, 20).padding(.vertical, 8)
                         .background(Capsule().fill(WC.coral))
                 }
                 .buttonStyle(.plain)
-                .disabled(!vm.canEnter(match))
-                .opacity(vm.canEnter(match) ? 1 : 0.4)
             }
         case .live:
             HStack {
-                Text("LIVE · earning now").font(WC.display(10)).tracking(0.4).foregroundStyle(WC.coral)
+                Text("LIVE · match in progress").font(WC.display(10)).tracking(0.4).foregroundStyle(WC.coral)
                 Spacer()
                 Text("+\(match.pointsEarned) pts").font(WC.display(13)).foregroundStyle(WC.go)
             }
         case .fullTime:
             HStack {
-                Text("You earned").font(WC.ui(11)).foregroundStyle(WC.sub)
+                Text("FINISHED").font(WC.display(10)).tracking(0.5).foregroundStyle(WC.go)
                 Spacer()
                 if match.wonBonus {
                     Text("+\(LiveRules.winBonusTickets)🎟").font(WC.display(11)).foregroundStyle(WC.gold)
                 }
-                Text("+\(match.pointsEarned) pts · +\(match.formEarned) form")
+                Text("+\(match.pointsEarned) pts · +\(match.formEarned) rep")
                     .font(WC.display(12)).foregroundStyle(WC.go)
             }
         }
@@ -373,42 +215,6 @@ struct LiveMatchesView: View {
             if !leading { NationBadge(code: tag, width: 26) }
             if leading { Spacer(minLength: 0) }
         }.frame(maxWidth: .infinity)
-    }
-
-    private func feedRow(_ item: LiveFeedItem) -> some View {
-        PanelCard(borderColor: item.isCaptain ? WC.gold : WC.lineColor,
-                  borderWidth: item.isCaptain ? 2 : 1.5) {
-            HStack(spacing: 10) {
-                ZStack {
-                    Circle().fill(item.fielded ? WC.coralSoft : WC.fill).frame(width: 34, height: 34)
-                    Image(systemName: item.kind.symbol).font(.system(size: 14))
-                        .foregroundStyle(item.fielded ? WC.coral : WC.faint)
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
-                        NationBadge(code: item.nationTag, width: 20)
-                        Text(item.playerName).font(WC.display(12)).foregroundStyle(WC.inkText)
-                        if item.isCaptain {
-                            Text("C").font(WC.display(8)).foregroundStyle(WC.ink)
-                                .padding(.horizontal, 4).padding(.vertical, 1)
-                                .background(Capsule().fill(WC.gold))
-                        }
-                    }
-                    Text("\(item.minute)' · \(item.kind.label)").font(WC.ui(10)).foregroundStyle(WC.sub)
-                }
-                Spacer()
-                if item.fielded {
-                    HStack(spacing: 3) {
-                        if item.isCaptain { Text("×2").font(WC.display(9)).foregroundStyle(WC.gold) }
-                        Text(item.points >= 0 ? "+\(item.points)" : "\(item.points)")
-                            .font(WC.display(14)).foregroundStyle(item.points >= 0 ? WC.go : WC.coral)
-                    }
-                } else {
-                    Text("NOT FIELDED").font(WC.display(8.5)).tracking(0.5).foregroundStyle(WC.faint)
-                }
-            }
-            .padding(.horizontal, 12).padding(.vertical, 9)
-        }
     }
 }
 

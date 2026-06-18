@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// One line in a match's event feed.
+/// One line in a match's event feed (kept for potential future use / auto path).
 struct LiveFeedItem: Identifiable {
     let id = UUID()
     let minute: Int
@@ -45,12 +45,11 @@ final class LiveMatchesViewModel {
     private let energyService: any EnergyService
 
     var matches: [MatchState]
-    var feed: [LiveFeedItem] = []
     var sessionPoints = 0
     var sessionCash = 0
     var milestoneToast: String?
     var matchResult: String?
-    private var tasks: [String: Task<Void, Never>] = [:]   // one per live match
+    private var tasks: [String: Task<Void, Never>] = [:]
 
     let entryFee = LiveRules.entryFeeCoins
 
@@ -72,7 +71,6 @@ final class LiveMatchesViewModel {
         self.auth = container.auth
         self.navigator = container.navigator
         self.energyService = container.energy
-        // Procedurally-generated slate; only live matches are enterable.
         self.matches = container.slate.fixtures
             .filter { $0.status == .live }
             .map { MatchState(fixture: $0) }
@@ -83,7 +81,6 @@ final class LiveMatchesViewModel {
 
     var refreshCost: Int { slateService.nextRefreshCost }
     var refreshCount: Int { slateService.refreshCount }
-    /// Only refresh between matches so no entry fee is wasted.
     var canRefresh: Bool { liveMatchCount == 0 && slateService.canAffordRefresh }
 
     func refreshSlate() {
@@ -93,7 +90,6 @@ final class LiveMatchesViewModel {
         }
         stop()
         slateID = slateService.slateID
-        feed.removeAll()
         matches = slateService.fixtures
             .filter { $0.status == .live }
             .map { MatchState(fixture: $0) }
@@ -112,7 +108,6 @@ final class LiveMatchesViewModel {
             matches[idx].away = rec.away
             matches[idx].wonBonus = rec.wonBonus
             matches[idx].phase = .fullTime
-            // Entered but interrupted (app closed mid-match) → finalize now.
             if !rec.finished {
                 if !rec.wonBonus && matches[idx].pointsEarned >= LiveRules.winBonusTarget {
                     wallet.credit(.tickets, LiveRules.winBonusTickets)
@@ -125,130 +120,12 @@ final class LiveMatchesViewModel {
         }
     }
 
-    private func persist(_ idx: Int) {
-        let m = matches[idx]
-        let rec = store.record(slateID: slateID, fixtureID: m.id)
-        rec.pointsEarned = m.pointsEarned
-        rec.formEarned = m.formEarned
-        rec.home = m.home
-        rec.away = m.away
-        rec.wonBonus = m.wonBonus
-        rec.statusRaw = (m.phase == .fullTime) ? "finished" : "entered"
-        store.save()
-    }
-
-    // MARK: lineup-derived
-
-    func fieldedCards() -> [OwnedCard] {
-        let owned = collection.owned()
-        let set = Set(lineup.fielded())
-        return owned.filter { set.contains($0.id) }
-            .sorted { lineup.isCaptain($0.id) && !lineup.isCaptain($1.id) }
-    }
-    var fieldedCount: Int { lineup.count }
-    var maxFielded: Int { lineup.maxFielded }
-
-    func isNationLive(_ tag: String) -> Bool {
-        matches.contains { ($0.fixture.homeTag == tag || $0.fixture.awayTag == tag) }
-    }
-
-    /// Your fielded clients who actually play in a given fixture (i.e. can
-    /// earn you a commission there). Captain first.
-    func fieldedPlayers(in fixture: Fixture) -> [OwnedCard] {
-        fieldedCards().filter { $0.card.player.nationTag == fixture.homeTag
-                             || $0.card.player.nationTag == fixture.awayTag }
-    }
-
-    func yourPlayers(in fixture: Fixture) -> Int { fieldedPlayers(in: fixture).count }
-
-    func energy(forCardID id: String) -> Int {
-        guard let inst = collection.instance(forCardID: id) else { return EnergyRules.maxEnergy }
-        return energyService.current(inst)
-    }
-
-    var liveMatchCount: Int { tasks.count }
-
-    // MARK: entry + play
-
-    /// Multiple matches can run at once — entry just needs the fee.
-    func canEnter(_ match: MatchState) -> Bool {
-        match.phase == .lobby && coins >= entryFee
-    }
-
-    func enter(_ match: MatchState) {
-        guard canEnter(match) else { return }
-        guard wallet.debit(.coins, entryFee) else { return }
-        guard let idx = matches.firstIndex(where: { $0.id == match.id }) else { return }
-        matches[idx].phase = .live
-        persist(idx)
-        let fixture = match.fixture
-        tasks[fixture.id] = Task { [weak self] in
-            guard let stream = self?.live.play(fixture, realDuration: LiveRules.realDuration) else { return }
-            for await tick in stream { self?.handle(tick, fixtureID: fixture.id) }
-        }
-    }
-
     func stop() {
         for task in tasks.values { task.cancel() }
         tasks.removeAll()
     }
 
-    private func handle(_ tick: MatchTick, fixtureID: String) {
-        guard let idx = matches.firstIndex(where: { $0.id == fixtureID }) else { return }
-        matches[idx].minute = tick.minute
-
-        if let event = tick.event {
-            let card = catalog.card(id: event.playerID)
-            let fielded = lineup.isFielded(event.playerID)
-            let captain = lineup.isCaptain(event.playerID)
-            let multiplier = captain ? LineupRules.captainMultiplier : 1
-            let pts = fielded ? event.points * multiplier : 0
-            let form = fielded ? event.formTokens : 0
-
-            // running score
-            if event.kind == .goal, let tag = card?.player.nationTag {
-                if tag == matches[idx].fixture.homeTag { matches[idx].home += 1 }
-                else if tag == matches[idx].fixture.awayTag { matches[idx].away += 1 }
-            }
-
-            if fielded {
-                if form > 0 { wallet.credit(.formTokens, form) }
-                let commission = AgentRules.commission(forPoints: pts)
-                if commission > 0 { wallet.credit(.coins, commission); sessionCash += commission }
-                score.award(points: pts, formTokens: form)
-                sessionPoints += pts
-                matches[idx].pointsEarned += pts
-                matches[idx].formEarned += form
-                grantMilestones()
-            }
-
-            feed.insert(LiveFeedItem(
-                minute: event.minute,
-                playerName: card?.funnyName ?? event.playerID,
-                nationTag: card?.player.nationTag ?? "?",
-                kind: event.kind, points: pts, formTokens: form,
-                fielded: fielded, isCaptain: captain), at: 0)
-            if feed.count > 24 { feed.removeLast() }
-            persist(idx)
-        }
-
-        if tick.isFullTime { settle(idx) }
-    }
-
-    private func settle(_ idx: Int) {
-        matches[idx].phase = .fullTime
-        tasks[matches[idx].id] = nil
-        let earned = matches[idx].pointsEarned
-        if earned >= LiveRules.winBonusTarget {
-            wallet.credit(.tickets, LiveRules.winBonusTickets)
-            matches[idx].wonBonus = true
-            matchResult = "Full time! \(earned) pts · +\(LiveRules.winBonusTickets) Ticket bonus"
-        } else {
-            matchResult = "Full time! \(earned) pts earned"
-        }
-        persist(idx)
-        scheduleClear(\.matchResult)
-    }
+    var liveMatchCount: Int { tasks.count }
 
     // MARK: milestones
 
@@ -261,22 +138,12 @@ final class LiveMatchesViewModel {
         return min(1, max(0, Double(careerPoints - prev) / Double(span)))
     }
 
-    private func grantMilestones() {
-        let granted = milestones.claim(points: careerPoints)
-        guard !granted.isEmpty else { return }
-        // First milestone is the hook moment for the one-time "Link Apple ID" prompt.
-        if LinkPromptPolicy.shouldPrompt(isAnonymous: auth.currentUser?.isAnonymous ?? false,
-                                         alreadyPrompted: UserDefaults.standard.bool(forKey: "didPromptLink"),
-                                         firstMilestoneReached: true) {
-            navigator.linkPromptPending = true
-        }
-        let gems = granted.reduce(0) { $0 + $1.gems }
-        let tickets = granted.reduce(0) { $0 + $1.tickets }
-        var msg = "Milestone! +\(gems) Gems"
-        if tickets > 0 { msg += " · +\(tickets) Tickets" }
-        milestoneToast = msg
-        scheduleClear(\.milestoneToast)
+    func energy(forCardID id: String) -> Int {
+        guard let inst = collection.instance(forCardID: id) else { return EnergyRules.maxEnergy }
+        return energyService.current(inst)
     }
+
+    func nationName(_ tag: String) -> String { catalog.nationName(tag) }
 
     private func scheduleClear(_ keyPath: ReferenceWritableKeyPath<LiveMatchesViewModel, String?>) {
         Task { [weak self] in
@@ -284,6 +151,4 @@ final class LiveMatchesViewModel {
             self?[keyPath: keyPath] = nil
         }
     }
-
-    func nationName(_ tag: String) -> String { catalog.nationName(tag) }
 }

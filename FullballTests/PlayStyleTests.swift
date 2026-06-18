@@ -19,6 +19,8 @@ struct PlayStyleTests {
         #expect(PlayStyle.physical.edge(against: .technical) == 1)
         #expect(PlayStyle.technical.edge(against: .pace) == 1)
         #expect(PlayStyle.physical.edge(against: .pace) == -1)
+        #expect(PlayStyle.technical.edge(against: .physical) == -1)
+        #expect(PlayStyle.pace.edge(against: .technical) == -1)
         #expect(PlayStyle.technical.edge(against: .technical) == 0)
     }
 }

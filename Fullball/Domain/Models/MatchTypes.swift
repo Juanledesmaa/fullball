@@ -41,7 +41,7 @@ struct PlayerContribution: Sendable, Equatable, Identifiable {
 /// One resolved possession, ordered, for later playback animation.
 struct PossessionEvent: Sendable, Equatable, Identifiable {
     enum Outcome: String, Sendable, Equatable {
-        case turnover, chanceCreated, goal, save, miss
+        case turnover, goal, save, miss
     }
     let index: Int
     let attackingHome: Bool

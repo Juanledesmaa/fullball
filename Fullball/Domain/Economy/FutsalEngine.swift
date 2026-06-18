@@ -7,6 +7,10 @@ enum FutsalEngine {
 
     static func play(home: MatchSide, away: MatchSide, seed: UInt64) -> MatchResult {
         var rng = SeededRandomProvider(seed: seed)
+        guard !home.outfield.isEmpty, !away.outfield.isEmpty else {
+            return MatchResult(homeGoals: 0, awayGoals: 0, events: [],
+                               homeContributions: [], awayContributions: [])
+        }
         var events: [PossessionEvent] = []
         var homeGoals = 0, awayGoals = 0
         var tally: [String: PlayerContribution] = [:]
@@ -85,11 +89,16 @@ enum FutsalEngine {
     static func goalProbability(shooter: MatchPlayer, atk: MatchSide, def: MatchSide) -> Double {
         let gkDef = def.goalkeeper?.stats.defending ?? 50
         var shooting = Double(shooter.stats.shooting)
+        // Marking is danger-man-specific: only the danger man faces the assigned
+        // marker (shooting reduction + style duel). Everyone else is judged vs the GK.
+        let defenderStyle: PlayStyle
         if shooter.id == atk.dangerManID, let marker = def.player(def.tactics.markerID) {
             shooting -= FutsalRules.markWeight * Double(marker.stats.defending)
+            defenderStyle = marker.style
+        } else {
+            defenderStyle = def.goalkeeper?.style ?? .physical
         }
-        let marker = def.player(def.tactics.markerID)
-        let styleEdge = shooter.style.edge(against: marker?.style ?? (def.goalkeeper?.style ?? .physical))
+        let styleEdge = shooter.style.edge(against: defenderStyle)
         let p = FutsalRules.baseGoal
             + FutsalRules.shotWeight * (shooting - Double(gkDef))
             + FutsalRules.styleEdgeWeight * Double(styleEdge)

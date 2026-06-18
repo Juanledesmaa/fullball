@@ -1,5 +1,3 @@
-import Foundation
-
 /// A player's tactical style, derived from their dominant outfield stat.
 /// Forms a rock-paper-scissors triangle used in duels and counter-picks.
 enum PlayStyle: String, Codable, Sendable, CaseIterable, Equatable {

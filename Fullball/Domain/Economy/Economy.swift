@@ -112,7 +112,7 @@ enum FutsalRules {
 
     // Chance creation (per attacking possession).
     static let baseChance = 0.45
-    static let strengthWeight = 0.004       // per point of (attack - defense) midfield diff
+    static let strengthWeight = 0.004       // per point of midfield diff ((passing+pace)/2, atk - def)
     static let formationEdgeWeight = 0.05   // per RPS edge step
     static let mentalityWeight = 0.06       // per mentality step, attacker minus defender
     static let counterEdgeWeight = 0.04     // per counter RPS edge step
@@ -153,6 +153,7 @@ enum EnergyRules {
     }
 
     static func regen(from energy: Int, minutesElapsed: Double) -> Int {
+        // .rounded(.down) is intentional: regen is slightly stingy (conservative floor).
         min(maxEnergy, energy + Int((regenPerMinute * minutesElapsed).rounded(.down)))
     }
 }

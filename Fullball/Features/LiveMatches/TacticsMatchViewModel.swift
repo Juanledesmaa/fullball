@@ -25,10 +25,31 @@ final class TacticsMatchViewModel {
 
     let opponent: MatchSide
 
-    /// Mirrors `LineupService.tactics`; writing through persists to LineupService.
     var tactics: Tactics {
         didSet { lineup.setTactics(tactics) }
     }
+
+    // MARK: - Per-match player selection (not from LineupService)
+
+    var selected: [String] = []       // chosen card ids, max 5
+    var captainID: String? = nil
+    let maxPlayers = 5
+
+    func toggle(_ id: String) {
+        if let i = selected.firstIndex(of: id) {
+            selected.remove(at: i)
+            if captainID == id { captainID = selected.first }
+        } else if selected.count < maxPlayers {
+            selected.append(id)
+            if captainID == nil { captainID = id }
+        }
+    }
+
+    func setCaptain(_ id: String) {
+        if selected.contains(id) { captainID = id }
+    }
+
+    var canKickOff: Bool { !selected.isEmpty && canAfford && !alreadyFinished }
 
     // MARK: - Playback state
 
@@ -51,7 +72,7 @@ final class TacticsMatchViewModel {
         store.record(slateID: slateID, fixtureID: fixture.id).statusRaw == "finished"
     }
 
-    // MARK: - Deterministic seed (shared: same fixture same for all devices)
+    // MARK: - Deterministic seed
 
     var seed: UInt64 {
         DeviceSeed.sharedSeed(for: slateID) &+ UInt64(bitPattern: Int64(fixture.id.hashValue))
@@ -81,17 +102,17 @@ final class TacticsMatchViewModel {
         self.tactics = container.lineup.tactics
     }
 
-    // MARK: - Home side assembly
+    // MARK: - Home side assembly (uses per-match selection)
 
     func buildHomeSide() -> MatchSide {
         let owned = collection.owned()
-        let inputs: [(id: String, position: Position, stats: Stats)] = lineup.fielded().compactMap { id in
+        let inputs: [(id: String, position: Position, stats: Stats)] = selected.compactMap { id in
             guard let oc = owned.first(where: { $0.id == id }) else { return nil }
             let e = energy.current(oc.instance)
             let stats = EnergyRules.applyPenalty(to: oc.effectiveStats, energy: e)
             return (id, oc.card.player.position, stats)
         }
-        return MatchSideAssembly.build(players: inputs, tactics: tactics, captainID: lineup.captainID)
+        return MatchSideAssembly.build(players: inputs, tactics: tactics, captainID: captainID)
     }
 
     // MARK: - Match flow
@@ -100,7 +121,7 @@ final class TacticsMatchViewModel {
         guard phase == .setup,
               !alreadyFinished,
               canAfford,
-              !lineup.fielded().isEmpty else { return }
+              !selected.isEmpty else { return }
         wallet.debit(.coins, entryFee)
         let res = FutsalEngine.play(home: buildHomeSide(), away: opponent, seed: seed)
         result = res
@@ -108,8 +129,6 @@ final class TacticsMatchViewModel {
         minuteIndex = 0
     }
 
-    /// Advance one possession event. Returns `true` while there are more events
-    /// to step through, `false` when the match is settled (caller stops the timer).
     @discardableResult
     func step() -> Bool {
         guard let res = result, phase == .playing else { return false }
@@ -124,7 +143,7 @@ final class TacticsMatchViewModel {
         return true
     }
 
-    // MARK: - Settlement (private — called once, idempotent via phase guard)
+    // MARK: - Settlement
 
     private func settle() {
         guard phase == .playing, let res = result else { return }
@@ -132,22 +151,15 @@ final class TacticsMatchViewModel {
 
         let pay = FutsalReward.from(
             contributions: res.homeContributions,
-            captainID: lineup.captainID
+            captainID: captainID
         )
         payout = pay
 
-        // Award career points + form tokens.
         score.award(points: pay.points, formTokens: pay.rep)
-
-        // Coin commission.
         if pay.cash > 0 { wallet.credit(.coins, pay.cash) }
-
-        // Win-bonus ticket.
         if pay.wonBonus { wallet.credit(.tickets, LiveRules.winBonusTickets) }
-
         wallet.save()
 
-        // Persist match outcome.
         let rec = store.record(slateID: slateID, fixtureID: fixture.id)
         rec.statusRaw = "finished"
         rec.pointsEarned = pay.points
@@ -157,21 +169,44 @@ final class TacticsMatchViewModel {
         rec.wonBonus = pay.wonBonus
         store.save()
 
-        // Claim any newly-unlocked milestones.
         awardedTiers = milestones.claim(points: score.points)
 
-        energy.drainAfterMatch(fieldedIDs: lineup.fielded(), captainID: lineup.captainID, intensity: tactics.intensity)
+        energy.drainAfterMatch(fieldedIDs: selected, captainID: captainID, intensity: tactics.intensity)
     }
 
-    // MARK: - Scouting helpers (for views)
+    // MARK: - Helpers for views
 
     var opponentName: String { catalog.nationName(fixture.awayTag) }
-    var yourFieldedCount: Int { lineup.fielded().count }
+    var yourFieldedCount: Int { selected.count }
 
-    func myFieldedCards() -> [OwnedCard] {
-        let ids = Set(lineup.fielded())
-        return collection.owned().filter { ids.contains($0.id) }
+    /// All owned cards sorted by overall desc, then energy desc for selection.
+    func ownedForSelection() -> [OwnedCard] {
+        collection.owned().sorted {
+            let a = $0.effectiveStats.overall; let b = $1.effectiveStats.overall
+            if a != b { return a > b }
+            return energy($0.id) > energy($1.id)
+        }
+    }
+
+    func energy(_ id: String) -> Int {
+        guard let inst = collection.instance(forCardID: id) else { return EnergyRules.maxEnergy }
+        return energy.current(inst)
+    }
+
+    func myFieldedCards() -> [MatchPlayer] {
+        let owned = collection.owned()
+        return selected.compactMap { id in
+            guard let oc = owned.first(where: { $0.id == id }) else { return nil }
+            let e = energy.current(oc.instance)
+            let stats = EnergyRules.applyPenalty(to: oc.effectiveStats, energy: e)
+            return MatchPlayer(id: oc.id, position: oc.card.player.position, stats: stats)
+        }
     }
 
     func catalogCard(_ id: String) -> Card? { catalog.card(id: id) }
+    func ownedCard(_ id: String) -> OwnedCard? { collection.owned().first { $0.id == id } }
+
+    var hasTiredPlayers: Bool {
+        selected.contains { energy($0) < EnergyRules.penaltyThreshold }
+    }
 }

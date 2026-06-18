@@ -67,7 +67,7 @@ struct FutsalPitchView: View {
     }
 
     private func homePlayers() -> [MatchPlayer] {
-        vm.myFieldedCards().map { MatchPlayer(id: $0.id, position: $0.card.player.position, stats: $0.effectiveStats) }
+        vm.myFieldedCards()
     }
 
     private struct Slot: Identifiable { let id: String; let player: MatchPlayer; let point: CGPoint }

@@ -175,6 +175,14 @@ final class TacticsMatchViewModel {
     var opponentName: String { catalog.nationName(fixture.awayTag) }
     var yourFieldedCount: Int { selected.count }
 
+    /// Match clock label: shows current minute during play, "FULL TIME" at end.
+    var minuteLabel: String {
+        guard result != nil else { return "" }
+        if phase == .fullTime { return "FULL TIME" }
+        let minute = Int(Double(minuteIndex) / Double(FutsalRules.possessionCount) * 90)
+        return "\(minute)′"
+    }
+
     /// All owned cards sorted by overall desc, then energy desc for selection.
     func ownedForSelection() -> [OwnedCard] {
         collection.owned().sorted {

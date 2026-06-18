@@ -27,20 +27,36 @@ struct FutsalPitchView: View {
     // MARK: - Scoreboard
 
     private var scoreboard: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("YOU").font(WC.display(10)).tracking(0.8).foregroundStyle(WC.coral)
-                Text(vm.fixture.homeTag).font(WC.display(14)).foregroundStyle(WC.inkText)
+        ZStack {
+            // Equal-width side blocks ensure the center score is truly centered
+            HStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("YOU").font(WC.display(10)).tracking(0.8).foregroundStyle(WC.coral)
+                    Text(vm.fixture.homeTag).font(WC.display(14)).foregroundStyle(WC.inkText)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Spacer().frame(width: 90) // reserved for center score block
+
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("OPP").font(WC.display(10)).tracking(0.8).foregroundStyle(WC.sub)
+                    Text(vm.opponentName.uppercased()).font(WC.display(14)).foregroundStyle(WC.inkText)
+                        .lineLimit(1).minimumScaleFactor(0.6)
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            Spacer()
-            Text("\(vm.homeGoals) – \(vm.awayGoals)")
-                .font(WC.display(34)).foregroundStyle(WC.inkText)
-            Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
-                Text("OPP").font(WC.display(10)).tracking(0.8).foregroundStyle(WC.sub)
-                Text(vm.opponentName.uppercased()).font(WC.display(14)).foregroundStyle(WC.inkText)
-                    .lineLimit(1).minimumScaleFactor(0.6)
+
+            // Score + clock centered over the layout
+            VStack(spacing: 2) {
+                Text("\(vm.homeGoals) – \(vm.awayGoals)")
+                    .font(WC.display(34)).foregroundStyle(WC.inkText)
+                if !vm.minuteLabel.isEmpty {
+                    Text(vm.minuteLabel)
+                        .font(WC.display(10)).tracking(0.6)
+                        .foregroundStyle(vm.phase == .fullTime ? WC.gold : WC.sub)
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 
@@ -286,14 +302,17 @@ struct FutsalPitchView: View {
         VStack(spacing: 10) {
             Text("FULL TIME").font(WC.display(22)).foregroundStyle(WC.gold)
             if let p = vm.payout {
-                HStack(spacing: 12) {
-                    payoutPill("+\(p.points) pts", icon: "star.circle.fill", color: WC.gold)
-                    payoutPill("+\(p.cash)", icon: Currency.coins.symbol, color: Currency.coins.tint)
-                    payoutPill("+\(p.rep) rep", icon: "chart.bar.fill", color: WC.sub)
+                // Single horizontal row — compact chips that scale down before wrapping
+                HStack(spacing: 8) {
+                    rewardChip(label: "+\(p.cash)", currency: .coins)
+                    rewardChip(label: "+\(p.rep)", currency: .formTokens)
+                    rewardPointsChip(points: p.points)
                     if p.wonBonus {
-                        payoutPill("+1", icon: Currency.tickets.symbol, color: Currency.tickets.tint)
+                        rewardChip(label: "+1", currency: .tickets)
                     }
                 }
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             }
             Button("Done") { onClose() }
                 .font(WC.ui(15))
@@ -306,12 +325,21 @@ struct FutsalPitchView: View {
         .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(WC.gold, lineWidth: 1.5))
     }
 
-    private func payoutPill(_ label: String, icon: String, color: Color) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon).font(.system(size: 11)).foregroundStyle(color)
+    private func rewardChip(label: String, currency: Currency) -> some View {
+        HStack(spacing: 3) {
+            Image(systemName: currency.symbol).font(.system(size: 11)).foregroundStyle(currency.tint)
             Text(label).font(WC.display(12)).foregroundStyle(WC.inkText)
         }
-        .padding(.horizontal, 9).padding(.vertical, 5)
+        .padding(.horizontal, 8).padding(.vertical, 4)
+        .background(Capsule().fill(WC.fill))
+    }
+
+    private func rewardPointsChip(points: Int) -> some View {
+        HStack(spacing: 3) {
+            Image(systemName: "star.circle.fill").font(.system(size: 11)).foregroundStyle(WC.gold)
+            Text("+\(points) pts").font(WC.display(12)).foregroundStyle(WC.inkText)
+        }
+        .padding(.horizontal, 8).padding(.vertical, 4)
         .background(Capsule().fill(WC.fill))
     }
 }

@@ -26,7 +26,7 @@ final class TacticsMatchViewModel {
 
     var tactics = Tactics()
 
-    // MARK: - Per-match player selection (not from LineupService)
+    // MARK: - Per-match player selection
 
     var selected: [String] = []       // chosen card ids, max 5
     var captainID: String? = nil

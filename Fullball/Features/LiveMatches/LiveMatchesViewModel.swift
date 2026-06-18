@@ -35,7 +35,6 @@ final class LiveMatchesViewModel {
     private let wallet: any WalletService
     private let catalog: any CatalogService
     private let score: ScoreBoard
-    private let lineup: any LineupService
     private let milestones: any MilestoneService
     private let store: any MatchProgressStore
     private let slateService: MatchSlateService
@@ -63,7 +62,6 @@ final class LiveMatchesViewModel {
         self.wallet = container.wallet
         self.catalog = container.catalog
         self.score = container.score
-        self.lineup = container.lineup
         self.milestones = container.milestones
         self.store = container.matchStore
         self.slateService = container.slate

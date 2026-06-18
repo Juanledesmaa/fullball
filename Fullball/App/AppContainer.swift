@@ -22,6 +22,7 @@ final class AppContainer {
     let market: TransferMarketService
     let imageStore: any PlayerImageStore
     let auth: any AuthService
+    let energy: any EnergyService
     let navigator = Navigator()
 
     init(context: ModelContext,
@@ -54,6 +55,7 @@ final class AppContainer {
         self.milestones = DefaultMilestoneService(context: context, wallet: wallet)
         self.exchange = DefaultExchangeService(wallet: wallet)
         self.market = TransferMarketService(catalog: catalog, wallet: wallet, collection: collection)
+        self.energy = DefaultEnergyService(context: context, wallet: wallet, collection: collection)
     }
 
     /// The SwiftData model types the app persists.

@@ -13,7 +13,6 @@ final class TacticsMatchViewModel {
     let fixture: Fixture
     private let catalog: any CatalogService
     private let collection: any CollectionService
-    private let lineup: any LineupService
     private let wallet: any WalletService
     private let score: ScoreBoard
     private let milestones: any MilestoneService
@@ -25,9 +24,7 @@ final class TacticsMatchViewModel {
 
     let opponent: MatchSide
 
-    var tactics: Tactics {
-        didSet { lineup.setTactics(tactics) }
-    }
+    var tactics = Tactics()
 
     // MARK: - Per-match player selection (not from LineupService)
 
@@ -84,7 +81,6 @@ final class TacticsMatchViewModel {
         self.fixture = fixture
         self.catalog = container.catalog
         self.collection = container.collection
-        self.lineup = container.lineup
         self.wallet = container.wallet
         self.score = container.score
         self.milestones = container.milestones
@@ -99,7 +95,6 @@ final class TacticsMatchViewModel {
             cards: container.catalog.cards,
             seed: fixtureSeed
         )
-        self.tactics = container.lineup.tactics
     }
 
     // MARK: - Home side assembly (uses per-match selection)

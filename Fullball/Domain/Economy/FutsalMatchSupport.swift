@@ -16,7 +16,7 @@ enum FutsalReward {
     static func from(contributions: [PlayerContribution], captainID: String?) -> Payout {
         var points = 0, rep = 0
         for c in contributions {
-            let mult = (c.playerID == captainID) ? LineupRules.captainMultiplier : 1
+            let mult = (c.playerID == captainID) ? LiveRules.captainMultiplier : 1
             points += c.points * mult
             rep += c.goals * 2 + c.assists + c.saves
         }

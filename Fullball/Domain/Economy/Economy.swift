@@ -89,6 +89,7 @@ enum LiveRules {
     static let realDurationSeconds = 40     // wall-clock length of a match
     static let winBonusTarget = 150         // match points needed for the bonus
     static let winBonusTickets = 1          // bonus paid when target is met
+    static let captainMultiplier = 2        // captain's points count double
 
     static var realDuration: Duration { .seconds(realDurationSeconds) }
 }

@@ -48,4 +48,35 @@ struct FutsalEngineTests {
         #expect(r.homeGoals == homeGoals)
         #expect(r.awayGoals == awayGoals)
     }
+
+    @Test func strongerTeamOutscoresOverManySeeds() {
+        let strong = Self.side(prefix: "h", base: 90)
+        let weak   = Self.side(prefix: "a", base: 40)
+        var strongGoals = 0, weakGoals = 0
+        for seed in UInt64(0)..<60 {
+            let r = FutsalEngine.play(home: strong, away: weak, seed: seed)
+            strongGoals += r.homeGoals; weakGoals += r.awayGoals
+        }
+        #expect(strongGoals > weakGoals)
+    }
+
+    @Test func poorShootersConvertLessThanGoodShooters() {
+        func teamShooting(_ shoot: Int, prefix: String) -> MatchSide {
+            let s = Stats(pace: 60, shooting: shoot, passing: 60, defending: 60)
+            let players = [
+                Self.mp("\(prefix)gk", .gk, s), Self.mp("\(prefix)d", .def, s),
+                Self.mp("\(prefix)m", .mid, s), Self.mp("\(prefix)f1", .fwd, s),
+                Self.mp("\(prefix)f2", .fwd, s),
+            ]
+            return MatchSide(players: players, tactics: Tactics(), teamStyle: .technical,
+                             dangerManID: "\(prefix)f1", captainID: nil)
+        }
+        let opponent = Self.side(prefix: "a", base: 60)
+        var goodGoals = 0, badGoals = 0
+        for seed in UInt64(0)..<60 {
+            goodGoals += FutsalEngine.play(home: teamShooting(90, prefix: "g"), away: opponent, seed: seed).homeGoals
+            badGoals  += FutsalEngine.play(home: teamShooting(20, prefix: "b"), away: opponent, seed: seed).homeGoals
+        }
+        #expect(goodGoals > badGoals)
+    }
 }

@@ -50,7 +50,7 @@ final class AppContainer {
         self.leaderboard = injectedLeaderboard ?? MockLeaderboardService()
         self.score = injectedScore ?? ScoreBoard(context: context)
         self.rewards = DefaultRewardsService(context: context, wallet: wallet)
-        self.lineup = SwiftDataLineupService(context: context)
+        self.lineup = SwiftDataLineupService(context: context, validIDs: Set(catalog.cards.map(\.id)))
         self.milestones = DefaultMilestoneService(context: context, wallet: wallet)
         self.exchange = DefaultExchangeService(wallet: wallet)
         self.market = TransferMarketService(catalog: catalog, wallet: wallet, collection: collection)

@@ -26,7 +26,7 @@ final class SwiftDataLineupService: LineupService {
     private let context: ModelContext
     private let model: Lineup
 
-    init(context: ModelContext) {
+    init(context: ModelContext, validIDs: Set<String> = []) {
         self.context = context
         let descriptor = FetchDescriptor<Lineup>()
         if let existing = try? context.fetch(descriptor).first {
@@ -36,6 +36,14 @@ final class SwiftDataLineupService: LineupService {
             context.insert(fresh)
             self.model = fresh
             try? context.save()
+        }
+        // Drop fielded ids not in the current catalog (e.g. after the asset/catalog
+        // revamp changed card ids) so stale players can't linger in the lineup.
+        if !validIDs.isEmpty {
+            let before = model.fieldedIDs.count
+            model.fieldedIDs.removeAll { !validIDs.contains($0) }
+            if let cap = model.captainID, !validIDs.contains(cap) { model.captainID = nil }
+            if model.fieldedIDs.count != before { try? context.save() }
         }
     }
 

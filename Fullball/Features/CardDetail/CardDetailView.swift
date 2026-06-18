@@ -49,7 +49,7 @@ struct CardDetailView: View {
                     .lineLimit(2).minimumScaleFactor(0.6)
                 HStack(spacing: 8) {
                     NationBadge(code: vm.card.player.nationTag, width: 26)
-                    Text("#\(vm.card.player.shirtNumber) · \(vm.card.player.position.displayName.uppercased())")
+                    Text(vm.card.player.position.displayName.uppercased())
                         .font(WC.display(10)).tracking(0.5).foregroundStyle(.white.opacity(0.85))
                 }
                 StarRow(stars: vm.stars, cap: vm.card.rarity.starCap, size: 15)

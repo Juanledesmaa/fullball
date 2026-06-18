@@ -52,7 +52,7 @@ struct CardTile: View {
                         .foregroundStyle(WC.inkText).lineLimit(1).minimumScaleFactor(0.6)
                     HStack(spacing: 6) {
                         NationBadge(code: card.player.nationTag, width: 22)
-                        Text("#\(card.player.shirtNumber) · \(card.player.position.rawValue)")
+                        Text(card.player.position.rawValue)
                             .font(WC.ui(10, weight: .semibold)).foregroundStyle(WC.sub)
                         Spacer()
                         StarRow(stars: owned.instance.stars, cap: card.rarity.starCap, size: 9)
@@ -124,7 +124,7 @@ struct CardHero: View {
                         .multilineTextAlignment(.center)
                     HStack(spacing: 8) {
                         NationBadge(code: card.player.nationTag, width: 28)
-                        Text("#\(card.player.shirtNumber) · \(card.player.position.displayName.uppercased())")
+                        Text(card.player.position.displayName.uppercased())
                             .font(WC.display(10)).tracking(0.6).foregroundStyle(WC.sub)
                     }
                     StarRow(stars: stars, cap: card.rarity.starCap, size: 14)

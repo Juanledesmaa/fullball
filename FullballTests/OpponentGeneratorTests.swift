@@ -16,11 +16,6 @@ struct OpponentGeneratorTests {
         #expect(side.goalkeeper != nil)
         #expect(side.outfield.count == 4)
     }
-    @Test func dangerManIsHighestShootingOutfielder() {
-        let side = OpponentGenerator.opponent(awayTag: anyTag(), cards: cat.cards, seed: 11)
-        let topShooter = side.outfield.max { $0.stats.shooting < $1.stats.shooting }
-        #expect(side.dangerManID == topShooter?.id)
-    }
     @Test func fallsBackToGlobalPoolWhenNationTooSmall() {
         let side = OpponentGenerator.opponent(awayTag: "ZZZ", cards: cat.cards, seed: 3)
         #expect(side.players.count == 5)

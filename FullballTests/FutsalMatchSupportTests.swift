@@ -4,7 +4,7 @@ import Testing
 struct FutsalMatchSupportTests {
     private func mp(_ id: String, _ pos: Position, _ s: Stats) -> (id: String, position: Position, stats: Stats) { (id, pos, s) }
 
-    @Test func assemblyBuildsSideWithDangerManAndStyle() {
+    @Test func assemblyBuildsFiveWithCaptainAndTactics() {
         let inputs = [
             mp("gk", .gk,  Stats(pace: 40, shooting: 10, passing: 40, defending: 80)),
             mp("d",  .def, Stats(pace: 50, shooting: 20, passing: 50, defending: 70)),
@@ -12,13 +12,11 @@ struct FutsalMatchSupportTests {
             mp("f1", .fwd, Stats(pace: 70, shooting: 95, passing: 50, defending: 30)),
             mp("f2", .fwd, Stats(pace: 80, shooting: 70, passing: 40, defending: 30)),
         ]
-        let side = MatchSideAssembly.build(players: inputs, tactics: Tactics(counter: .pace), captainID: "f1")
+        let side = MatchSideAssembly.build(players: inputs, tactics: Tactics(intensity: .aggressive), captainID: "f1")
         #expect(side.players.count == 5)
-        #expect(side.dangerManID == "f1")
         #expect(side.captainID == "f1")
-        #expect(side.tactics.counter == .pace)
-        // outfield styles: d=physical, m=technical, f1=pace, f2=pace → dominant = pace
-        #expect(side.teamStyle == PlayStyle.pace)
+        #expect(side.tactics.intensity == .aggressive)
+        #expect(side.goalkeeper?.id == "gk")
     }
 
     @Test func rewardScalesWithPointsAndCaptainDoubles() {

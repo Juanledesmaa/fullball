@@ -19,6 +19,7 @@ final class TacticsMatchViewModel {
     private let milestones: any MilestoneService
     private let store: any MatchProgressStore
     private let slateID: String
+    private let energy: any EnergyService
 
     // MARK: - Scouting / setup state
 
@@ -68,6 +69,7 @@ final class TacticsMatchViewModel {
         self.milestones = container.milestones
         self.store = container.matchStore
         self.slateID = slateID
+        self.energy = container.energy
 
         let fixtureSeed = DeviceSeed.sharedSeed(for: slateID)
             &+ UInt64(bitPattern: Int64(fixture.id.hashValue))
@@ -85,7 +87,9 @@ final class TacticsMatchViewModel {
         let owned = collection.owned()
         let inputs: [(id: String, position: Position, stats: Stats)] = lineup.fielded().compactMap { id in
             guard let oc = owned.first(where: { $0.id == id }) else { return nil }
-            return (id, oc.card.player.position, oc.effectiveStats)
+            let e = energy.current(oc.instance)
+            let stats = EnergyRules.applyPenalty(to: oc.effectiveStats, energy: e)
+            return (id, oc.card.player.position, stats)
         }
         return MatchSideAssembly.build(players: inputs, tactics: tactics, captainID: lineup.captainID)
     }
@@ -155,6 +159,8 @@ final class TacticsMatchViewModel {
 
         // Claim any newly-unlocked milestones.
         awardedTiers = milestones.claim(points: score.points)
+
+        energy.drainAfterMatch(fieldedIDs: lineup.fielded(), captainID: lineup.captainID)
     }
 
     // MARK: - Scouting helpers (for views)

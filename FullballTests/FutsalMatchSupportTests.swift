@@ -37,4 +37,12 @@ struct FutsalMatchSupportTests {
         #expect(r.cash == 0)
         #expect(r.wonBonus == false)
     }
+
+    @Test func offPositionHalvesStatsOnPositionDoesNot() {
+        let s = Stats(pace: 80, shooting: 80, passing: 80, defending: 80)
+        let onPos = OffPosition.adjust(stats: s, playerPosition: .fwd, slot: .fwd)
+        let offPos = OffPosition.adjust(stats: s, playerPosition: .fwd, slot: .def)
+        #expect(onPos == s)
+        #expect(offPos == Stats(pace: 40, shooting: 40, passing: 40, defending: 40))
+    }
 }

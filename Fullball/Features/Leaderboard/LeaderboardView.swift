@@ -4,11 +4,6 @@ struct LeaderboardView: View {
     @State private var vm: LeaderboardViewModel
     private let auth: any AuthService
 
-    /// Persisted locally. Local-only limitation: this name is not written back
-    /// to Firestore, so other players still see the server-side display name
-    /// ("Agent XXXX" or Apple ID name). It overrides the local row display only.
-    @AppStorage("agencyName") private var agencyName: String = ""
-
     @State private var showRenameAlert = false
     @State private var renameInput: String = ""
 
@@ -41,17 +36,17 @@ struct LeaderboardView: View {
             TextField("Enter agency name", text: $renameInput)
             Button("Save") {
                 let trimmed = renameInput.trimmingCharacters(in: .whitespacesAndNewlines)
-                agencyName = trimmed
+                guard !trimmed.isEmpty else { return }
+                Task { await vm.updateName(trimmed) }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Choose a name for your agency (local display only).")
+            Text("Choose a name for your agency.")
         }
     }
 
     private func row(_ entry: LeaderboardEntry) -> some View {
-        let displayName = entry.isCurrentUser && !agencyName.isEmpty ? agencyName : entry.userName
-        return PanelCard(borderColor: entry.isCurrentUser ? WC.coral : WC.lineColor,
+        PanelCard(borderColor: entry.isCurrentUser ? WC.coral : WC.lineColor,
                   borderWidth: entry.isCurrentUser ? 2 : 1.5) {
             HStack(spacing: 12) {
                 Text("\(entry.rank)").font(WC.display(15))
@@ -64,7 +59,7 @@ struct LeaderboardView: View {
                         .font(.system(size: 14))
                         .foregroundStyle(entry.isCurrentUser ? WC.coral : WC.sub)
                 }
-                Text(displayName).font(WC.display(14)).foregroundStyle(WC.inkText)
+                Text(entry.userName).font(WC.display(14)).foregroundStyle(WC.inkText)
                     .lineLimit(1)
                 Spacer()
                 VStack(alignment: .trailing, spacing: 0) {
@@ -73,7 +68,7 @@ struct LeaderboardView: View {
                 }
                 if entry.isCurrentUser {
                     Button {
-                        renameInput = agencyName.isEmpty ? entry.userName : agencyName
+                        renameInput = vm.currentName
                         showRenameAlert = true
                     } label: {
                         Image(systemName: "pencil")

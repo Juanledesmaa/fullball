@@ -9,12 +9,14 @@ protocol LeaderboardService {
     func standings(userPoints: Int) -> [LeaderboardEntry]
     /// Publish the user's entry and re-fetch the top players. No-op in the mock.
     func refresh(userPoints: Int) async
+    /// Persist a new agency name locally and to Firestore.
+    func updateName(_ name: String, userPoints: Int) async
 }
 
 /// Fixed local board for previews/offline. No cloud.
 @MainActor
-struct MockLeaderboardService: LeaderboardService {
-    let currentUserName: String
+final class MockLeaderboardService: LeaderboardService {
+    private(set) var currentUserName: String
 
     init(currentUserName: String = "You") { self.currentUserName = currentUserName }
 
@@ -28,6 +30,14 @@ struct MockLeaderboardService: LeaderboardService {
     }
 
     func refresh(userPoints: Int) async {}
+
+    func updateName(_ name: String, userPoints: Int) async {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty {
+            currentUserName = trimmed
+            UserDefaults.standard.set(trimmed, forKey: "agencyName")
+        }
+    }
 }
 
 /// Shared, real leaderboard. Publishes the user's entry to `leaderboard/{uid}`
@@ -37,7 +47,7 @@ struct MockLeaderboardService: LeaderboardService {
 @MainActor
 @Observable
 final class FirestoreLeaderboardService: LeaderboardService {
-    let currentUserName: String
+    private(set) var currentUserName: String
     private let uid: String
     private let client: FirestoreClient
     private let topLimit: Int
@@ -67,6 +77,19 @@ final class FirestoreLeaderboardService: LeaderboardService {
                 .map { LeaderboardEntry(userName: $0.name, points: $0.points) }
         } catch {
             print("Leaderboard refresh failed: \(error as NSError)")
+        }
+    }
+
+    func updateName(_ name: String, userPoints: Int) async {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        currentUserName = trimmed
+        UserDefaults.standard.set(trimmed, forKey: "agencyName")
+        do {
+            try await client.putLeaderboardEntry(uid: uid, name: trimmed, points: userPoints)
+            await refresh(userPoints: userPoints)
+        } catch {
+            print("updateName failed: \(error as NSError)")
         }
     }
 }

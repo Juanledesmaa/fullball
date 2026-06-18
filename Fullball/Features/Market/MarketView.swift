@@ -75,9 +75,12 @@ struct MarketView: View {
 
     private func signButton(_ l: TransferListing, owned: Bool, afford: Bool) -> some View {
         Button { vm.sign(l) } label: {
-            Text(owned ? "RE-SIGN" : "SIGN").font(WC.display(12)).foregroundStyle(.white)
-                .padding(.horizontal, 16).padding(.vertical, 10)
-                .background(Capsule().fill(afford ? WC.go : WC.faint))
+            VStack(spacing: 2) {
+                Text(owned ? "RE-SIGN" : "SIGN").font(WC.display(12)).foregroundStyle(.white)
+                CurrencyCost(currency: .coins, amount: l.price)
+            }
+            .padding(.horizontal, 16).padding(.vertical, 10)
+            .background(Capsule().fill(afford ? WC.go : WC.faint))
         }
         .buttonStyle(.plain)
         .disabled(!afford)

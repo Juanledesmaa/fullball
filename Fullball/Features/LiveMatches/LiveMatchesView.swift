@@ -117,12 +117,9 @@ struct LiveMatchesView: View {
                         .font(WC.ui(10)).foregroundStyle(WC.sub)
                 }
                 Spacer()
-                HStack(spacing: 4) {
-                    Image(systemName: Currency.gems.symbol).font(.system(size: 11)).foregroundStyle(Currency.gems.tint)
-                    Text("\(vm.refreshCost)").font(WC.display(12)).foregroundStyle(WC.inkText)
-                }
-                .padding(.horizontal, 12).padding(.vertical, 7)
-                .background(Capsule().fill(WC.fill))
+                CurrencyCost(currency: .gems, amount: vm.refreshCost)
+                    .padding(.horizontal, 12).padding(.vertical, 7)
+                    .background(Capsule().fill(WC.fill))
             }
             .padding(11)
             .frame(maxWidth: .infinity)

@@ -191,13 +191,13 @@ struct PackOpeningView: View {
 
     private func pullButton(multi: Bool, title: String, filled: Bool) -> some View {
         let affordable = vm.canAfford(multi: multi)
+        let pullCost = multi ? vm.selectedBanner.multiCost : vm.selectedBanner.singleCost
         return Button {
             vm.pull(multi: multi)
         } label: {
             VStack(spacing: 3) {
                 Text(title).font(WC.display(15)).tracking(0.5)
-                Text(vm.costLabel(multi: multi)).font(WC.display(10)).tracking(0.3)
-                    .opacity(0.85)
+                CurrencyCost(currency: pullCost.currency, amount: pullCost.amount)
             }
             .frame(maxWidth: .infinity).padding(.vertical, 14)
             .foregroundStyle(filled ? .white : WC.inkText)

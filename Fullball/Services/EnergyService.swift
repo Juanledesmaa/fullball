@@ -6,7 +6,7 @@ import SwiftData
 @MainActor
 protocol EnergyService: AnyObject {
     func current(_ instance: CardInstance) -> Int
-    func drainAfterMatch(fieldedIDs: [String], captainID: String?)
+    func drainAfterMatch(fieldedIDs: [String], captainID: String?, intensity: Intensity)
     func refillCost(_ instance: CardInstance) -> Int
     @discardableResult func refill(_ instance: CardInstance) -> Bool
 }
@@ -34,11 +34,11 @@ final class DefaultEnergyService: EnergyService {
         return instance.energy
     }
 
-    func drainAfterMatch(fieldedIDs: [String], captainID: String?) {
+    func drainAfterMatch(fieldedIDs: [String], captainID: String?, intensity: Intensity) {
         for id in fieldedIDs {
             guard let inst = collection.instance(forCardID: id) else { continue }
             _ = current(inst)
-            inst.energy = EnergyRules.afterMatch(energy: inst.energy, isCaptain: id == captainID)
+            inst.energy = EnergyRules.afterMatch(energy: inst.energy, isCaptain: id == captainID, intensity: intensity)
             inst.lastEnergyUpdate = Date()
         }
         try? context.save()

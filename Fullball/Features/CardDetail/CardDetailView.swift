@@ -149,13 +149,19 @@ struct CardDetailView: View {
                     }
                 }
                 .frame(height: 8)
+                Text("Restores ~4 energy per hour (full in ~24h). Refill instantly with Gems.")
+                    .font(WC.ui(11)).foregroundStyle(WC.sub)
                 HStack {
                     Text("Energy \(vm.currentEnergy) / \(EnergyRules.maxEnergy)")
                         .font(WC.ui(13)).foregroundStyle(WC.sub)
                     Spacer()
                     Button { vm.refillEnergy() } label: {
-                        Label("Refill \(vm.refillCost) 💎", systemImage: "bolt.fill")
-                            .font(WC.ui(13))
+                        HStack(spacing: 6) {
+                            Image(systemName: "bolt.fill").font(.system(size: 12))
+                            Text("Refill")
+                            CurrencyCost(currency: .gems, amount: vm.refillCost)
+                        }
+                        .font(WC.ui(13))
                     }
                     .disabled(vm.refillCost == 0 || !vm.canAffordRefill)
                     .opacity((vm.refillCost == 0 || !vm.canAffordRefill) ? 0.5 : 1)

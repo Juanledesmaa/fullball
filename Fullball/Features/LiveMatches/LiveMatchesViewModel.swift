@@ -39,7 +39,7 @@ final class LiveMatchesViewModel {
     private let milestones: any MilestoneService
     private let store: any MatchProgressStore
     private let slateService: MatchSlateService
-    private var slateID: String
+    private(set) var slateID: String
     private let auth: any AuthService
     private let navigator: Navigator
 
@@ -101,7 +101,7 @@ final class LiveMatchesViewModel {
     }
 
     /// Reapply persisted records so entries/results survive relaunch.
-    private func restore() {
+    func restore() {
         for rec in store.records(slateID: slateID) {
             guard let idx = matches.firstIndex(where: { $0.id == rec.fixtureID }) else { continue }
             matches[idx].pointsEarned = rec.pointsEarned

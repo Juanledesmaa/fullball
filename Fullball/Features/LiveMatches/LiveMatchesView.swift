@@ -4,6 +4,7 @@ struct LiveMatchesView: View {
     let container: AppContainer
     @State private var vm: LiveMatchesViewModel
     @State private var showLineup = false
+    @State private var activeFixture: Fixture?
 
     init(container: AppContainer) {
         self.container = container
@@ -37,6 +38,12 @@ struct LiveMatchesView: View {
         .background(ScreenBackground())
         .overlay(alignment: .top) { toast }
         .sheet(isPresented: $showLineup) { LineupSheet(container: container) }
+        .fullScreenCover(item: $activeFixture) { fx in
+            TacticsMatchView(fixture: fx, container: container, slateID: vm.slateID)
+        }
+        .onChange(of: activeFixture) { _, newValue in
+            if newValue == nil { vm.restore() }
+        }
         // NOTE: deliberately no `.onDisappear { vm.stop() }`. Live matches are a
         // cosmetic drip-feed of an already-deterministic result (fixture.scriptedEvents);
         // cancelling on tab-switch froze in-flight matches until relaunch. Tasks are
@@ -309,6 +316,12 @@ struct LiveMatchesView: View {
             HStack {
                 Text("Entry \(vm.entryFee) Cash").font(WC.ui(11)).foregroundStyle(WC.sub)
                 Spacer()
+                Button { activeFixture = match.fixture } label: {
+                    Text("MANAGE & PLAY").font(WC.ui(13))
+                        .padding(.horizontal, 12).padding(.vertical, 8)
+                        .background(WC.fill).foregroundStyle(WC.inkText).clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
                 Button { vm.enter(match) } label: {
                     Text("ENTER · \(vm.entryFee)").font(WC.display(11)).foregroundStyle(.white)
                         .padding(.horizontal, 14).padding(.vertical, 7)

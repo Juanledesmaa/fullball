@@ -26,27 +26,33 @@ final class TacticsMatchViewModel {
 
     var tactics = Tactics()
 
-    // MARK: - Per-match player selection
+    // MARK: - Per-match slot assignments (1-2-1 futsal formation)
 
-    var selected: [String] = []       // chosen card ids, max 5
-    var captainID: String? = nil
-    let maxPlayers = 5
+    let slots: [Position] = OffPosition.slots   // [.gk, .def, .mid, .mid, .fwd]
+    var assignments: [String?] = Array(repeating: nil, count: 5)   // slotIndex -> cardID
 
-    func toggle(_ id: String) {
-        if let i = selected.firstIndex(of: id) {
-            selected.remove(at: i)
-            if captainID == id { captainID = selected.first }
-        } else if selected.count < maxPlayers {
-            selected.append(id)
-            if captainID == nil { captainID = id }
-        }
+    var assignedIDs: [String] { assignments.compactMap { $0 } }
+
+    func assign(_ id: String, toSlot i: Int) {
+        // Remove the card from any slot it already occupies, then place it
+        if let prev = assignments.firstIndex(of: id) { assignments[prev] = nil }
+        assignments[i] = id
+        if captainID == nil || !assignedIDs.contains(captainID!) { captainID = assignedIDs.first }
     }
+
+    func clearSlot(_ i: Int) {
+        if assignments[i] == captainID { captainID = nil }
+        assignments[i] = nil
+        if captainID == nil { captainID = assignedIDs.first }
+    }
+
+    var captainID: String? = nil
 
     func setCaptain(_ id: String) {
-        if selected.contains(id) { captainID = id }
+        if assignedIDs.contains(id) { captainID = id }
     }
 
-    var canKickOff: Bool { !selected.isEmpty && canAfford && !alreadyFinished }
+    var canKickOff: Bool { !assignedIDs.isEmpty && canAfford && !alreadyFinished }
 
     // MARK: - Playback state
 
@@ -97,15 +103,17 @@ final class TacticsMatchViewModel {
         )
     }
 
-    // MARK: - Home side assembly (uses per-match selection)
+    // MARK: - Home side assembly (uses slot assignments with off-position penalty)
 
     func buildHomeSide() -> MatchSide {
         let owned = collection.owned()
-        let inputs: [(id: String, position: Position, stats: Stats)] = selected.compactMap { id in
-            guard let oc = owned.first(where: { $0.id == id }) else { return nil }
-            let e = energy.current(oc.instance)
-            let stats = EnergyRules.applyPenalty(to: oc.effectiveStats, energy: e)
-            return (id, oc.card.player.position, stats)
+        var inputs: [(id: String, position: Position, stats: Stats)] = []
+        for (i, idOpt) in assignments.enumerated() {
+            guard let id = idOpt, let oc = owned.first(where: { $0.id == id }) else { continue }
+            let withEnergy = EnergyRules.applyPenalty(to: oc.effectiveStats, energy: energy.current(oc.instance))
+            let adjusted = OffPosition.adjust(stats: withEnergy, playerPosition: oc.card.player.position, slot: slots[i])
+            // Feed slots[i] as the position so the engine's GK/outfield split is correct
+            inputs.append((id, slots[i], adjusted))
         }
         return MatchSideAssembly.build(players: inputs, tactics: tactics, captainID: captainID)
     }
@@ -116,7 +124,7 @@ final class TacticsMatchViewModel {
         guard phase == .setup,
               !alreadyFinished,
               canAfford,
-              !selected.isEmpty else { return }
+              !assignedIDs.isEmpty else { return }
         wallet.debit(.coins, entryFee)
         let res = FutsalEngine.play(home: buildHomeSide(), away: opponent, seed: seed)
         result = res
@@ -167,13 +175,13 @@ final class TacticsMatchViewModel {
 
         awardedTiers = milestones.claim(points: score.points)
 
-        energy.drainAfterMatch(fieldedIDs: selected, captainID: captainID, intensity: tactics.intensity)
+        energy.drainAfterMatch(fieldedIDs: assignedIDs, captainID: captainID, intensity: tactics.intensity)
     }
 
     // MARK: - Helpers for views
 
     var opponentName: String { catalog.nationName(fixture.awayTag) }
-    var yourFieldedCount: Int { selected.count }
+    var yourFieldedCount: Int { assignedIDs.count }
 
     /// Match clock label: shows current minute during play, "FULL TIME" at end.
     var minuteLabel: String {
@@ -197,13 +205,25 @@ final class TacticsMatchViewModel {
         return energy.current(inst)
     }
 
+    /// Returns the OwnedCard currently in the given slot, or nil if empty.
+    func slotPlayer(_ i: Int) -> OwnedCard? {
+        guard i < assignments.count, let id = assignments[i] else { return nil }
+        return collection.owned().first { $0.id == id }
+    }
+
+    /// True if the player assigned to slot i exists and their position differs from the slot's required position.
+    func isOffPosition(_ i: Int) -> Bool {
+        guard let oc = slotPlayer(i) else { return false }
+        return oc.card.player.position != slots[i]
+    }
+
     func myFieldedCards() -> [MatchPlayer] {
         let owned = collection.owned()
-        return selected.compactMap { id in
-            guard let oc = owned.first(where: { $0.id == id }) else { return nil }
+        return assignments.enumerated().compactMap { (i, idOpt) in
+            guard let id = idOpt, let oc = owned.first(where: { $0.id == id }) else { return nil }
             let e = energy.current(oc.instance)
             let stats = EnergyRules.applyPenalty(to: oc.effectiveStats, energy: e)
-            return MatchPlayer(id: oc.id, position: oc.card.player.position, stats: stats)
+            return MatchPlayer(id: oc.id, position: slots[i], stats: stats)
         }
     }
 
@@ -211,6 +231,6 @@ final class TacticsMatchViewModel {
     func ownedCard(_ id: String) -> OwnedCard? { collection.owned().first { $0.id == id } }
 
     var hasTiredPlayers: Bool {
-        selected.contains { energy($0) < EnergyRules.penaltyThreshold }
+        assignedIDs.contains { energy($0) < EnergyRules.penaltyThreshold }
     }
 }

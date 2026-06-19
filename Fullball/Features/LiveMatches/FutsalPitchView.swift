@@ -192,7 +192,7 @@ struct FutsalPitchView: View {
         return ZStack {
             Circle()
                 .fill(card?.rarity.color.opacity(0.85) ?? WC.coral.opacity(0.85))
-                .frame(width: 38, height: 38)
+                .frame(width: 34, height: 34)
                 .overlay(
                     Circle().stroke(
                         isBallHolder ? WC.gold : (card?.rarity.color ?? WC.coral),
@@ -202,7 +202,7 @@ struct FutsalPitchView: View {
             // Portrait inside circle
             if let card {
                 AvatarView(card: card)
-                    .frame(width: 38, height: 38)
+                    .frame(width: 34, height: 34)
                     .clipShape(Circle())
             } else {
                 Image(systemName: player.position.symbol)
@@ -213,7 +213,7 @@ struct FutsalPitchView: View {
             if player.id == vm.captainID {
                 Text("C").font(WC.display(8)).foregroundStyle(WC.ink)
                     .padding(2).background(Circle().fill(WC.gold))
-                    .offset(x: 14, y: -14)
+                    .offset(x: 12, y: -12)
             }
         }
         .shadow(color: .black.opacity(0.35), radius: isBallHolder ? 6 : 2, x: 0, y: 2)
@@ -226,7 +226,7 @@ struct FutsalPitchView: View {
         return ZStack {
             Circle()
                 .fill(Color(hex: 0x1C3A5E).opacity(0.9))
-                .frame(width: 38, height: 38)
+                .frame(width: 34, height: 34)
                 .overlay(
                     Circle().stroke(
                         isBallHolder ? WC.gold : Color.white.opacity(0.4),
@@ -235,7 +235,7 @@ struct FutsalPitchView: View {
                 )
             if let card {
                 AvatarView(card: card)
-                    .frame(width: 38, height: 38)
+                    .frame(width: 34, height: 34)
                     .clipShape(Circle())
             } else {
                 Image(systemName: player.position.symbol)
@@ -257,10 +257,10 @@ struct FutsalPitchView: View {
     private func depthX(for pos: Position, isHome: Bool) -> CGFloat {
         let homeFrac: CGFloat
         switch pos {
-        case .gk:  homeFrac = 0.05
-        case .def: homeFrac = 0.17
-        case .mid: homeFrac = 0.29
-        case .fwd: homeFrac = 0.41   // leaves a wider gap between the two teams at center
+        case .gk:  homeFrac = 0.04
+        case .def: homeFrac = 0.15
+        case .mid: homeFrac = 0.26
+        case .fwd: homeFrac = 0.38   // leaves a wider gap between the two teams at center
         }
         return isHome ? homeFrac : (1 - homeFrac)
     }

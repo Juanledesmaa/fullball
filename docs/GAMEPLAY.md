@@ -18,9 +18,9 @@ earn you. Reinvest in bigger clients and climb the **Agency** ranks.
 ## Core loop
 
 ```
-sign (Scout/Market)  →  field your XI (Live)  →  matches run  →  earn Cash + Rep + points + Form
-        ↑                                                                    │
-        └──────────────  reinvest (Market / Scout / Rep Exchange)  ←─────────┘
+sign (Scout/Market)  →  set lineup + tactics (Live)  →  watch futsal sim  →  earn Cash + Rep + points
+        ↑                                                                              │
+        └──────────────────  reinvest (Market / Scout / Rep Exchange)  ←──────────────┘
 ```
 
 ## Currencies
@@ -30,7 +30,7 @@ sign (Scout/Market)  →  field your XI (Live)  →  matches run  →  earn Cash
 | Currency (case) | In-game name | Earned from | Spent on |
 |---|---|---|---|
 | `coins` | **Cash** | live commission (`AgentRules.cashPerPoint`), Daily Drop | transfer signings, training (level-up), match entry fee |
-| `gems` | **Gems** (premium) | matchday milestones, Rep Exchange; "buy" button is a **stub** | 10-pulls, slate refresh |
+| `gems` | **Gems** (premium) | matchday milestones, Rep Exchange; "buy" button is a **stub** | 10-pulls, slate refresh, energy refill |
 | `tickets` | **Scouts** | Daily Drop, Rep Exchange, match win bonus, milestones | single pulls |
 | `formTokens` | **Rep** | live matches (fielded clients only) | Rep Exchange → Scouts/Gems |
 
@@ -68,17 +68,43 @@ On Card Detail:
 - **Limit Break**: consume duplicate **copies** (`copiesForStar(n) = n`) → `+1 star` (raises level cap by 10, `+2` to every stat per star). Capped at the rarity's `starCap`.
 - Effective stats = base `+ (level-1)×1 + stars×2`.
 
-## Live matches — the staked game
-`LiveMatchesViewModel` + `LiveMatchService` + `MatchSlateService`.
+## Live matches — futsal tactics match
+`TacticsMatchViewModel` + `FutsalEngine` + `MatchSlateService`.
 
-- **Field a lineup**: up to **5** clients (`LineupService.maxFielded`); pick a **captain** (first pick auto-captains). Captain scores **×2** (`LineupRules.captainMultiplier`). Only **fielded** clients earn.
-- **Enter a match**: pay **200 Cash** entry fee (`LiveRules.entryFeeCoins`). Only then are your fielded clients eligible to earn in that match. Each card shows **which of your clients play in it** (the "YOUR EARNERS" row) or "None of your clients play here".
-- **Fixed duration**: a match runs a clock 0→90′ (`fullTimeMinute`) compressed into ~**40s** real time (`realDurationSeconds`), emitting scripted events as it passes their minute, then **FULL TIME**.
-- **Earnings** (per fielded client event): points (×2 if captain) → matchday/career points + a **Cash commission** (`AgentRules.commission = points × 3`) + **Rep** (`formTokens`).
-- **Win bonus**: if a match's points ≥ **150** (`winBonusTarget`) → **+1 Scout** (`winBonusTickets`).
-- **Concurrent**: you can enter several matches at once (one task per match; feed merges).
-- **Procedural + persisted slates** (`FixtureGenerator` + `DeviceSeed` + `MatchRecord`/`MatchProgressStore`): the slate (teams, stages, scripted events) is generated deterministically from an **8-hour** time block (`hoursPerBlock`). Since the Firebase backend the base slate uses `DeviceSeed.sharedSeed` (time-block only, no device component) so **all players share the same fixtures** per block — stable for hours, then refreshes. A Gem refresh stays personal (counter-mixed). Entries/results persist across relaunch; a match interrupted mid-play finalizes on next launch.
-- **Refresh for Gems** (premium sink, `RefreshRules`): regenerate a fresh slate now instead of waiting for the free block. Escalating cost `150 × (n+1)` per refresh within a block; resets when the block rolls over. Gated to between-matches.
+The Live tab is **active-only** — there is no persistent "Matchday XI". Each match is a fresh selection.
+
+### Match Setup
+- Tap **PLAY** on any fixture from the shared slate → **Match Setup** screen.
+- **Positional field** (5-a-side, formation 1-2-1): five slots — GK, DEF, MID, MID, FWD. Drag players from the roster strip at the bottom into slots. A player fielded **off his natural position** plays at **0.5× effective stats** (`OffPosition`). Energy bars are visible on the strip.
+- **Captain** is the first player you slot; captain earns **×2** rewards (`LiveRules.captainMultiplier`).
+- **Intensity** (Conservative / Balanced / Aggressive) — controls pace of play: aggressive creates more chances but drains energy faster (`EnergyRules.drainFactor`).
+- **Focus** (Defend / Balanced / Attack) — tilts goals for AND against. Both sides' Focus and Intensity are fed into the engine.
+- Marking, counter-pick, and formation RPS were prototyped and **removed** for clarity.
+- Pay **200 Cash** entry fee (`LiveRules.entryFeeCoins`), then the sim begins.
+
+### The sim
+- **Horizontal pitch view** (`FutsalPitchView`): round card-portrait players positioned by role (GK back → FWD forward); animated ball; centered scoreline + match clock.
+- **Running event feed** below the pitch (goals, saves, near-misses).
+- **Deterministic** (`FutsalEngine.play(home:away:seed:) -> MatchResult`): `FutsalRules.possessionCount` (14) alternating possessions. Chance creation blends midfield strength + Focus + Intensity of both sides. Shot resolution blends shooting vs GK defending + a **player-style RPS edge** (`PlayStyle`: pace > physical > technical, derived from a player's dominant stat). The engine is pure and fully tested.
+- **AI opponents** generated deterministically by `OpponentGenerator` (away-nation-preferred + global backfill).
+
+### Rewards
+- **Cash commission** = `AgentRules.cashPerPoint × points`, captain ×2 (`FutsalReward`).
+- **Rep** earned per fielded client.
+- **Win bonus**: +1 Scout if your side wins.
+- **Energy drain**: each fielded client loses energy post-match (base 20, captain +10, scaled by Intensity `drainFactor`).
+
+### Procedural slate + persistence
+`FixtureGenerator` + `DeviceSeed.sharedSeed` (time-block only, no device component) — all players share the same fixtures per 8-hour block. A Gem refresh regenerates a personal slate now (`RefreshRules`, escalating `150 × (n+1)`). `MatchRecord`/`MatchProgressStore` persist results across relaunch.
+
+## Energy system
+Every `CardInstance` has `energy` (0–100) and `lastEnergyUpdate`.
+
+- **Drain**: fielding in a match drains energy post-match. Base: 20, captain: +10 extra, then scaled by Intensity `drainFactor` (`EnergyRules`).
+- **Penalty**: players below **50** energy receive a scaling stat penalty applied by `EnergyRules.applyPenalty` before the engine sees their stats.
+- **Regen**: ~**4 energy per hour** passively (checked on-read by `EnergyService`). Full recovery ≈ 24 hours.
+- **Gem refill**: tap the refill button on Card Detail to restore to 100 instantly (`EnergyRules.refillCost` Gems, via `EnergyService.refill`).
+- Energy bars appear on Roster grid tiles and on the Match Setup roster strip.
 
 ## Progression & meta
 
@@ -99,12 +125,13 @@ On Card Detail:
 | Starter wallet | `Wallet.starter` |
 | Cash commission rate | `AgentRules.cashPerPoint` |
 | Transfer prices | `TransferRules.price` |
-| Match entry fee, length, win bonus | `LiveRules` |
+| Match entry fee, win bonus, captain multiplier | `LiveRules` |
+| Futsal possession count, chance weights | `FutsalRules` |
+| Energy drain, regen rate, refill cost, stat penalty | `EnergyRules` |
 | Slate refresh cost | `RefreshRules` |
 | Milestone tiers | `Milestones.tiers` |
 | Rep exchange rates | `ExchangeRates` |
 | Daily drop | `RewardsService.dailyReward` |
-| Lineup size, captain multiplier | `LineupService.maxFielded`, `LineupRules.captainMultiplier` |
 | Slate cadence | `DeviceSeed.hoursPerBlock` |
 | Player images | Firebase Storage `players/{id}.jpg` (via `PlayerImageStore`) |
 

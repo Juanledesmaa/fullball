@@ -76,17 +76,19 @@ The Live tab is **active-only** — there is no persistent "Matchday XI". Each m
 ### Match Setup
 - Tap **PLAY** on any fixture from the shared slate → **Match Setup** screen.
 - **Positional field** (5-a-side, formation 1-2-1): five slots — GK, DEF, MID, MID, FWD. Drag players from the roster strip at the bottom into slots. A player fielded **off his natural position** plays at **0.5× effective stats** (`OffPosition`). Energy bars are visible on the strip.
+- **Auto-fill** button (squad header): one tap picks the strongest squad via `SquadAutoFill` — best natural-position fit per slot, backfilling empty slots with the best remaining card (off-position) — and captains the highest-rated pick.
 - **Captain** is the first player you slot; captain earns **×2** rewards (`LiveRules.captainMultiplier`).
 - **Intensity** (Conservative / Balanced / Aggressive) — controls pace of play: aggressive creates more chances but drains energy faster (`EnergyRules.drainFactor`).
 - **Focus** (Defend / Balanced / Attack) — tilts goals for AND against. Both sides' Focus and Intensity are fed into the engine.
 - Marking, counter-pick, and formation RPS were prototyped and **removed** for clarity.
+- **Win-odds bar**: a live progress bar shows the estimated chance your side wins, recomputed as you slot players or change Intensity/Focus. It's a Monte-Carlo estimate (`FutsalOdds.winProbability` runs the pure engine `FutsalRules.oddsSamples` (200) times over varied seeds) — separate from the single fixed-seed actual match, so it informs without spoiling the result. Futsal is draw-heavy, so draws fold as **half a win** (an even contest reads ~50%); an empty side is `0`.
 - Pay **200 Cash** entry fee (`LiveRules.entryFeeCoins`), then the sim begins.
 
 ### The sim
 - **Horizontal pitch view** (`FutsalPitchView`): round card-portrait players positioned by role (GK back → FWD forward); animated ball; centered scoreline + match clock.
 - **Running event feed** below the pitch (goals, saves, near-misses).
-- **Deterministic** (`FutsalEngine.play(home:away:seed:) -> MatchResult`): `FutsalRules.possessionCount` (14) alternating possessions. Chance creation blends midfield strength + Focus + Intensity of both sides. Shot resolution blends shooting vs GK defending + a **player-style RPS edge** (`PlayStyle`: pace > physical > technical, derived from a player's dominant stat). The engine is pure and fully tested.
-- **AI opponents** generated deterministically by `OpponentGenerator` (away-nation-preferred + global backfill).
+- **Deterministic** (`FutsalEngine.play(home:away:seed:) -> MatchResult`): `FutsalRules.possessionCount` (14) alternating possessions. Chance creation blends midfield strength + Focus + Intensity of both sides. Midfield strength is normalized to a **full** outfield (`FutsalRules.fullOutfieldCount`), so fielding more players is **always additive** — an undermanned side is genuinely weaker, and adding even a weak player only adds chances + tightens defense (never dilutes via an average). Shot resolution: your **best finisher** takes each chance (so bench depth never steals a shot from your star), shooting vs GK defending + a **player-style RPS edge** (`PlayStyle`: pace > physical > technical, derived from a player's dominant stat). The engine is pure and fully tested.
+- **AI opponents** generated deterministically by `OpponentGenerator` (away-nation-preferred + global backfill). Their stats are boosted by `FutsalRules.opponentStrengthMultiplier` (1.05, clamped to 99) — a mild edge so a best-XI side sits roughly even and weaker/undermanned squads are underdogs (raise toward 1.18 for harder, 1.0 for even-OVR).
 
 ### Rewards
 - **Cash commission** = `AgentRules.cashPerPoint × points`, captain ×2 (`FutsalReward`).
@@ -134,5 +136,7 @@ Every `CardInstance` has `energy` (0–100) and `lastEnergyUpdate`.
 | Daily drop | `RewardsService.dailyReward` |
 | Slate cadence | `DeviceSeed.hoursPerBlock` |
 | Player images | Firebase Storage `players/{id}.jpg` (via `PlayerImageStore`) |
+| Global stat squish (compress all player stats) | `StatSquish` (`anchor`/`factor`) |
+| AI opponent difficulty | `FutsalRules.opponentStrengthMultiplier` |
 
 > Balance note: cheapest transfer (~4,240 Cash) currently > starter Cash (2,500), so early signings require a couple of matches' commission. Intentional, but easy to soften (lower `TransferRules` bases or raise starter Cash).

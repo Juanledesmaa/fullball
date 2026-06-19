@@ -19,7 +19,8 @@ enum OpponentGenerator {
             chosen.append(c)
         }
         let players: [MatchPlayer] = chosen.map {
-            MatchPlayer(id: $0.id, position: $0.player.position, stats: $0.player.stats)
+            MatchPlayer(id: $0.id, position: $0.player.position,
+                        stats: boosted($0.player.stats, by: FutsalRules.opponentStrengthMultiplier))
         }
         let tactics = Tactics(
             intensity: Intensity.allCases[rng.nextInt(Intensity.allCases.count)],
@@ -29,5 +30,12 @@ enum OpponentGenerator {
         }
         let captain = players.filter { $0.position != .gk }.max { $0.stats.shooting < $1.stats.shooting } ?? players.first
         return MatchSide(players: players, tactics: tactics, captainID: captain?.id)
+    }
+
+    /// Scales each stat by `f`, clamped to a legal 1...99 rating.
+    private static func boosted(_ s: Stats, by f: Double) -> Stats {
+        func scale(_ v: Int) -> Int { min(99, max(1, Int((Double(v) * f).rounded()))) }
+        return Stats(pace: scale(s.pace), shooting: scale(s.shooting),
+                     passing: scale(s.passing), defending: scale(s.defending))
     }
 }

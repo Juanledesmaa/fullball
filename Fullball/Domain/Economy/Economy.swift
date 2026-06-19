@@ -110,6 +110,9 @@ enum RefreshRules {
 /// reads these so balancing is a one-file change.
 enum FutsalRules {
     static let possessionCount = 14
+    static let fullOutfieldCount = 4      // outfielders in a full 5-a-side (GK + 4); midfield strength is normalized to this so filling the team is additive
+    static let oddsSamples = 200          // Monte-Carlo runs behind the Match Setup win-odds bar
+    static let opponentStrengthMultiplier = 1.05   // AI opponent stat boost — mild edge; a best-XI side sits ~even (raise toward 1.18 for harder, 1.0 for even-OVR)
 
     // Chance creation.
     static let baseChance = 0.45

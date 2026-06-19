@@ -37,8 +37,11 @@ enum FutsalEngine {
                 continue
             }
 
-            let shooter = weightedPick(atk.outfield, weight: { Double($0.stats.shooting) }, &rng)
-                ?? carrier
+            // Your best finisher takes the chance. Picking the max (not a
+            // shooting-weighted lottery) keeps adding players strictly additive:
+            // bench depth never steals a shot from your star and lowers finish
+            // quality — it only creates more chances and tightens defense.
+            let shooter = atk.outfield.max { $0.stats.shooting < $1.stats.shooting } ?? carrier
             let assist = shooter.id == carrier.id ? nil : carrier.id
 
             let pGoal = goalProbability(shooter: shooter, atk: atk, def: def)
@@ -94,11 +97,14 @@ enum FutsalEngine {
         return min(FutsalRules.goalCeil, max(FutsalRules.goalFloor, p))
     }
 
+    /// Combined midfield strength. Normalized against a FULL outfield
+    /// (`FutsalRules.fullOutfieldCount`), not the actual headcount — so empty
+    /// slots count as zero and fielding more players is always additive. A team
+    /// short of a full five is genuinely weaker (an undermanned side is at a
+    /// real disadvantage); a full side matches the old per-player average.
     static func midfieldStrength(_ side: MatchSide) -> Double {
-        let outfield = side.outfield
-        guard !outfield.isEmpty else { return 0 }
-        let sum = outfield.reduce(0.0) { $0 + Double($1.stats.passing + $1.stats.pace) / 2.0 }
-        return sum / Double(outfield.count)
+        let sum = side.outfield.reduce(0.0) { $0 + Double($1.stats.passing + $1.stats.pace) / 2.0 }
+        return sum / Double(FutsalRules.fullOutfieldCount)
     }
 
     private static func weightedPick<R: RandomProvider>(

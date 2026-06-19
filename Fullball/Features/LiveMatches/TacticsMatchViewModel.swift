@@ -24,12 +24,25 @@ final class TacticsMatchViewModel {
 
     let opponent: MatchSide
 
-    var tactics = Tactics()
+    var tactics = Tactics() { didSet { recomputeOdds() } }
 
     // MARK: - Per-match slot assignments (1-2-1 futsal formation)
 
     let slots: [Position] = OffPosition.slots   // [.gk, .def, .mid, .mid, .fwd]
-    var assignments: [String?] = Array(repeating: nil, count: 5)   // slotIndex -> cardID
+    var assignments: [String?] = Array(repeating: nil, count: 5) { didSet { recomputeOdds() } }   // slotIndex -> cardID
+
+    /// Estimated win probability for the current lineup + tactics (Monte Carlo).
+    /// Cached; recomputed only when `assignments` or `tactics` change — never at
+    /// SwiftUI body-evaluation time. Captain is irrelevant (it affects rewards,
+    /// not the match outcome).
+    private(set) var winProbability: Double = 0
+
+    private func recomputeOdds() {
+        winProbability = FutsalOdds.winProbability(
+            home: buildHomeSide(), away: opponent,
+            samples: FutsalRules.oddsSamples, seed: seed
+        )
+    }
 
     var assignedIDs: [String] { assignments.compactMap { $0 } }
 
@@ -50,6 +63,22 @@ final class TacticsMatchViewModel {
 
     func setCaptain(_ id: String) {
         if assignedIDs.contains(id) { captainID = id }
+    }
+
+    var canAutoFill: Bool { !collection.owned().isEmpty }
+
+    /// Auto-pick the strongest available squad: best natural-position fit per
+    /// slot, backfilling empties with the best remaining card. Captain becomes
+    /// the highest-rated assigned player.
+    func autoFill() {
+        let owned = collection.owned()
+        let candidates = owned.map {
+            SquadAutoFill.Candidate(id: $0.id, position: $0.card.player.position,
+                                    rating: $0.effectiveStats.overall)
+        }
+        assignments = SquadAutoFill.pick(slots: slots, from: candidates)
+        let ratingByID = Dictionary(uniqueKeysWithValues: owned.map { ($0.id, $0.effectiveStats.overall) })
+        captainID = assignedIDs.max { (ratingByID[$0] ?? 0) < (ratingByID[$1] ?? 0) }
     }
 
     var canKickOff: Bool { !assignedIDs.isEmpty && canAfford && !alreadyFinished }

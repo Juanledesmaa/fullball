@@ -33,6 +33,9 @@ struct TacticsMatchView: View {
                 // Scouting
                 scouting
 
+                // Win odds
+                oddsBar
+
                 // Field preview + roster strip
                 fieldSection
 
@@ -69,6 +72,15 @@ struct TacticsMatchView: View {
             HStack {
                 Text("YOUR SQUAD").font(WC.ui(12)).foregroundStyle(WC.sub)
                 Spacer()
+                Button { vm.autoFill() } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "wand.and.stars").font(.system(size: 11))
+                        Text("Auto-fill").font(WC.ui(12))
+                    }
+                    .foregroundStyle(vm.canAutoFill ? WC.coral : WC.sub)
+                }
+                .buttonStyle(.plain)
+                .disabled(!vm.canAutoFill)
                 Text("\(vm.yourFieldedCount)/5")
                     .font(WC.display(11))
                     .foregroundStyle(vm.yourFieldedCount == 0 ? WC.coral : WC.go)
@@ -363,6 +375,31 @@ struct TacticsMatchView: View {
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Win odds
+
+    private var oddsBar: some View {
+        let p = vm.winProbability
+        let pct = Int((p * 100).rounded())
+        let tint: Color = p > 0.60 ? WC.mint : (p < 0.40 ? WC.coral : WC.gold)
+        let tag = p > 0.60 ? "Favored" : (p < 0.40 ? "Underdog" : "Even")
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("WIN CHANCE").font(WC.ui(12)).foregroundStyle(WC.sub)
+                Spacer()
+                Text("\(pct)%  ·  \(tag)").font(WC.ui(13)).foregroundStyle(tint)
+            }
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(WC.fill)
+                    Capsule().fill(tint)
+                        .frame(width: max(0, geo.size.width * p))
+                }
+            }
+            .frame(height: 8)
+            .animation(.easeOut(duration: 0.25), value: p)
+        }
     }
 
     // MARK: - Kick off

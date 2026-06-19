@@ -85,8 +85,8 @@ Pure domain layer added in `feat/futsal-tactics-match`, all under `Domain/`.
 - `OffPosition` (`FutsalMatchSupport.swift`) — marks a player in a slot outside his natural position; stats are halved before the engine sees them.
 
 **Engine** (`Domain/Economy/`):
-- `FutsalEngine.play(home:away:seed:) -> MatchResult` — pure, deterministic. Runs `FutsalRules.possessionCount` (14) alternating possessions. Each possession: midfield tug-of-war → chance creation (blends Focus + Intensity both sides) → shot (shooting vs GK defending, with `PlayStyle` RPS edge) → `PossessionEvent`.
-- `OpponentGenerator` — builds a deterministic AI `MatchSide` (away-nation-preferred + global backfill from catalog).
+- `FutsalEngine.play(home:away:seed:) -> MatchResult` — pure, deterministic. Runs `FutsalRules.possessionCount` (14) alternating possessions. Each possession: midfield tug-of-war → chance creation (blends Focus + Intensity both sides) → shot (shooting vs GK defending, with `PlayStyle` RPS edge) → `PossessionEvent`. Midfield strength is normalized to `FutsalRules.fullOutfieldCount` (not the live headcount) so filling the team is strictly additive (undermanned = weaker); the **best finisher** takes each shot so bench depth never lowers finish quality.
+- `OpponentGenerator` — builds a deterministic AI `MatchSide` (away-nation-preferred + global backfill from catalog), stats boosted by `FutsalRules.opponentStrengthMultiplier` (clamped 99) for difficulty.
 - `MatchSideAssembly` + `FutsalReward` (`FutsalMatchSupport.swift`) — map `MatchResult` to currency deltas (cash = commission via `AgentRules`, Rep, win bonus; captain ×2 via `LiveRules.captainMultiplier`).
 
 **Economy constants** (all in `Economy.swift`):
@@ -115,6 +115,7 @@ Everything "random but stable" is seeded:
 ## Catalog data
 
 - `Resources/catalog.json` is authored via `tools/player_manifest.csv` + compiled by `tools/build_catalog.py`. **61 curated players** (51 regular + 10 icons) across 16 nations. `banners.json` is hand-edited; `fixtures.json` exists but Live no longer uses it (the generator replaced it).
+- **Stat squish (`StatSquish`, pure + tested):** authored stats run hot (icons ~90 OVR, individual stats to 99). `StatSquish.apply` compresses every stat toward an anchor (`new = anchor + (stat − anchor) × factor`; `anchor 56`, `factor 0.62`), applied once in `ResolvedCatalogService.init` so it hits bundled/Firestore/api-football catalogs uniformly. Result: icons ~77 OVR, gold ~75, silver ~69, bronze ~64, ceiling stat 83. Set `factor = 1` to disable. The AI opponent boost (`FutsalRules.opponentStrengthMultiplier`) stacks on the squished catalog, so the relative difficulty gap is unchanged.
 - Provenance: nations + stat spreads *inspired by* api-football v3 WC2022 (free tier); the `Fictionalizer` is the single chokepoint guaranteeing names stay fictional. Player cards carry authored short names (`Player.name`, optional `Player.epithet`); `NameGenerator` is the fallback.
 - **Remote catalog (P3 — done):** `FirestoreCatalogLoader` reads `catalog/current` from Firestore; bundled `catalog.json` is the offline fallback. Wired via the existing `CatalogLoading` async seam in `RootView`. Allows live-ops retuning without an app release; seeding is out-of-band (admin script).
 - The opt-in `APIFootballCatalogLoader` path (set `FullballConfig.apiFootballKey`) is still present but secondary.
@@ -135,7 +136,7 @@ Everything "random but stable" is seeded:
 
 ## Tests (`FullballTests`, Swift Testing)
 
-**91 tests**, all on the **pure** layer (economy/generation + futsal engine + energy + cloud mapping + auth nonce):
+**108 tests**, all on the **pure** layer (economy/generation + futsal engine + energy + cloud mapping + auth nonce):
 `GachaEngineTests` (odds over 300k N, soft/hard pity, 50/50, counter resets),
 `UpgradeRulesTests`, `LeaderboardTests` (ranking + `dedupedRanked` merge), `FictionalizerTests` (names stay fictional),
 `NameGeneratorTests`, `EconomyTests` (milestones, exchange, refresh, commission, transfer pricing),
@@ -144,6 +145,8 @@ Everything "random but stable" is seeded:
 `MatchTypesTests` (MatchResult structure), `FutsalEngineTests` (determinism, score range, possession count),
 `OpponentGeneratorTests` (nation preference, backfill), `FutsalMatchSupportTests` (MatchSideAssembly, OffPosition penalty, FutsalReward),
 `EnergyRulesTests` (drain, regen, penalty curve, refill cost),
+`FutsalOddsTests` (Monte-Carlo win-odds: determinism, empty-home → 0, even-sides ≈ ½ via draw-fold, strong-beats-weak, additive when filling the team),
+`SquadAutoFillTests` (best natural-fit per slot, off-position backfill, no reuse, empty roster),
 `NonceTests` (Sign in with Apple nonce), `CloudDTOTests` (wallet/card/pity/progress DTO round-trips),
 `DeviceSeedTests` (shared slate seed is device-independent), `LinkPromptPolicyTests` (prompt-once gate logic).
 `LineupServiceTests` removed (service removed). No view/navigation/Firebase-wiring tests by design. (Run on `iPhone 16` — the `iPhone 15` sim is gone on current Xcode.)

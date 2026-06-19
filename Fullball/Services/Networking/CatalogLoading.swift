@@ -23,7 +23,8 @@ struct ResolvedCatalogService: CatalogService {
     let fixtures: [Fixture]
     let nations: [Nation]
     init(_ data: CatalogData) {
-        cards = data.cards; banners = data.banners
+        cards = data.cards.map(StatSquish.apply)   // global stat compression at the load chokepoint
+        banners = data.banners
         fixtures = data.fixtures; nations = data.nations
     }
 }

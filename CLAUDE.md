@@ -65,7 +65,7 @@ xcodegen generate              # regenerate Fullball.xcodeproj (after ANY file a
 xcodebuild build -project Fullball.xcodeproj -scheme Fullball \
   -destination 'platform=iOS Simulator,name=iPhone 16'
 
-# test (65 tests — economy/gacha/generation + cloud DTO mapping + nonce; no view/wiring tests)
+# test (91 tests — economy/gacha/generation + futsal engine + energy + cloud DTO mapping + nonce; no view/wiring tests)
 xcodebuild test -project Fullball.xcodeproj -scheme Fullball \
   -only-testing:FullballTests \
   -destination 'platform=iOS Simulator,name=iPhone 16'
@@ -105,24 +105,30 @@ Fullball/
   App/        FullballApp · AppContainer (composition root) · RootView · Navigator · DeviceSeed · Theme · FullballConfig
   Domain/
     Models/   Card, Player(+funnyName), Rarity, Banner, Fixture, Nation, Wallet(@Model),
-              CardInstance(@Model), PityState(+BannerPity @Model), ScoreBoard(+LiveProgress @Model),
-              Lineup(@Model), MatchRecord(@Model), Currency, PullResult, LeaderboardEntry
+              CardInstance(@Model+energy), PityState(+BannerPity @Model), ScoreBoard(+LiveProgress @Model),
+              MatchRecord(@Model), Currency, PullResult, LeaderboardEntry,
+              PlayStyle · Tactics(Intensity/Focus) · MatchTypes(MatchPlayer/MatchSide/PossessionEvent/
+              PlayerContribution/MatchResult) · OffPosition
     Economy/  GachaEngine · UpgradeRules · RandomProvider · Leaderboard · Economy(AgentRules,
-              TransferRules, LiveRules, RefreshRules, Milestones, ExchangeRates) ·
-              FixtureGenerator · NameGenerator   (all PURE + tested)
+              TransferRules, LiveRules, RefreshRules, Milestones, ExchangeRates, FutsalRules, EnergyRules) ·
+              FixtureGenerator · NameGenerator · FutsalEngine · OpponentGenerator · FutsalMatchSupport
+              (MatchSideAssembly/FutsalReward/OffPosition)   (all PURE + tested)
   Services/   Catalog · Wallet · Collection · Gacha · LiveMatch · Leaderboard · Rewards ·
-              Lineup · MatchProgressStore · MatchSlate · TransferMarket · EconomyServices
+              Energy · MatchProgressStore · MatchSlate · TransferMarket · EconomyServices
               (Milestone+Exchange) · Networking/ (CatalogLoading, APIFootballCatalogLoader,
               FirestoreCatalogLoader, Fictionalizer) · Auth/ (AuthService, FirebaseAuthService,
               MockAuthService, Nonce) · Firestore/ (FirestoreClient, CloudDTOs) ·
               Firestore-backed decorators (FirestoreWallet/Collection/Leaderboard) wrapping
               the SwiftData impls · PlayerImageStore (memory NSCache → disk → Firebase Storage)
-  Features/   PackOpening(Scout) · Market · Collection(Roster) · CardDetail · LiveMatches · Leaderboard(Agencies)
-              · Wallet · Onboarding · Components/ (Theme tokens, SharedUI, CardFace, AssetAvatar)
+  Features/   PackOpening(Scout) · Market · Collection(Roster) · CardDetail · LiveMatches
+              (TacticsMatchViewModel · TacticsMatchView · FutsalPitchView) · Leaderboard(Agencies)
+              · Wallet · Onboarding · Components/ (Theme tokens, SharedUI, CardFace, AssetAvatar, CurrencyCost)
   Mocks/      MockCatalogService + AppContainer.preview()
   Resources/  catalog.json · banners.json · fixtures.json(unused by live now) · Assets.xcassets (incl. Flags/flag_<TAG> vector flags) · Avatars/*.jpg (now unused — images served from Firebase Storage)
 FullballTests/  GachaEngine · UpgradeRules · Leaderboard · Fictionalizer · NameGenerator · Economy ·
-                FixtureGenerator · LineupService · Nonce · CloudDTO · DeviceSeed · LinkPromptPolicy   (65 tests, pure logic only)
+                FixtureGenerator · PlayStyle · Tactics · MatchTypes · FutsalEngine · OpponentGenerator ·
+                FutsalMatchSupport · EnergyRules · Nonce · CloudDTO · DeviceSeed · LinkPromptPolicy
+                (91 tests, pure logic only)
 tools/          player_manifest.csv · build_catalog.py · parse_positions.py · fill_manifest.py ·
                 process_players.sh · fetch_flags.sh · wc_nations.json
 docs/           GAMEPLAY.md · ARCHITECTURE.md · ROADMAP.md · superpowers/specs + superpowers/plans (Firebase backend design + per-phase plans)
@@ -156,11 +162,11 @@ firestore.rules · ci_scripts/ (ci_post_clone.sh, Package.resolved)
 
 ## Current state (1-paragraph)
 
-Full agent loop: Scout (gacha w/ pity + 50/50 + disclosed odds), Market (transfer signings), Roster (collection, filters, DEX %, squad rating, taller rounded portrait tiles, card detail with full portrait + train/limit-break), Live (field XI + captain, pay Cash entry, fixed-duration procedurally-generated + persisted matches you can run concurrently, commission + Rep + points + win bonus, milestones, slate refresh for Gems), Agencies (leaderboard), Wallet bar (Cash/Gems/Scouts/Rep), daily drop, Rep→pull exchange, first-run intro. **Firebase backend on `main`** (branch `feat/firebase-backend` merged): anonymous-first auth (no SIWA launch wall — `signInAnonymously()` on launch, falls back to local-only if offline), cloud-saved wallet/collection/pity + live progress, **shared** real leaderboard, **shared** match slate (same fixtures per time block for all players). Optional Apple ID linking via the Agencies screen ("Guest agency" + Link button) + a one-time soft prompt at the first milestone (`LinkPromptPolicy`). `RootView` rebuilds the uid-keyed `AppContainer` on account change (latent cross-account leak fixed). **Asset & catalog revamp** (branch `feat/asset-catalog-revamp`): 61 curated players (51 regular + 10 icons) across 16 nations from `tools/player_manifest.csv`; 4-tier rarity (bronze/silver/gold/icon, no epic); authored mononym names + icon epithets; player images from Firebase Storage via `PlayerImageStore`; `FirestoreCatalogLoader` (P3 remote catalog — now done). 65 tests pass. **Stubs / next**: gem "buy" button (no StoreKit — monetization decided = StoreKit-only), api-football loader (opt-in), no push/localization; P5 server gacha parked. See [ROADMAP](docs/ROADMAP.md) (Firebase section) for the prioritized next steps.
+Full agent loop: Scout (gacha w/ pity + 50/50 + disclosed odds), Market (transfer signings), Roster (collection, filters, DEX %, squad rating, portrait tiles with energy bar + ×N copies badge + sort control, card detail with full portrait + train/limit-break + Gem energy refill), Live (active-only futsal tactics match — see below), Agencies (leaderboard with Firestore-backed agency rename), Wallet bar (Cash/Gems/Scouts/Rep), daily drop, Rep→pull exchange, first-run intro. **Firebase backend on `main`**: anonymous-first auth, cloud-saved wallet/collection/pity + live progress, shared real leaderboard, shared match slate. **Futsal tactics match** (branch `feat/futsal-tactics-match`): tap PLAY → Match Setup (positional 5-a-side field GK/DEF/MID/MID/FWD; drag players from roster strip into slots; off-position = 0.5× stats) → pick Intensity (Conservative/Balanced/Aggressive) + Focus (Defend/Balanced/Attack) → watch deterministic futsal sim on a horizontal pitch (card-portrait players, animated ball, live scoreline + clock, event feed) → full-time rewards. `FutsalEngine` (pure, tested) runs 14 possessions; player-style RPS (`PlayStyle`: pace>physical>technical) adds a shooting edge. AI opponents via `OpponentGenerator`. Energy system: every `CardInstance` has `energy` (0–100), drains per match (base 20, ×Intensity, captain +10), regens ~4/hr, Gem refill on Card Detail. Old persistent Lineup XI, `LineupService`, and `Lineup` SwiftData model removed. Cards show position (GK/DEF/MID/FWD) not shirt number. All currency-spend buttons use the new `CurrencyCost` component. 91 tests pass. **Stubs / next**: StoreKit Gem IAP (monetization = StoreKit-only), api-football loader (opt-in), real PvP opponents, push/localization. See [ROADMAP](docs/ROADMAP.md) for the prioritized next steps.
 
 ---
 
 ## Data + tuning
 
 - Catalog: **61 curated players** (51 regular + 10 icons) across **16 nations**, authored in `tools/player_manifest.csv` and compiled by `python3 tools/build_catalog.py` into `Fullball/Resources/catalog.json`. Players have authored short names (anime-MC mononym; icons add " — epithet"). Stat spreads were *inspired by* api-football WC2022 — **no real names**. (The old `generate_catalog.py` / 80-card procedural set is superseded.)
-- All balance constants live in [Economy.swift](Fullball/Domain/Economy/Economy.swift) (`AgentRules`, `TransferRules`, `LiveRules`, `RefreshRules`, `Milestones`, `ExchangeRates`), [UpgradeRules.swift](Fullball/Domain/Economy/UpgradeRules.swift), [Rarity.swift](Fullball/Domain/Models/Rarity.swift) (odds + star caps), [Wallet.swift](Fullball/Domain/Models/Wallet.swift) (`starter`), [LineupService.swift](Fullball/Services/LineupService.swift) (`maxFielded`, captain ×2), [DeviceSeed.swift](Fullball/App/DeviceSeed.swift) (`hoursPerBlock`), [RewardsService.swift](Fullball/Services/RewardsService.swift) (daily drop). See [GAMEPLAY](docs/GAMEPLAY.md) for the full table.
+- All balance constants live in [Economy.swift](Fullball/Domain/Economy/Economy.swift) (`AgentRules`, `TransferRules`, `LiveRules` (incl. `captainMultiplier`), `RefreshRules`, `Milestones`, `ExchangeRates`, `FutsalRules` (possessionCount, chance weights), `EnergyRules` (drain, regen rate, refill cost, stat penalty curve)), [UpgradeRules.swift](Fullball/Domain/Economy/UpgradeRules.swift), [Rarity.swift](Fullball/Domain/Models/Rarity.swift) (odds + star caps), [Wallet.swift](Fullball/Domain/Models/Wallet.swift) (`starter`), [DeviceSeed.swift](Fullball/App/DeviceSeed.swift) (`hoursPerBlock`), [RewardsService.swift](Fullball/Services/RewardsService.swift) (daily drop). See [GAMEPLAY](docs/GAMEPLAY.md) for the full table.

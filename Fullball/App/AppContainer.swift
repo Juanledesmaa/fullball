@@ -14,7 +14,6 @@ final class AppContainer {
     let leaderboard: any LeaderboardService
     let score: ScoreBoard
     let rewards: any RewardsService
-    let lineup: any LineupService
     let milestones: any MilestoneService
     let exchange: any ExchangeService
     let matchStore: any MatchProgressStore
@@ -22,6 +21,7 @@ final class AppContainer {
     let market: TransferMarketService
     let imageStore: any PlayerImageStore
     let auth: any AuthService
+    let energy: any EnergyService
     let navigator = Navigator()
 
     init(context: ModelContext,
@@ -50,15 +50,15 @@ final class AppContainer {
         self.leaderboard = injectedLeaderboard ?? MockLeaderboardService()
         self.score = injectedScore ?? ScoreBoard(context: context)
         self.rewards = DefaultRewardsService(context: context, wallet: wallet)
-        self.lineup = SwiftDataLineupService(context: context, validIDs: Set(catalog.cards.map(\.id)))
         self.milestones = DefaultMilestoneService(context: context, wallet: wallet)
         self.exchange = DefaultExchangeService(wallet: wallet)
         self.market = TransferMarketService(catalog: catalog, wallet: wallet, collection: collection)
+        self.energy = DefaultEnergyService(context: context, wallet: wallet, collection: collection)
     }
 
     /// The SwiftData model types the app persists.
     static let schema = Schema([Wallet.self, CardInstance.self, BannerPity.self,
-                                LiveProgress.self, Lineup.self, MatchRecord.self])
+                                LiveProgress.self, MatchRecord.self])
 
     /// Async composition: resolve the catalog, then — when signed in — build the
     /// Firestore-backed wallet/collection decorators and hydrate them from the
@@ -91,7 +91,9 @@ final class AppContainer {
         await cloudWallet.hydrate()
         await cloudCollection.hydrate()
 
-        let displayName = (userName?.isEmpty == false ? userName! : "Agent \(uid.prefix(4))")
+        let stored = UserDefaults.standard.string(forKey: "agencyName")
+        let displayName = (stored?.isEmpty == false ? stored!
+                           : (userName?.isEmpty == false ? userName! : "Agent \(uid.prefix(4))"))
         let leaderboard = FirestoreLeaderboardService(uid: uid, currentUserName: displayName, client: client)
 
         let score = ScoreBoard(context: context, client: client, uid: uid)

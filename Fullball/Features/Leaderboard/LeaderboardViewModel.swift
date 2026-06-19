@@ -17,7 +17,13 @@ final class LeaderboardViewModel {
         entries.first { $0.isCurrentUser }?.rank
     }
 
+    var currentName: String { service.currentUserName }
+
     func refresh() async {
         await service.refresh(userPoints: score.points)
+    }
+
+    func updateName(_ name: String) async {
+        await service.updateName(name, userPoints: score.points)
     }
 }

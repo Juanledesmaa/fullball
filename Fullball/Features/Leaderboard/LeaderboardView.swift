@@ -4,6 +4,9 @@ struct LeaderboardView: View {
     @State private var vm: LeaderboardViewModel
     private let auth: any AuthService
 
+    @State private var showRenameAlert = false
+    @State private var renameInput: String = ""
+
     init(container: AppContainer) {
         _vm = State(initialValue: LeaderboardViewModel(container: container))
         self.auth = container.auth
@@ -29,6 +32,17 @@ struct LeaderboardView: View {
         }
         .background(ScreenBackground())
         .task { await vm.refresh() }
+        .alert("Agency Name", isPresented: $showRenameAlert) {
+            TextField("Enter agency name", text: $renameInput)
+            Button("Save") {
+                let trimmed = renameInput.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { return }
+                Task { await vm.updateName(trimmed) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Choose a name for your agency.")
+        }
     }
 
     private func row(_ entry: LeaderboardEntry) -> some View {
@@ -51,6 +65,19 @@ struct LeaderboardView: View {
                 VStack(alignment: .trailing, spacing: 0) {
                     Text("\(entry.points)").font(WC.display(15)).foregroundStyle(WC.inkText)
                     Text("PTS").font(WC.display(8)).tracking(0.8).foregroundStyle(WC.faint)
+                }
+                if entry.isCurrentUser {
+                    Button {
+                        renameInput = vm.currentName
+                        showRenameAlert = true
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(WC.coral)
+                            .frame(width: 28, height: 28)
+                            .background(Circle().fill(WC.coralSoft))
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, 14).padding(.vertical, 11)

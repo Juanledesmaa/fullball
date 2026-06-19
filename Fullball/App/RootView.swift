@@ -67,11 +67,7 @@ struct RootView: View {
                 }.prefix(3)
                 for card in picks {
                     c.collection.acquire(cardID: card.id)
-                    c.lineup.toggleField(card.id)
                 }
-            }
-            if c.lineup.count == 0 {
-                for card in seeded.prefix(3) { c.lineup.toggleField(card.id) }
             }
         }
         container = c

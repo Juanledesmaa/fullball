@@ -25,9 +25,9 @@ services are constructed and wired. It's `@MainActor @Observable`, injected via
 (resolves the catalog — bundled or remote — then wires everything).
 
 Holds: `auth` (`AuthService`), `catalog`, `wallet`, `collection`, `gacha`, `live`, `leaderboard`,
-`score` (`ScoreBoard`), `rewards`, `lineup`, `milestones`, `exchange`,
+`score` (`ScoreBoard`), `rewards`, `energy`, `milestones`, `exchange`,
 `matchStore`, `slate` (`MatchSlateService`), `market` (`TransferMarketService`),
-`navigator`. `static schema` lists the SwiftData models.
+`navigator`. `static schema` lists the SwiftData models. (`lineup` / `LineupService` removed.)
 
 `RootView` calls `signInAnonymously()` in `.task` (anon-first), then builds the uid-keyed container and shows `MainTabView`. `.onChange(of: auth.currentUser?.uid)` triggers a container rebuild on account/uid change. Also presents the first-run `LoopIntroView` (`@AppStorage("didSeeIntro")`) and `LinkAccountView` when `navigator.linkPromptPending` is set.
 
@@ -39,11 +39,11 @@ Holds: `auth` (`AuthService`), `catalog`, `wallet`, `collection`, `gacha`, `live
 | `WalletService` | yes (`@MainActor`) | `SwiftDataWalletService` | `Wallet` balances + per-banner `BannerPity` |
 | `CollectionService` | yes (`@MainActor`) | `SwiftDataCollectionService` | owned `CardInstance`s; acquire / train / limit-break |
 | `GachaService` | yes (`@MainActor`) | `DefaultGachaService` | wraps `GachaEngine` + wallet + collection + pity |
-| `LiveMatchService` | yes | `MockLiveMatchService` | `play(fixture)` → `AsyncStream<MatchTick>` clock |
+| `LiveMatchService` | yes | `MockLiveMatchService` | `play(fixture)` → `AsyncStream<MatchTick>` clock (legacy; futsal uses `FutsalEngine` directly) |
 | `MatchSlateService` | class (`@Observable`) | — | owns the generated slate; refresh-for-Gems |
 | `MatchProgressStore` | yes (`@MainActor`) | `SwiftDataMatchStore` | persist match entries/results (`MatchRecord`) |
 | `TransferMarketService` | class (`@Observable`) | — | daily transfer shortlist; sign for Cash |
-| `LineupService` | yes (`@MainActor`) | `SwiftDataLineupService` | fielded clients + captain (`Lineup`) |
+| `EnergyService` | yes (`@MainActor`) | `DefaultEnergyService` | regen-on-read, drain post-match, Gem refill |
 | `MilestoneService` | yes (`@MainActor`) | `DefaultMilestoneService` | grant career-point milestones |
 | `ExchangeService` | yes (`@MainActor`) | `DefaultExchangeService` | Rep → Scouts/Gems |
 | `RewardsService` | yes (`@MainActor`) | `DefaultRewardsService` | daily drop |
@@ -65,15 +65,43 @@ Server-authoritative backend behind the existing protocols — no ViewModel/View
 
 ## SwiftData (`AppContainer.schema`)
 
-`Wallet`, `CardInstance`, `BannerPity`, `LiveProgress`, `Lineup`, `MatchRecord`.
-**Add a model → add it here** or it won't persist. When signed in these mirror to Firestore (`users/{uid}/state/wallet`, `…/collection/{cardID}`, `…/pity/{bannerID}`, `…/state/progress`); `Lineup` + `MatchRecord` are not cloud-saved yet (deferred).
+`Wallet`, `CardInstance`, `BannerPity`, `LiveProgress`, `MatchRecord`.
+**Add a model → add it here** or it won't persist. When signed in these mirror to Firestore (`users/{uid}/state/wallet`, `…/collection/{cardID}`, `…/pity/{bannerID}`, `…/state/progress`); `MatchRecord` is not cloud-saved yet (deferred). `Lineup` was **removed** — per-match selection replaces the persistent XI.
 
 - `Wallet` — currency balances (single row).
-- `CardInstance` — owned card: `cardID` (unique), `level`, `stars`, `xp`, `copies`, `dateAcquired`.
+- `CardInstance` — owned card: `cardID` (unique), `level`, `stars`, `xp`, `copies`, `dateAcquired`, **`energy`** (0–100), **`lastEnergyUpdate`**.
 - `BannerPity` — per-banner `pullsSinceIcon` + `guaranteeFeatured`.
 - `LiveProgress` — meta singleton: `points`, `formTokensEarned`, `lastDailyClaim`, `milestonesClaimed`, `slateBlock`, `slateRefreshCount`.
-- `Lineup` — `fieldedIDs` + `captainID`.
 - `MatchRecord` — per `(slateID, fixtureID)`: status/points/form/score/bonus.
+
+## Futsal tactics engine
+
+Pure domain layer added in `feat/futsal-tactics-match`, all under `Domain/`.
+
+**New types** (`Domain/Models/`):
+- `PlayStyle` — `pace | physical | technical`; derived from a `CardInstance`'s dominant stat. Drives a RPS shooting edge (pace > physical > technical > pace).
+- `Intensity` / `Focus` / `Tactics` (`Tactics.swift`) — pre-game knobs. `Intensity` (Conservative/Balanced/Aggressive) scales chance creation and energy drain. `Focus` (Defend/Balanced/Attack) tilts goals for/against.
+- `MatchPlayer`, `MatchSide`, `PossessionEvent`, `PlayerContribution`, `MatchResult` (`MatchTypes.swift`) — engine I/O types.
+- `OffPosition` (`FutsalMatchSupport.swift`) — marks a player in a slot outside his natural position; stats are halved before the engine sees them.
+
+**Engine** (`Domain/Economy/`):
+- `FutsalEngine.play(home:away:seed:) -> MatchResult` — pure, deterministic. Runs `FutsalRules.possessionCount` (14) alternating possessions. Each possession: midfield tug-of-war → chance creation (blends Focus + Intensity both sides) → shot (shooting vs GK defending, with `PlayStyle` RPS edge) → `PossessionEvent`.
+- `OpponentGenerator` — builds a deterministic AI `MatchSide` (away-nation-preferred + global backfill from catalog).
+- `MatchSideAssembly` + `FutsalReward` (`FutsalMatchSupport.swift`) — map `MatchResult` to currency deltas (cash = commission via `AgentRules`, Rep, win bonus; captain ×2 via `LiveRules.captainMultiplier`).
+
+**Economy constants** (all in `Economy.swift`):
+- `FutsalRules` — `possessionCount`, chance-creation weights, shot-resolution coefficients.
+- `EnergyRules` — `baseDrain`, `captainExtraDrain`, `drainFactor(intensity:)`, `regenPerHour`, `applyPenalty(energy:stats:)`, `refillCost`.
+- `LiveRules.captainMultiplier` — moved here from the removed `LineupRules`.
+
+**LiveMatches feature** (`Features/LiveMatches/`):
+- `TacticsMatchViewModel` — `@MainActor @Observable`; drives the Match Setup → sim → rewards flow.
+- `TacticsMatchView` — Match Setup (positional field, roster strip, Intensity/Focus pickers, entry fee button).
+- `FutsalPitchView` — watch view: horizontal pitch, round card-portrait players by role, animated ball, scoreline + clock, event feed.
+
+**Energy** (`Services/EnergyService.swift`): regen-on-read (computes elapsed hours × `regenPerHour`), drain post-match, Gem refill. `CardInstance` gains `energy` + `lastEnergyUpdate` SwiftData fields.
+
+**Removed**: `LineupService`, `SwiftDataLineupService`, `Lineup` @Model, `LineupSheet`, `LineupServiceTests`. `captainMultiplier` moved from `LineupRules` to `LiveRules`.
 
 ## Determinism & generation
 
@@ -107,11 +135,15 @@ Everything "random but stable" is seeded:
 
 ## Tests (`FullballTests`, Swift Testing)
 
-65 tests, all on the **pure** layer (economy/generation + cloud mapping + auth nonce):
+**91 tests**, all on the **pure** layer (economy/generation + futsal engine + energy + cloud mapping + auth nonce):
 `GachaEngineTests` (odds over 300k N, soft/hard pity, 50/50, counter resets),
 `UpgradeRulesTests`, `LeaderboardTests` (ranking + `dedupedRanked` merge), `FictionalizerTests` (names stay fictional),
 `NameGeneratorTests`, `EconomyTests` (milestones, exchange, refresh, commission, transfer pricing),
-`FixtureGeneratorTests` (determinism, valid refs), `LineupServiceTests` (field/captain/cap, in-memory SwiftData),
+`FixtureGeneratorTests` (determinism, valid refs),
+`PlayStyleTests` (RPS edge matrix), `TacticsTests` (Intensity/Focus value mapping),
+`MatchTypesTests` (MatchResult structure), `FutsalEngineTests` (determinism, score range, possession count),
+`OpponentGeneratorTests` (nation preference, backfill), `FutsalMatchSupportTests` (MatchSideAssembly, OffPosition penalty, FutsalReward),
+`EnergyRulesTests` (drain, regen, penalty curve, refill cost),
 `NonceTests` (Sign in with Apple nonce), `CloudDTOTests` (wallet/card/pity/progress DTO round-trips),
 `DeviceSeedTests` (shared slate seed is device-independent), `LinkPromptPolicyTests` (prompt-once gate logic).
-No view/navigation/Firebase-wiring tests by design. (Run on `iPhone 16` — the `iPhone 15` sim is gone on current Xcode.)
+`LineupServiceTests` removed (service removed). No view/navigation/Firebase-wiring tests by design. (Run on `iPhone 16` — the `iPhone 15` sim is gone on current Xcode.)

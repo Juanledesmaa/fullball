@@ -72,8 +72,6 @@ extension AppContainer {
             inst.copies = 4
             app.wallet.save()
         }
-        // Field a few cards (ARG-10 captain) so the Live tab has a lineup.
-        for id in ownedCardIDs.prefix(3) { app.lineup.toggleField(id) }
         return app
     }
 }

@@ -67,7 +67,7 @@ struct FormExchangeSheet: View {
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title).font(WC.display(16)).foregroundStyle(WC.inkText)
-                    Text("\(cost) Rep").font(WC.ui(11)).foregroundStyle(WC.sub)
+                    CurrencyCost(currency: .formTokens, amount: cost)
                 }
                 Spacer()
                 Button(action: action) {

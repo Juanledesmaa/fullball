@@ -89,6 +89,7 @@ enum LiveRules {
     static let realDurationSeconds = 40     // wall-clock length of a match
     static let winBonusTarget = 150         // match points needed for the bonus
     static let winBonusTickets = 1          // bonus paid when target is met
+    static let captainMultiplier = 2        // captain's points count double
 
     static var realDuration: Duration { .seconds(realDurationSeconds) }
 }
@@ -101,4 +102,69 @@ enum RefreshRules {
     /// Gems for the next refresh, given how many manual refreshes already
     /// happened this block (0 → 150, 1 → 300, 2 → 450 …).
     static func cost(forCount n: Int) -> Int { baseCost * (n + 1) }
+}
+
+// MARK: - Futsal engine tuning
+
+/// All tunable constants for the 5-a-side resolution engine. Pure; the engine
+/// reads these so balancing is a one-file change.
+enum FutsalRules {
+    static let possessionCount = 14
+
+    // Chance creation.
+    static let baseChance = 0.45
+    static let strengthWeight = 0.004     // per point of midfield diff ((passing+pace)/2, atk - def)
+    static let focusWeight = 0.06         // per focus step, summed across both sides (attack opens both ends)
+    static let intensityWeight = 0.05     // per intensity step, summed across both sides (more tempo = more chances)
+    static let chanceFloor = 0.05, chanceCeil = 0.90
+
+    // Shot resolution.
+    static let baseGoal = 0.30
+    static let shotWeight = 0.004         // per point of (shooting - GK defending)
+    static let styleEdgeWeight = 0.03     // shooter style vs GK style (automatic depth)
+    static let saveBand = 0.30
+    static let goalFloor = 0.03, goalCeil = 0.90
+
+    static let maxTacticsBonus = 1.5
+}
+
+/// Per-player energy: tired players underperform. Pure functions; storage and
+/// Gem-refill wiring land in a later phase.
+enum EnergyRules {
+    static let maxEnergy = 100
+    static let penaltyThreshold = 50        // at/above this, no penalty
+    static let maxPenaltyFraction = 0.30    // worst-case stat reduction at 0 energy
+    static let drainPerMatch = 20           // outfield drain when fielded
+    static let captainExtraDrain = 10       // captain drains 30 total (×2 workload)
+    static let regenPerMinute = 4.0 / 60.0      // ~4 energy/hour → full in ~24h
+
+    /// Linear stat scaling below the threshold; identity at/above it.
+    static func applyPenalty(to s: Stats, energy: Int) -> Stats {
+        guard energy < penaltyThreshold else { return s }
+        let t = Double(max(0, energy)) / Double(penaltyThreshold)  // 0..1
+        let factor = 1.0 - maxPenaltyFraction * (1.0 - t)          // 0.70..1.0
+        func scale(_ v: Int) -> Int { Int((Double(v) * factor).rounded()) }
+        return Stats(pace: scale(s.pace), shooting: scale(s.shooting),
+                     passing: scale(s.passing), defending: scale(s.defending))
+    }
+
+    static func regen(from energy: Int, minutesElapsed: Double) -> Int {
+        // .rounded(.down) is intentional: regen is slightly stingy (conservative floor).
+        min(maxEnergy, energy + Int((regenPerMinute * minutesElapsed).rounded(.down)))
+    }
+
+    static let maxRefillGems = 60       // Gems to fully refill from empty
+
+    /// Energy left after fielding in one match (captain works harder).
+    static func afterMatch(energy: Int, isCaptain: Bool, intensity: Intensity) -> Int {
+        let base = Double(drainPerMatch + (isCaptain ? captainExtraDrain : 0))
+        let drain = Int((base * intensity.drainFactor).rounded())
+        return max(0, energy - drain)
+    }
+
+    /// Gem cost to refill to full, proportional to the energy missing.
+    static func refillCost(currentEnergy: Int) -> Int {
+        let missing = max(0, maxEnergy - currentEnergy)
+        return Int((Double(missing) / Double(maxEnergy) * Double(maxRefillGems)).rounded())
+    }
 }

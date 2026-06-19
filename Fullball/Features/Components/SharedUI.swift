@@ -147,9 +147,12 @@ struct RarityTag: View {
     var body: some View {
         Text(rarity.displayName.uppercased())
             .font(WC.display(9)).tracking(0.8)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
             .foregroundStyle(.white)
             .padding(.horizontal, 8).padding(.vertical, 3)
             .background(Capsule().fill(rarity.color))
+            .fixedSize(horizontal: true, vertical: false)
     }
 }
 
